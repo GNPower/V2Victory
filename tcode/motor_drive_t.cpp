@@ -166,6 +166,8 @@ int speedSet(int left_duty, int right_duty){
     	l_count--;
     	r_count--;
 
+    	usleep(100);
+    	
     	if ((l_count < 0)&(l_high)){
 			if (-1 == GPIOWrite(ENB, 0))
 				return 3;    
@@ -178,6 +180,8 @@ int speedSet(int left_duty, int right_duty){
 			r_high = 0;    		
     		}
     	}
+
+
     return 0;
  	}
 
