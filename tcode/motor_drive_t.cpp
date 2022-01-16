@@ -173,7 +173,7 @@ int speedSet(int left_duty, int right_duty){
     		}
 
     	if ((r_count < 0)&(r_high)){
-			if (-1 == GPIOWrite(ENB, 0))
+			if (-1 == GPIOWrite(ENA, 0))
 				return 3;
 			r_high = 0;    		
     		}
@@ -224,7 +224,7 @@ int main(int argc, char *argv[]){
 
 	if(GPIORead(STOP)) break;
 
-	speedSet(10,15);
+	speedSet(15,15);
 	
 	//usleep(50*1000);
 	//toggle = !toggle;
