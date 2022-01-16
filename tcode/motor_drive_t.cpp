@@ -160,7 +160,7 @@ int speedSet(int right_duty /*, int left_duty*/){
     //bool l_high = 1;
     bool r_high = 1;
 
-	if (-1 == GPIOWrite(ENB, 1)
+	if (-1 == GPIOWrite(ENB, 1))
 			return 3;
 
     for (int i = 0; i < 100; i++){
