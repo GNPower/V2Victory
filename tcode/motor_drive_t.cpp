@@ -19,6 +19,8 @@
 #define RFORWARD 13    
 #define RBACKWARD 19     
 
+#define STOP 26  
+
 #define VALUE_MAX 30
 #define DIRECTION_MAX 35
 
@@ -183,6 +185,7 @@ int speedSet(int left_duty, int right_duty){
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
 	int duty = 13;
+	int stop;
 
 	//Enable GPIOs
 	if ((-1 == GPIOExport(ENA))|
@@ -193,6 +196,11 @@ int main(int argc, char *argv[]){
 		(-1 == GPIOExport(RBACKWARD)))
 		return 1;
 
+
+	if (-1 == GPIOExport(STOP))
+		return 1;
+
+
 	//Set Direction
 	if ((-1 == GPIODirection(ENA, OUT))|
 		(-1 == GPIODirection(ENB, OUT))|
@@ -200,6 +208,9 @@ int main(int argc, char *argv[]){
 		(-1 == GPIODirection(LBACKWARD, OUT))|
 		(-1 == GPIODirection(RFORWARD, OUT))|
 		(-1 == GPIODirection(RBACKWARD, OUT)))
+		return 2;
+
+	if (-1 == GPIODirection(STOP, IN))
 		return 2;
 
 	
@@ -210,6 +221,8 @@ int main(int argc, char *argv[]){
 
 	if (-1 == GPIOWrite(RBACKWARD, 1))
 		return 3;
+
+	if(GPIORead(STOP)) break;
 
 	speedSet(10,15);
 	
