@@ -12,8 +12,10 @@
 #define LOW 0
 #define HIGH 1
 
-#define ENA 23     //PWM Controls Speed Right 
-#define ENB 24	   //PWM Controls Speed Left
+#define SPEED 40
+
+//#define ENA 23     //PWM Controls Speed Right 
+#define ENB 24	   //PWM Controls Speed 
 #define RFORWARD 5      
 #define RBACKWARD 6      
 #define LBACKWARD 13    
@@ -152,27 +154,29 @@ static int GPIORead(int pin){
 
 
 
-int speedSet(int left_duty, int right_duty){
-    int l_count = left_duty;
+int speedSet(int right_duty /*, int left_duty*/){
+    //int l_count = left_duty;
     int r_count = right_duty;
-    bool l_high = 1;
+    //bool l_high = 1;
     bool r_high = 1;
 
-	if ((-1 == GPIOWrite(ENA, 1))|
-		(-1 == GPIOWrite(ENB, 1)))
+	if ((-1 == GPIOWrite(ENB, 1))|
+		/*(-1 == GPIOWrite(ENA, 1))*/)
 			return 3;
 
-    for (int i = 0; i < 200; i++){
-    	l_count--;
+    for (int i = 0; i < 100; i++){
+    	//l_count--;
     	r_count--;
 
     	usleep(100);
 
+    	/*
     	if ((l_count < 0)&(l_high)){
 			if (-1 == GPIOWrite(ENB, 0))
 				return 3;    
 			l_high = 0;		
     		}
+		*/
 
     	if ((r_count < 0)&(r_high)){
 			if (-1 == GPIOWrite(ENA, 0))
@@ -228,7 +232,7 @@ int main(int argc, char *argv[]){
 
 	if(GPIORead(STOP)) break;
 
-	speedSet(15,15);
+	speedSet(SPEED);
 	
 	//usleep(50*1000);
 	//toggle = !toggle;
