@@ -176,18 +176,9 @@ int speedSet(int left_duty, int right_duty){
 			r_high = 0;    		
     		}
     	}
+    return 0;
  	}
 
-
-	usleep(duty*100);
-
-
-	if (-1 == GPIOWrite(PPWM, 0))
-		return 3;
-
-	usleep((200-duty)*100);
-	return 0;
-}
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
