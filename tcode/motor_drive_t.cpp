@@ -14,7 +14,7 @@
 
 #define SPEED 40
 
-//#define ENA 23     //PWM Controls Speed Right 
+#define ENA 23     //PWM Controls Speed Right 
 #define ENB 24	   //PWM Controls Speed 
 #define RFORWARD 5      
 #define RBACKWARD 6      
