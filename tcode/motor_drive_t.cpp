@@ -1,3 +1,10 @@
+//Motor Driver for Rapberry Pi - LM298N
+//Sam Baker 01/2022
+//
+//
+//Accepts command line arg int from 10-25 to set speed
+
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -11,8 +18,6 @@
 
 #define LOW 0
 #define HIGH 1
-
-#define SPEED 40
 
 #define ENA 23     //PWM Controls Speed Right 
 #define ENB 24	   //PWM Controls Speed 
@@ -163,7 +168,7 @@ int speedSet(int right_duty /*, int left_duty*/){
 	if (-1 == GPIOWrite(ENB, 1))
 			return 3;
 
-    for (int i = 0; i < 100; i++){
+    for (int i = 0; i < 200; i++){
     	//l_count--;
     	r_count--;
 
@@ -171,14 +176,14 @@ int speedSet(int right_duty /*, int left_duty*/){
 
     	/*
     	if ((l_count < 0)&(l_high)){
-			if (-1 == GPIOWrite(ENB, 0))
+			if (-1 == GPIOWrite(ENA, 0))
 				return 3;    
 			l_high = 0;		
     		}
 		*/
 
     	if ((r_count < 0)&(r_high)){
-			if (-1 == GPIOWrite(ENA, 0))
+			if (-1 == GPIOWrite(ENB, 0))
 				return 3;
 			r_high = 0;    		
     		}
@@ -191,7 +196,7 @@ int speedSet(int right_duty /*, int left_duty*/){
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
-	int duty = 13;
+	int duty = atoi(argv[1]);
 	int stop;
 
 	//Enable GPIOs
@@ -231,7 +236,7 @@ int main(int argc, char *argv[]){
 
 	if(GPIORead(STOP)) break;
 
-	speedSet(SPEED);
+	speedSet(duty);
 	
 	//usleep(50*1000);
 	//toggle = !toggle;
