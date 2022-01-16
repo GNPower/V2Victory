@@ -14,10 +14,10 @@
 
 #define ENA 23     //PWM Controls Speed Right 
 #define ENB 24	   //PWM Controls Speed Left
-#define LFORWARD 5      
-#define LBACKWARD 6      
-#define RFORWARD 13    
-#define RBACKWARD 19     
+#define RFORWARD 5      
+#define RBACKWARD 6      
+#define LBACKWARD 13    
+#define LFORWARD 19     
 
 #define STOP 26  
 
@@ -167,7 +167,7 @@ int speedSet(int left_duty, int right_duty){
     	r_count--;
 
     	usleep(100);
-    	
+
     	if ((l_count < 0)&(l_high)){
 			if (-1 == GPIOWrite(ENB, 0))
 				return 3;    
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]){
 	if (-1 == GPIOWrite(LFORWARD, 1))
 		return 3;
 
-	if (-1 == GPIOWrite(RBACKWARD, 1))
+	if (-1 == GPIOWrite(RFORWARD, 1))
 		return 3;
 
 	if(GPIORead(STOP)) break;
