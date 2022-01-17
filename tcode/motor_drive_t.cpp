@@ -199,6 +199,7 @@ int main(int argc, char *argv[]){
 	int duty = atoi(argv[1]);
 	int time_ms = atoi(argv[2]);
 	int stop;
+	char* direct = argv[3];
 
 	//Enable GPIOs
 	if ((-1 == GPIOExport(ENA))|
@@ -229,11 +230,46 @@ int main(int argc, char *argv[]){
 	
 	//Main loop
 	while(time_ms > 0){
-	if (-1 == GPIOWrite(LFORWARD, 1))
-		return 3;
+		
+		//Choose moter direction
+		switch(direct){
+			case "FORWARD":
+				if ((-1 == GPIOWrite(LFORWARD, 1))|
+					(-1 == GPIOWrite(LBACKWARD, 0))|
+					(-1 == GPIOWrite(RBACKWARD, 0))|
+					(-1 == GPIOWrite(RFORWARD, 1)))
+					return 3;
+				break;
 
-	if (-1 == GPIOWrite(RFORWARD, 1))
-		return 3;
+			case "BACKWARD":
+				if ((-1 == GPIOWrite(LFORWARD, 0))|
+					(-1 == GPIOWrite(LBACKWARD, 1))|
+					(-1 == GPIOWrite(RBACKWARD, 1))|
+					(-1 == GPIOWrite(RFORWARD, 0)))
+					return 3;			
+				break;
+
+
+			case "RIGHT":
+				if ((-1 == GPIOWrite(LFORWARD, 1))|
+					(-1 == GPIOWrite(LBACKWARD, 0))|
+					(-1 == GPIOWrite(RBACKWARD, 1))|
+					(-1 == GPIOWrite(RFORWARD, 0)))
+					return 3;			
+				break;
+
+			case "LEFT":
+				if ((-1 == GPIOWrite(LFORWARD, 0))|
+					(-1 == GPIOWrite(LBACKWARD, 1))|
+					(-1 == GPIOWrite(RBACKWARD, 0))|
+					(-1 == GPIOWrite(RFORWARD, 1)))
+					return 3;			
+				break;
+
+			default:
+				printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
+				break;
+		}
 
 	if(GPIORead(STOP)) break;
 
