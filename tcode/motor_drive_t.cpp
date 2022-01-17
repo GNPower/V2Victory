@@ -22,7 +22,7 @@
 
 #define ENA 23     //PWM Controls Speed Right -- Currently disabled and both motors are linked on ENB 
 #define ENB 24	   //PWM Controls Speed 
-#define RFORWARD 5              // I dont think these four are mapped correctly
+#define RFORWARD 5             
 #define RBACKWARD 6         
 #define LBACKWARD 13    
 #define LFORWARD 19     
@@ -233,42 +233,42 @@ int main(int argc, char *argv[]){
 	while(time_ms > 0){
 		
 		//Choose moter direction
-		if (strcmp(direct, "FORWARD")){
+		if (!strcmp(direct, "FORWARD")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
 				(-1 == GPIOWrite(LBACKWARD, 0))|
 				(-1 == GPIOWrite(RBACKWARD, 0))|
 				(-1 == GPIOWrite(RFORWARD, 1)))
 				return 3;
 			else
-				printf("Moving Forward");
+				printf("Moving Forward \n");
 				
 		}
-		else if (strcmp(direct, "BACKWARD")){
+		else if (!strcmp(direct, "BACKWARD")){
 			if ((-1 == GPIOWrite(LFORWARD, 0))|
 				(-1 == GPIOWrite(LBACKWARD, 1))|
 				(-1 == GPIOWrite(RBACKWARD, 1))|
 				(-1 == GPIOWrite(RFORWARD, 0)))
 				return 3;
 			else
-				printf("Moving Backward");
+				printf("Moving Backward \n");
 		}
-		else if (strcmp(direct, "RIGHT")){
+		else if (!strcmp(direct, "RIGHT")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
 				(-1 == GPIOWrite(LBACKWARD, 0))|
 				(-1 == GPIOWrite(RBACKWARD, 1))|
 				(-1 == GPIOWrite(RFORWARD, 0)))
 				return 3;
 			else
-				printf("Turn Right");
+				printf("Turn Right \n");
 		}
-		else if (strcmp(direct, "LEFT")){
+		else if (!strcmp(direct, "LEFT")){
 			if ((-1 == GPIOWrite(LFORWARD, 0))|
 				(-1 == GPIOWrite(LBACKWARD, 1))|
 				(-1 == GPIOWrite(RBACKWARD, 0))|
 				(-1 == GPIOWrite(RFORWARD, 1)))
 				return 3;
 			else
-				printf("Turn Left");
+				printf("Turn Left \n");
 		}
 		else{
 			printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
