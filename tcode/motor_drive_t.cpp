@@ -197,6 +197,7 @@ int speedSet(int right_duty /*, int left_duty*/){
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
 	int duty = atoi(argv[1]);
+	int time_ms = atoi(argv[2]);
 	int stop;
 
 	//Enable GPIOs
@@ -227,7 +228,7 @@ int main(int argc, char *argv[]){
 
 	
 	//Main loop
-	while(1){
+	while(time_ms > 0){
 	if (-1 == GPIOWrite(LFORWARD, 1))
 		return 3;
 
@@ -237,7 +238,7 @@ int main(int argc, char *argv[]){
 	if(GPIORead(STOP)) break;
 
 	speedSet(duty);
-	
+	time_ms = time_ms - 20;
 	//usleep(50*1000);
 	//toggle = !toggle;
 	
