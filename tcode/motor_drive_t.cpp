@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 #define IN 0
 #define OUT 1
@@ -232,43 +233,36 @@ int main(int argc, char *argv[]){
 	while(time_ms > 0){
 		
 		//Choose moter direction
-		switch(direct){
-			case "FORWARD":
-				if ((-1 == GPIOWrite(LFORWARD, 1))|
-					(-1 == GPIOWrite(LBACKWARD, 0))|
-					(-1 == GPIOWrite(RBACKWARD, 0))|
-					(-1 == GPIOWrite(RFORWARD, 1)))
-					return 3;
-				break;
-
-			case "BACKWARD":
-				if ((-1 == GPIOWrite(LFORWARD, 0))|
-					(-1 == GPIOWrite(LBACKWARD, 1))|
-					(-1 == GPIOWrite(RBACKWARD, 1))|
-					(-1 == GPIOWrite(RFORWARD, 0)))
-					return 3;			
-				break;
-
-
-			case "RIGHT":
-				if ((-1 == GPIOWrite(LFORWARD, 1))|
-					(-1 == GPIOWrite(LBACKWARD, 0))|
-					(-1 == GPIOWrite(RBACKWARD, 1))|
-					(-1 == GPIOWrite(RFORWARD, 0)))
-					return 3;			
-				break;
-
-			case "LEFT":
-				if ((-1 == GPIOWrite(LFORWARD, 0))|
-					(-1 == GPIOWrite(LBACKWARD, 1))|
-					(-1 == GPIOWrite(RBACKWARD, 0))|
-					(-1 == GPIOWrite(RFORWARD, 1)))
-					return 3;			
-				break;
-
-			default:
-				printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
-				break;
+		if (strcmp(direct, "FORWARD")){
+			if ((-1 == GPIOWrite(LFORWARD, 1))|
+				(-1 == GPIOWrite(LBACKWARD, 0))|
+				(-1 == GPIOWrite(RBACKWARD, 0))|
+				(-1 == GPIOWrite(RFORWARD, 1)))
+				return 3;
+		}
+		else if (strcmp(direct, "BACKWARD")){
+			if ((-1 == GPIOWrite(LFORWARD, 0))|
+				(-1 == GPIOWrite(LBACKWARD, 1))|
+				(-1 == GPIOWrite(RBACKWARD, 1))|
+				(-1 == GPIOWrite(RFORWARD, 0)))
+				return 3;
+		}
+		else if (strcmp(direct, "RIGHT")){
+			if ((-1 == GPIOWrite(LFORWARD, 1))|
+				(-1 == GPIOWrite(LBACKWARD, 0))|
+				(-1 == GPIOWrite(RBACKWARD, 1))|
+				(-1 == GPIOWrite(RFORWARD, 0)))
+				return 3;
+		}
+		else if (strcmp(direct, "LEFT")){
+			if ((-1 == GPIOWrite(LFORWARD, 0))|
+				(-1 == GPIOWrite(LBACKWARD, 1))|
+				(-1 == GPIOWrite(RBACKWARD, 0))|
+				(-1 == GPIOWrite(RFORWARD, 1)))
+				return 3;
+		}
+		else{
+			printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
 		}
 
 	if(GPIORead(STOP)) break;
