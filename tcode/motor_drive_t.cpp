@@ -346,13 +346,6 @@ int main(int argc, char *argv[]){
 	//Main loop
 	while(time_ms > 0){
 		
-		//Set duty_cycle
-		if ((-1 == PWMDuty(ENA, duty))|
-			(-1 == PWMDuty(ENB, duty)))
-		return 2;
-
-		
-
 		//Choose moter direction
 		if (!strcmp(direct, "FORWARD")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
