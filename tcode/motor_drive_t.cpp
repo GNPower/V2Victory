@@ -107,6 +107,68 @@ static int PWMPeriod(int pin){
 	}
 
 
+static int PWMDuty(int pin, int duty){
+	int fd;
+	int period_ns = PWM_PERIOD;
+	char path[PATH_MAX];
+
+	char buffer[BUFFER_MAX2];
+	ssize_t bytes_written;
+
+	int duty = PWM_PERIOD*duty/100;
+
+	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
+	fd = open(path, O_WRONLY);
+
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open duty for writing \n");
+		printf("ERROR: %d \n", errno);
+		printf("/sys/class/pwm/pwmchip0/pwm%d/duty_cycle \n", pin);
+		return -1;
+		}
+
+	bytes_written = snprintf(buffer, BUFFER_MAX2, "%d", duty);
+
+	if (-1 == write(fd, buffer, bytes_written)){
+		fprintf(stderr, "Failed to set duty for %d at %d \n", pin, duty);
+		printf("ERROR: %d \n", errno);
+	}
+
+	close(fd);
+	return 0;
+	}
+
+
+static int PWMEnable(int pin, int enable){
+	int fd;
+	char path[PATH_MAX];
+
+	char buffer[1];
+	ssize_t bytes_written;
+
+
+	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
+	fd = open(path, O_WRONLY);
+
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open duty for writing \n");
+		printf("ERROR: %d \n", errno);
+		printf("/sys/class/pwm/pwmchip0/pwm%d/duty_cycle \n", pin);
+		return -1;
+		}
+
+	bytes_written = snprintf(buffer, 1, enable, duty);
+
+	if (-1 == write(fd, buffer, bytes_written)){
+		fprintf(stderr, "Failed to set duty for %d at %d \n", pin, duty);
+		printf("ERROR: %d \n", errno);
+	}
+
+	close(fd);
+	return 0;
+	}
+
+
 static int GPIOUnexport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
@@ -231,43 +293,6 @@ static int GPIORead(int pin){
 }
 
 
-
-
-int speedSet(int right_duty /*, int left_duty*/){
-    //int l_count = left_duty;
-    int r_count = right_duty;
-    //bool l_high = 1;
-    bool r_high = 1;
-
-	if (-1 == GPIOWrite(ENB, 1))
-			return 3;
-
-    for (int i = 0; i < 200; i++){
-    	//l_count--;
-    	r_count--;
-
-    	usleep(100);
-
-    	/*
-    	if ((l_count < 0)&(l_high)){
-			if (-1 == GPIOWrite(ENA, 0))
-				return 3;    
-			l_high = 0;		
-    		}
-		*/
-
-    	if ((r_count < 0)&(r_high)){
-			if (-1 == GPIOWrite(ENB, 0))
-				return 3;
-			r_high = 0;    		
-    		}
-    	}
-
-
-    return 0;
- 	}
-
-
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
 	int duty = atoi(argv[1]);
@@ -306,10 +331,28 @@ int main(int argc, char *argv[]){
 	if ((-1 == PWMPeriod(ENA))|
 		(-1 == PWMPeriod(ENB)))
 		return 2;
+
+	if ((-1 == PWMDuty(ENA, duty))|
+		(-1 == PWMDuty(ENB, duty)))
+		return 2;
+
+
 	
+	if ((-1 == PWMEnable(ENA, duty))|
+		(-1 == PWMEnable(ENB, duty)))
+		return 2;
+
+
 	//Main loop
 	while(time_ms > 0){
 		
+		//Set duty_cycle
+		if ((-1 == PWMDuty(ENA, duty))|
+			(-1 == PWMDuty(ENB, duty)))
+		return 2;
+
+		
+
 		//Choose moter direction
 		if (!strcmp(direct, "FORWARD")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
