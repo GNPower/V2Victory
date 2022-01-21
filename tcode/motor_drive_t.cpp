@@ -78,9 +78,13 @@ static int PWMExport(int pin){
 }
 
 static int PWMPeriod(int pin){
+	#define BUFFER_MAX 10
 	int fd;
 	const int period_ns = PWM_PERIOD;
 	char path[PATH_MAX];
+
+	char buffer[BUFFER_MAX];
+	ssize_t bytes_written;
 
 	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/period", pin);
 	fd = open(path, O_WRONLY);
@@ -92,7 +96,11 @@ static int PWMPeriod(int pin){
 		return -1;
 	}
 
-	if (-1 == write(fd, &period_ns, sizeof(period_ns))){
+
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", period_ns);
+	write(fd, buffer, bytes_written);
+
+	if (-1 == write(fd, buffer, bytes_written){
 		fprintf(stderr, "Failed to set period for %d \n", pin);
 		printf("ERROR: %d \n", errno);
 	}
