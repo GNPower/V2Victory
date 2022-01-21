@@ -399,7 +399,7 @@ int main(int argc, char *argv[]){
 
 	//speedSet(duty);
 	time_ms = time_ms - 20;
-	//usleep(50*1000);
+	usleep(20*1000);
 	//toggle = !toggle;
 	
 	}
