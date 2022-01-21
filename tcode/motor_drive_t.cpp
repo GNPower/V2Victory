@@ -88,7 +88,7 @@ static int PWMPeriod(int pin){
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open period for writing \n");
 		printf("ERROR: %d \n", errno);
-		printf("/sys/class/gpio/gpio%d/direction \n", pin);
+		printf("/sys/class/pwm/pwmchip0/pwm%d/period \n", pin);
 		return -1;
 	}
 
