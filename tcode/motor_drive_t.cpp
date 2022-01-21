@@ -28,9 +28,11 @@
 #define LFORWARD 19     
 
 #define STOP 26  
+#define PWM_PERIOD 20000000
 
 #define VALUE_MAX 30
-#define DIRECTION_MAX 35
+#define PATH_MAX 35
+
 
 static int GPIOExport(int pin){
 #define BUFFER_MAX 3
@@ -74,6 +76,25 @@ static int PWMExport(int pin){
 
 	return 0;
 }
+
+static int PWMPeriod(int pin, int period_ns){
+	int fd;
+	char path[PATH_MAX];
+
+	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/period", pin);
+	fd = open(path, O_WRONLY);
+
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open period for writing \n");
+		printf("ERROR: %d \n", errno);
+		printf("/sys/class/gpio/gpio%d/direction \n", pin);
+		return -1;
+	}
+
+	if (-1 == write(fd, period, size(int))){
+		fprintf(stderr, "Failed to set direction");
+		printf("ERROR: %d \n", errno);
+	}
 
 
 static int GPIOUnexport(int pin){
@@ -121,10 +142,10 @@ static int PWMUnexport(int pin){
 static int GPIODirection(int pin, int dir){
 	static const char s_directions_str[] = "in\0out";
 	
-	char path[DIRECTION_MAX];
+	char path[PATH_MAX];
 	int fd;
 
-	snprintf(path, DIRECTION_MAX, "/sys/class/gpio/gpio%d/direction", pin);
+	snprintf(path, PATH_MAX, "/sys/class/gpio/gpio%d/direction", pin);
 	fd = open(path, O_WRONLY);
 
 	if (-1 == fd){
@@ -271,6 +292,11 @@ int main(int argc, char *argv[]){
 	if (-1 == GPIODirection(STOP, IN))
 		return 2;
 
+
+	//PWM Setup
+	if ((-1 == PWMPeriod(ENA, PWM_PERIOD))|
+		(-1 == PWMPeriod(ENB, PWM_PERIOD)))
+		return 2;
 	
 	//Main loop
 	while(time_ms > 0){
@@ -282,8 +308,8 @@ int main(int argc, char *argv[]){
 				(-1 == GPIOWrite(RBACKWARD, 0))|
 				(-1 == GPIOWrite(RFORWARD, 1)))
 				return 3;
-			else
-				printf("Moving Forward \n");
+			//else
+				//printf("Moving Forward \n");
 				
 		}
 		else if (!strcmp(direct, "BACKWARD")){
@@ -292,8 +318,8 @@ int main(int argc, char *argv[]){
 				(-1 == GPIOWrite(RBACKWARD, 1))|
 				(-1 == GPIOWrite(RFORWARD, 0)))
 				return 3;
-			else
-				printf("Moving Backward \n");
+			//else
+				//printf("Moving Backward \n");
 		}
 		else if (!strcmp(direct, "RIGHT")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
@@ -301,8 +327,8 @@ int main(int argc, char *argv[]){
 				(-1 == GPIOWrite(RBACKWARD, 1))|
 				(-1 == GPIOWrite(RFORWARD, 0)))
 				return 3;
-			else
-				printf("Turn Right \n");
+			//else
+				//printf("Turn Right \n");
 		}
 		else if (!strcmp(direct, "LEFT")){
 			if ((-1 == GPIOWrite(LFORWARD, 0))|
@@ -310,8 +336,8 @@ int main(int argc, char *argv[]){
 				(-1 == GPIOWrite(RBACKWARD, 0))|
 				(-1 == GPIOWrite(RFORWARD, 1)))
 				return 3;
-			else
-				printf("Turn Left \n");
+			//else
+				//printf("Turn Left \n");
 		}
 		else{
 			printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
