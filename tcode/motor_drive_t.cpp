@@ -395,6 +395,10 @@ int main(int argc, char *argv[]){
 	}
 
 	//Disable GPIO
+	if ((-1 == PWMEnable(ENA, 0))|
+		(-1 == PWMEnable(ENB, 0)))
+
+
 	if ((-1 == PWMUnexport(ENA))|
 		(-1 == PWMUnexport(ENB))|
 		(-1 == GPIOUnexport(LFORWARD))|
