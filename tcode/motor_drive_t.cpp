@@ -116,6 +116,7 @@ static int PWMDuty(int pin, int duty){
 	ssize_t bytes_written;
 
 	int duty_time = PWM_PERIOD*duty/100;
+	printf("Duty Time:%d", duty_time);
 
 	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
 	fd = open(path, O_WRONLY);
