@@ -115,7 +115,7 @@ static int PWMDuty(int pin, int duty){
 	char buffer[BUFFER_MAX2];
 	ssize_t bytes_written;
 
-	int duty = PWM_PERIOD*duty/100;
+	int duty_time = PWM_PERIOD*duty/100;
 
 	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
 	fd = open(path, O_WRONLY);
@@ -127,7 +127,7 @@ static int PWMDuty(int pin, int duty){
 		return -1;
 		}
 
-	bytes_written = snprintf(buffer, BUFFER_MAX2, "%d", duty);
+	bytes_written = snprintf(buffer, BUFFER_MAX2, "%d", duty_time);
 
 	if (-1 == write(fd, buffer, bytes_written)){
 		fprintf(stderr, "Failed to set duty for %d at %d \n", pin, duty);
@@ -160,7 +160,7 @@ static int PWMEnable(int pin, int enable){
 	bytes_written = snprintf(buffer, 1, enable, duty);
 
 	if (-1 == write(fd, buffer, bytes_written)){
-		fprintf(stderr, "Failed to set duty for %d at %d \n", pin, duty);
+		fprintf(stderr, "Failed to set enable for %d \n", pin);
 		printf("ERROR: %d \n", errno);
 	}
 
