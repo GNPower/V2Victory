@@ -92,8 +92,8 @@ static int PWMPeriod(int pin){
 		return -1;
 	}
 
-	if (-1 == write(fd, &period_ns, sizeof(period_ns))){
-		fprintf(stderr, "Failed to set direction");
+	if (-1 == write(fd, (const void*)&period_ns, sizeof(period_ns))){
+		fprintf(stderr, "Failed to set period for %d", pin);
 		printf("ERROR: %d \n", errno);
 	}
 
