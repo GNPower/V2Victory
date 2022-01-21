@@ -148,13 +148,13 @@ static int PWMEnable(int pin, int enable){
 	ssize_t bytes_written;
 
 
-	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
+	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/enable", pin);
 	fd = open(path, O_WRONLY);
 
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open duty for writing \n");
 		printf("ERROR: %d \n", errno);
-		printf("/sys/class/pwm/pwmchip0/pwm%d/duty_cycle \n", pin);
+		printf("/sys/class/pwm/pwmchip0/pwm%d/enable \n", pin);
 		return -1;
 		}
 
