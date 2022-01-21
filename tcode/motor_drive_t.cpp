@@ -96,6 +96,9 @@ static int PWMPeriod(int pin){
 		fprintf(stderr, "Failed to set direction");
 		printf("ERROR: %d \n", errno);
 	}
+
+	close(fd);
+	return 0;
 }
 
 static int GPIOUnexport(int pin){
