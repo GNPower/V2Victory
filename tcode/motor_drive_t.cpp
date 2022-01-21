@@ -77,7 +77,7 @@ static int PWMExport(int pin){
 	return 0;
 }
 
-static int PWMPeriod(int pin, int period_ns){
+static int PWMPeriod(int pin){
 	int fd;
 	char path[PATH_MAX];
 
@@ -91,7 +91,7 @@ static int PWMPeriod(int pin, int period_ns){
 		return -1;
 	}
 
-	if (-1 == write(fd, period_ns, sizeof(int))){
+	if (-1 == write(fd, PWM_PERIOD, sizeof(PWM_PERIOD))){
 		fprintf(stderr, "Failed to set direction");
 		printf("ERROR: %d \n", errno);
 	}
