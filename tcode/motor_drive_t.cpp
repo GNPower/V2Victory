@@ -330,8 +330,7 @@ int main(int argc, char *argv[]){
 	if (-1 == PWMPeriod(ENA))
 		return 2;
 
-	if ((-1 == PWMDuty(ENA, duty))|
-		(-1 == PWMDuty(ENB, duty)))
+	if (-1 == PWMDuty(ENA, duty))
 		return 2;
 
 	if (-1 == PWMEnable(ENA, 1))
