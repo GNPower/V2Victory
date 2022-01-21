@@ -116,7 +116,7 @@ static int PWMDuty(int pin, int duty){
 	ssize_t bytes_written;
 
 	int duty_time = PWM_PERIOD*duty/100;
-	printf("Duty Time:%d", duty_time);
+	//printf("Duty Time:%d", duty_time);
 
 	snprintf(path, PATH_MAX, "/sys/class/pwm/pwmchip0/pwm%d/duty_cycle", pin);
 	fd = open(path, O_WRONLY);
@@ -191,7 +191,6 @@ static int GPIOUnexport(int pin){
 
 
 static int PWMUnexport(int pin){
-#define BUFFER_MAX 3
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 
@@ -208,7 +207,7 @@ static int PWMUnexport(int pin){
 	write(fd, buffer, bytes_written);
 	close(fd);
 	return 0;
-}
+	}
 
 
 static int GPIODirection(int pin, int dir){
@@ -236,8 +235,7 @@ static int GPIODirection(int pin, int dir){
 	close(fd);
 	return 0;
 
-}
-
+	}
 
 
 static int GPIOWrite(int pin, int value){
@@ -265,7 +263,7 @@ static int GPIOWrite(int pin, int value){
 		printf("Close failed \n");
 	return 0;
 
-}
+	}
 
 
 static int GPIORead(int pin){
@@ -291,7 +289,7 @@ static int GPIORead(int pin){
 	}
 	close(fd);
 	return (atoi(value_str));
-}
+	}
 
 
 int main(int argc, char *argv[]){
@@ -337,10 +335,8 @@ int main(int argc, char *argv[]){
 		(-1 == PWMDuty(ENB, duty)))
 		return 2;
 
-
-	
-	if ((-1 == PWMEnable(ENA, duty))|
-		(-1 == PWMEnable(ENB, duty)))
+	if ((-1 == PWMEnable(ENA, 1))|
+		(-1 == PWMEnable(ENB, 1)))
 		return 2;
 
 
