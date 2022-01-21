@@ -75,7 +75,8 @@ static int PWMExport(int pin){
 	close(fd);
 
 	return 0;
-}
+ }
+
 
 static int PWMPeriod(int pin){
 	int fd;
@@ -158,7 +159,7 @@ static int PWMEnable(int pin, int enable){
 		return -1;
 		}
 
-	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", 1);
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", enable);
 
 	if (-1 == write(fd, buffer, bytes_written)){
 		fprintf(stderr, "Failed to set enable for %d \n", pin);
