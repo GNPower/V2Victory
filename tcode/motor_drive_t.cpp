@@ -31,7 +31,7 @@
 #define PWM_PERIOD 20000000
 
 #define VALUE_MAX 30
-#define PATH_MAX 35
+#define PATH_MAX 46
 
 
 static int GPIOExport(int pin){
