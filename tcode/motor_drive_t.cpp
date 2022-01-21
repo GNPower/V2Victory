@@ -37,7 +37,7 @@ static int GPIOExport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 	int fd;
-
+	printf("Exporting %d \n", pin);
 	fd = open("/sys/class/gpio/export", O_WRONLY);
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open export for writing \n");
@@ -59,7 +59,7 @@ static int PWMExport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 	int fd;
-
+	printf("Exporting %d \n", pin);
 	fd = open("/sys/class/pwm/export", O_WRONLY);
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open export for writing \n");
@@ -82,7 +82,7 @@ static int GPIOUnexport(int pin){
 	ssize_t bytes_written;
 
 	int fd;
-
+	printf("Unexporting %d \n", pin);
 	fd = open("/sys/class/gpio/unexport", O_WRONLY);
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open unexport for writing \n");
@@ -103,7 +103,7 @@ static int PWMUnexport(int pin){
 	ssize_t bytes_written;
 
 	int fd;
-
+	printf("Unexporting %d \n", pin);
 	fd = open("/sys/class/pwm/unexport", O_WRONLY);
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open unexport for writing \n");
