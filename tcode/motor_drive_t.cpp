@@ -160,7 +160,7 @@ static int GPIODirection(int pin, int dir){
 	}
 
 	if (-1 == write(fd, &s_directions_str[IN == dir ? 0 : 3], IN == dir ? 2: 3)){
-		fprintf(stderr, "Failed to set direction");
+		fprintf(stderr, "Failed to set direction for %d \n", pin);
 		printf("ERROR: %d \n", errno);
 	}
 
