@@ -91,11 +91,11 @@ static int PWMPeriod(int pin, int period_ns){
 		return -1;
 	}
 
-	if (-1 == write(fd, period, size(int))){
+	if (-1 == write(fd, period_ns, sizeof(int))){
 		fprintf(stderr, "Failed to set direction");
 		printf("ERROR: %d \n", errno);
 	}
-
+}
 
 static int GPIOUnexport(int pin){
 #define BUFFER_MAX 3
