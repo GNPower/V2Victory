@@ -54,6 +54,28 @@ static int GPIOExport(int pin){
 }
 
 
+static int PWMExport(int pin){
+#define BUFFER_MAX 3
+	char buffer[BUFFER_MAX];
+	ssize_t bytes_written;
+	int fd;
+
+	fd = open("/sys/class/pwm/export", O_WRONLY);
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open export for writing \n");
+		printf("ERROR: %d \n", errno);
+		return -1;
+	}
+
+
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
+	write(fd, buffer, bytes_written);
+	close(fd);
+
+	return 0;
+}
+
+
 static int GPIOUnexport(int pin){
 #define BUFFER_MAX 3
 	char buffer[BUFFER_MAX];
@@ -62,6 +84,27 @@ static int GPIOUnexport(int pin){
 	int fd;
 
 	fd = open("/sys/class/gpio/unexport", O_WRONLY);
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open unexport for writing \n");
+		printf("ERROR: %d \n", errno);
+		return -1;
+	}
+
+	bytes_written = snprintf(buffer, BUFFER_MAX, "%d", pin);
+	write(fd, buffer, bytes_written);
+	close(fd);
+	return 0;
+}
+
+
+static int PWMUnexport(int pin){
+#define BUFFER_MAX 3
+	char buffer[BUFFER_MAX];
+	ssize_t bytes_written;
+
+	int fd;
+
+	fd = open("/sys/class/pwm/unexport", O_WRONLY);
 	if (-1 == fd){
 		fprintf(stderr, "Failed to open unexport for writing \n");
 		printf("ERROR: %d \n", errno);
@@ -203,8 +246,8 @@ int main(int argc, char *argv[]){
 	char* direct = argv[3];
 
 	//Enable GPIOs
-	if ((-1 == GPIOExport(ENA))|
-		(-1 == GPIOExport(ENB))|
+	if ((-1 == PWMExport(ENA))|
+		(-1 == PWMExport(ENB))|
 		(-1 == GPIOExport(LFORWARD))|
 		(-1 == GPIOExport(LBACKWARD))|
 		(-1 == GPIOExport(RFORWARD))|
@@ -217,8 +260,8 @@ int main(int argc, char *argv[]){
 
 
 	//Set Direction
-	if ((-1 == GPIODirection(ENA, OUT))|
-		(-1 == GPIODirection(ENB, OUT))|
+	if (/*(-1 == GPIODirection(ENA, OUT))|
+		(-1 == GPIODirection(ENB, OUT))|*/
 		(-1 == GPIODirection(LFORWARD, OUT))|
 		(-1 == GPIODirection(LBACKWARD, OUT))|
 		(-1 == GPIODirection(RFORWARD, OUT))|
@@ -276,7 +319,7 @@ int main(int argc, char *argv[]){
 
 	if(GPIORead(STOP)) break;
 
-	speedSet(duty);
+	//speedSet(duty);
 	time_ms = time_ms - 20;
 	//usleep(50*1000);
 	//toggle = !toggle;
@@ -284,8 +327,8 @@ int main(int argc, char *argv[]){
 	}
 
 	//Disable GPIO
-	if ((-1 == GPIOUnexport(ENA))|
-		(-1 == GPIOUnexport(ENB))|
+	if ((-1 == PWMUnexport(ENA))|
+		(-1 == PWMUnexport(ENB))|
 		(-1 == GPIOUnexport(LFORWARD))|
 		(-1 == GPIOUnexport(LBACKWARD))|
 		(-1 == GPIOUnexport(RFORWARD))|
