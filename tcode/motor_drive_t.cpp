@@ -17,8 +17,9 @@
 #include <errno.h>
 #include <string.h>
 
-#include "motor_drive.h"
 #include "localize.h"
+#include "motor_drive.h"
+
 
 #define TIMESTEP 20000
 
