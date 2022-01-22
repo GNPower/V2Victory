@@ -24,7 +24,7 @@ float get_x_distance(float current_x, float target_x){
 	}
 
 
-float get_x_distance(float current_y, float target_y){
+float get_y_distance(float current_y, float target_y){
 	return (current_y-target_y);
 	}
 
@@ -33,5 +33,5 @@ float get_abs_distance(float current_x, float current_y, float target_x, float t
 	float x_distance = get_x_distance(current_x, target_x);
 	float y_distance = get_x_distance(current_y, target_y);
 	float abs_distance = sqrt((x_distance*x_distance)+(y_distance*y_distance));
-	return abs_distance
+	return abs_distance;
 	} 
