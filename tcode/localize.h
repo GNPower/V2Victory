@@ -20,12 +20,12 @@ float update_location(float current, float traveled){
 
 
 float get_x_distance(float current_x, float target_x){
-	return (current_x-target_x);
+	return (target_x - current_x);
 	}
 
 
 float get_y_distance(float current_y, float target_y){
-	return (current_y-target_y);
+	return (target_y - current_y);
 	}
 
 
