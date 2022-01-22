@@ -17,7 +17,6 @@
 #include <errno.h>
 #include <string.h>
 
-#include "localize.h"
 #include "motor_drive.h"
 
 
