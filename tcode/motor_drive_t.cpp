@@ -15,14 +15,20 @@
 #include <string.h>
 
 #include "motor_drive.h"
+#include "localize.h"
 
+#define TIMESTEP 20000
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
+	
 	int duty = atoi(argv[1]);
-	int time_ms = atoi(argv[2]);
-	int stop;
+	int target_x = atoi(argv[2]);
 	char* direct = argv[3];
+
+	int stop;
+	float location_x = 0;
+	float location_y = 0;
 
 	//Enable GPIOs
 	if ((-1 == PWMExport(ENA))|
@@ -62,7 +68,7 @@ int main(int argc, char *argv[]){
 
 
 	//Main loop
-	while(time_ms > 0){
+	while(get_distance_x(location_x, target_x) > 0){
 		
 		//Choose moter direction
 		if (!strcmp(direct, "FORWARD")){
@@ -108,10 +114,8 @@ int main(int argc, char *argv[]){
 
 	if(GPIORead(STOP)) break;
 
-	//speedSet(duty);
-	time_ms = time_ms - 20;
-	usleep(20*1000);
-	//toggle = !toggle;
+	usleep(TIMESTEP);
+	location_x = location_x + get_distance_traveled(duty, TIMESTEP);
 	
 	}
 
