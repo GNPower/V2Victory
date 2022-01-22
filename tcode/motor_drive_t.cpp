@@ -70,7 +70,7 @@ int main(int argc, char *argv[]){
 
 
 	//Main loop
-	while(get_distance_x(location_x, target_x) > 0){
+	while(get_x_distance(location_x, target_x) > 0){
 		
 		//Choose moter direction
 		if (!strcmp(direct, "FORWARD")){
@@ -117,8 +117,10 @@ int main(int argc, char *argv[]){
 			printf("Problem with instructions\n Please include command line args for: \n int speed, int distance and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
 			}
 
+		//E-Stop
 		if(GPIORead(STOP)) break;
 
+		//Wait and Update
 		usleep(TIMESTEP);
 		location_x = location_x + get_distance_traveled(duty, TIMESTEP);
 		time = time+TIMESTEP/1000;
