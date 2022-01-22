@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <math.h>
 
-#define SLOPE 2.6813
-#define OFFSET 17.31
+#define SLOPE 0.26813
+#define OFFSET 1.731
 
 
 float get_distance_traveled(int duty, int time_ms){
