@@ -1,9 +1,12 @@
+//Localization Header for Rapberry Pi - LM298N
+//Sam Baker 01/2022
 
 #include <stdio.h>
 #include <math.h>
 
 #define SLOPE 2.6813
 #define OFFSET 17.31
+
 
 float get_distance_traveled(int duty, int time_ms){
 	float time_s = time_ms/1000.0;
@@ -32,5 +35,3 @@ float get_abs_distance(float current_x, float current_y, float target_x, float t
 	float abs_distance = sqrt((x_distance*x_distance)+(y_distance*y_distance));
 	return abs_distance
 	} 
-
-
