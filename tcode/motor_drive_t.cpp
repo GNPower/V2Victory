@@ -20,7 +20,7 @@
 #include "motor_drive.h"
 
 
-#define TIMESTEP 20
+#define TIMESTEP 2000
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
@@ -122,8 +122,8 @@ int main(int argc, char *argv[]){
 
 		//Wait and Update
 		usleep(TIMESTEP);
-		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP));
-		time = time+TIMESTEP;
+		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
+		time = time+TIMESTEP/1000;
 		}
 
 	//Disable GPIO
