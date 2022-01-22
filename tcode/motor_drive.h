@@ -291,3 +291,47 @@ static int GPIORead(int pin){
 	close(fd);
 	return (atoi(value_str));
 	}
+
+
+static int set_forward(){
+	if ((-1 == GPIOWrite(LFORWARD, 1))|
+		(-1 == GPIOWrite(LBACKWARD, 0))|
+		(-1 == GPIOWrite(RBACKWARD, 0))|
+		(-1 == GPIOWrite(RFORWARD, 1)))
+		return -1;
+	else
+		return 0;
+	}
+
+
+static int set_backward(){
+	if ((-1 == GPIOWrite(LFORWARD, 0))|
+		(-1 == GPIOWrite(LBACKWARD, 1))|
+		(-1 == GPIOWrite(RBACKWARD, 1))|
+		(-1 == GPIOWrite(RFORWARD, 0)))
+		return -1;
+	else
+		return 0;
+	}
+
+
+static int set_left(){
+	if ((-1 == GPIOWrite(LFORWARD, 1))|
+		(-1 == GPIOWrite(LBACKWARD, 0))|
+		(-1 == GPIOWrite(RBACKWARD, 1))|
+		(-1 == GPIOWrite(RFORWARD, 0)))
+		return -1;
+	else
+		return 0;
+	}
+
+
+static int set_right(){
+	if ((-1 == GPIOWrite(LFORWARD, 0))|
+		(-1 == GPIOWrite(LBACKWARD, 1))|
+		(-1 == GPIOWrite(RBACKWARD, 0))|
+		(-1 == GPIOWrite(RFORWARD, 1)))
+		return -1;
+	else
+		return 0;
+	}
