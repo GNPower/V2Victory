@@ -1,4 +1,11 @@
 ﻿#include <iostream>
+#include <cstdio>
+
+// Temporary testing
+#define DUMMY_BRAKE_REQ 0
+#define DUMMY_ACCEL_REQ 0
+#define DUMMY_SYSTEM_REQ 100
+// Temporary testing
 
 using namespace std;
 
@@ -11,6 +18,11 @@ int driver_accel_req(){
     // This is the hardware hiding section
     // brakeReq = mapping(readPstnSensor(PinA));   // To be implemented when we have the hardware. Map sensor to a percentage.
     // accelReq = mapping(readPstnSensor(PinB));   // To be implemented when we have the hardware. Map sensor to a percentage.
+
+    // Temporary testing
+    brakeReq = DUMMY_BRAKE_REQ;
+    accelReq = DUMMY_ACCEL_REQ;
+    // Temporary testing
 
     // Priority encoder: brake request takes precendence over acceleration request. IE: If there is both a brake request and an acceleration request, take the brake request.
     if(brakeReq > 0){
@@ -57,6 +69,12 @@ int main(){
 
     // int system_req = get_system_accel_req();
     // get_accel_req(system_req);
+
+    // Temporary testing
+    int system_req = DUMMY_SYSTEM_REQ;
+    int final_accel_req = get_accel_req(system_req);
+    printf("Final_accel_req = %d\n", final_accel_req);
+    // Temporary testing
 
     return 0;
 }
