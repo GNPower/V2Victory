@@ -20,7 +20,7 @@
 #include "motor_drive.h"
 
 
-#define TIMESTEP 2000
+#define TIMESTEP 1000
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
