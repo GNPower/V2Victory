@@ -1,8 +1,11 @@
-//Motor Driver for Rapberry Pi - LM298N
+//Motor Driver Test Script for Rapberry Pi - LM298N
 //Sam Baker 01/2022
 //
 //
-//Accepts command line arg int from 10-25 to set speed
+//Accepts command line args
+//        - int duty to set speed
+//        - int target distance in cm
+//        - string [FORWARD, BACKWARD, LEFT, RIGHT] direction
 
 
 #include <sys/stat.h>
@@ -29,6 +32,7 @@ int main(int argc, char *argv[]){
 	int stop;
 	float location_x = 0;
 	float location_y = 0;
+	int time = 0;
 
 	//Enable GPIOs
 	if ((-1 == PWMExport(ENA))|
@@ -42,7 +46,6 @@ int main(int argc, char *argv[]){
 	if (-1 == GPIOExport(STOP))
 		return 1;
 
-
 	//Set Direction
 	if (/*(-1 == GPIODirection(ENA, OUT))|
 		(-1 == GPIODirection(ENB, OUT))|*/
@@ -54,7 +57,6 @@ int main(int argc, char *argv[]){
 
 	if (-1 == GPIODirection(STOP, IN))
 		return 2;
-
 
 	//PWM Setup
 	if (-1 == PWMPeriod(ENA))
@@ -78,9 +80,9 @@ int main(int argc, char *argv[]){
 				(-1 == GPIOWrite(RFORWARD, 1)))
 				return 3;
 			//else
-				//printf("Moving Forward \n");
-				
-		}
+				//printf("Moving Forward \n");	
+			}
+
 		else if (!strcmp(direct, "BACKWARD")){
 			if ((-1 == GPIOWrite(LFORWARD, 0))|
 				(-1 == GPIOWrite(LBACKWARD, 1))|
@@ -89,7 +91,8 @@ int main(int argc, char *argv[]){
 				return 3;
 			//else
 				//printf("Moving Backward \n");
-		}
+			}
+
 		else if (!strcmp(direct, "RIGHT")){
 			if ((-1 == GPIOWrite(LFORWARD, 1))|
 				(-1 == GPIOWrite(LBACKWARD, 0))|
@@ -98,7 +101,8 @@ int main(int argc, char *argv[]){
 				return 3;
 			//else
 				//printf("Turn Right \n");
-		}
+			}
+
 		else if (!strcmp(direct, "LEFT")){
 			if ((-1 == GPIOWrite(LFORWARD, 0))|
 				(-1 == GPIOWrite(LBACKWARD, 1))|
@@ -107,22 +111,22 @@ int main(int argc, char *argv[]){
 				return 3;
 			//else
 				//printf("Turn Left \n");
-		}
+			}
+
 		else{
-			printf("Problem with instructions\n Please include command line args for: \n int speed, int time and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
+			printf("Problem with instructions\n Please include command line args for: \n int speed, int distance and str direct {FORWARD, BACKWARD, RIGHT, LEFT}");
+			}
+
+		if(GPIORead(STOP)) break;
+
+		usleep(TIMESTEP);
+		location_x = location_x + get_distance_traveled(duty, TIMESTEP);
+		time = time+TIMESTEP/1000;
 		}
-
-	if(GPIORead(STOP)) break;
-
-	usleep(TIMESTEP);
-	location_x = location_x + get_distance_traveled(duty, TIMESTEP);
-	
-	}
 
 	//Disable GPIO
 	if (-1 == PWMEnable(ENA, 0))
 		return 2;
-
 
 	if ((-1 == PWMUnexport(ENA))|
 		(-1 == GPIOUnexport(LFORWARD))|
@@ -131,6 +135,6 @@ int main(int argc, char *argv[]){
 		(-1 == GPIOUnexport(RBACKWARD)))
 		return 1;
 	
-	
+	printf("Aprox Time Moving (ms): %d \n", time);
 	return 0;
 }
