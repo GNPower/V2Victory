@@ -32,7 +32,7 @@ int main(int argc, char *argv[]){
 	int duty = atoi(argv[1]);
 	int target_x = LIGHT_DISTANCE;
 	int light_state = RED;
-
+	int count = 0;
 	int stop;
 	float location_x = 0;
 	float location_y = 0;
@@ -85,11 +85,15 @@ int main(int argc, char *argv[]){
 		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
 		time = time+TIMESTEP/1000;
 
-		printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d", 
-				location_x, target_x, get_x_distance(location_x, target_x), light_state);
+		count++;
+		if (count == 100){ 
 
+			printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d", 
+					location_x, target_x, get_x_distance(location_x, target_x), light_state);
+			count = 0;
+		}
 
-		if ((get_x_distance(location_x, target_x) < 10) && (light_state == 1)){
+		if ((get_x_distance(location_x, target_x) < 10) && (light_state == RED)){
 			printf("LIGHT REACHED: RED");
 			break;
 			}
