@@ -94,9 +94,10 @@ int main(int argc, char *argv[]){
 		}
 
 		if ((get_x_distance(location_x, target_x) < 200) && (light_state == RED)){
-			printf("LIGHT REACHED: RED \n");
+			
 			if (count == 50){
-				duty = duty - 3;
+				duty = duty - 4;
+				printf("LIGHT REACHED: RED \n");
 				if (-1 == PWMDuty(ENA, duty))
 					return 2;
 				}
