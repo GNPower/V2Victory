@@ -88,13 +88,13 @@ int main(int argc, char *argv[]){
 		count++;
 		if (count == 100){ 
 
-			printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d \n", 
+			printf("Location: %f  Light Loc: %d   D2L: %f    LS:   %d \n", 
 					location_x, target_x, get_x_distance(location_x, target_x), light_state);
 			count = 0;
 		}
 
 		if ((get_x_distance(location_x, target_x) < 10) && (light_state == RED)){
-			printf("LIGHT REACHED: RED");
+			printf("LIGHT REACHED: RED \n");
 			break;
 			}
 		}
