@@ -1,0 +1,3 @@
+uint8 intersection_state
+uint8 intersection_next_state
+float intersection_switch_time

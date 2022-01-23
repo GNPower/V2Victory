@@ -1,0 +1,2 @@
+float vehicle_speed
+uint8 heading
