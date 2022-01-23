@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
 		time = time+TIMESTEP/1000;
 
-		printf("Vehicle Location: %d  Light Location: %d   Distance To Light: %d    Light State:   %d", 
+		printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d", 
 				location_x, target_x, get_x_distance(location_x, target_x), light_state);
 
 
