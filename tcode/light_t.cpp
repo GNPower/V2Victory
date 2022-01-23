@@ -96,11 +96,13 @@ int main(int argc, char *argv[]){
 		if ((get_x_distance(location_x, target_x) < 100) && (light_state == RED)){
 			printf("LIGHT REACHED: RED \n");
 			if (count == 50){
-				duty = duty - 10;
+				duty = duty - 5;
 				if (-1 == PWMDuty(ENA, duty))
 					return 2;
 				}
 			}
+
+		if (duty < 40) break; 
 		}
 
 	//Disable GPIO
