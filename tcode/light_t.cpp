@@ -86,6 +86,7 @@ int main(int argc, char *argv[]){
 		time = time+TIMESTEP/1000;
 
 		if ((get_x_distance(location_x, target_x) < 10) && (light_state == 1)){
+			printf("HELLO");
 			break;
 			}
 		}
