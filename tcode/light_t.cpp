@@ -97,13 +97,14 @@ int main(int argc, char *argv[]){
 			
 			if (count == 50){
 				duty = duty - 4;
-				printf("LIGHT REACHED: RED \n");
+
 				if (-1 == PWMDuty(ENA, duty))
 					return 2;
 				}
+				printf("LIGHT REACHED: RED    Duty %d \n", duty);
 			}
 
-		if (duty < 40) break; 
+		if (duty < 0) break; 
 		}
 
 	//Disable GPIO
