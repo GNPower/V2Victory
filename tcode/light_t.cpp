@@ -31,7 +31,7 @@ int main(int argc, char *argv[]){
 	
 	int duty = atoi(argv[1]);
 	int target_x = LIGHT_DISTANCE;
-	char* light_state = RED;
+	int light_state = RED;
 
 	int stop;
 	float location_x = 0;
