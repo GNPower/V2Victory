@@ -21,15 +21,17 @@
 
 
 #define TIMESTEP 1000
+
 #define LIGHT_DISTANCE 1000
-#define LIGHT_STATE "RED"
+#define RED 1
+#define GREEN 0
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
 	
 	int duty = atoi(argv[1]);
 	int target_x = LIGHT_DISTANCE;
-	char* light_state = LIGHT_STATE;
+	char* light_state = RED;
 
 	int stop;
 	float location_x = 0;
@@ -83,7 +85,7 @@ int main(int argc, char *argv[]){
 		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
 		time = time+TIMESTEP/1000;
 
-		if ((get_distance_traveled(location_x, target_x) < 10) & (strcmp(light_state, "RED") == 0)){
+		if ((get_distance_traveled(location_x, target_x) < 10) & (light_state == 1)){
 			break;
 			}
 		}
