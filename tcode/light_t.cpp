@@ -22,7 +22,7 @@
 
 #define TIMESTEP 1000
 
-#define LIGHT_DISTANCE 10000
+#define LIGHT_DISTANCE 1000
 #define RED 1
 #define GREEN 0
 
@@ -85,8 +85,12 @@ int main(int argc, char *argv[]){
 		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
 		time = time+TIMESTEP/1000;
 
+		printf("Vehicle Location: %d  Light Location: %d   Distance To Light: %d    Light State:   %d", 
+				location_x, target_x, get_x_distance(location_x, target_x), light_state);
+
+
 		if ((get_x_distance(location_x, target_x) < 10) && (light_state == 1)){
-			printf("HELLO");
+			printf("LIGHT REACHED: RED");
 			break;
 			}
 		}
