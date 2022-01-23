@@ -100,8 +100,9 @@ int main(int argc, char *argv[]){
 
 				if (-1 == PWMDuty(ENA, duty))
 					return 2;
-				}
+				
 				printf("LIGHT REACHED: RED    Duty %d \n", duty);
+				}
 			}
 
 		if (duty < 0) break; 
