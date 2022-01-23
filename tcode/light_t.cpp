@@ -22,7 +22,7 @@
 
 #define TIMESTEP 1000
 
-#define LIGHT_DISTANCE 1000
+#define LIGHT_DISTANCE 600
 #define RED 1
 #define GREEN 0
 
@@ -88,7 +88,7 @@ int main(int argc, char *argv[]){
 		count++;
 		if (count == 100){ 
 
-			printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d", 
+			printf("Vehicle Location: %f  Light Location: %d   Distance To Light: %f    Light State:   %d \n", 
 					location_x, target_x, get_x_distance(location_x, target_x), light_state);
 			count = 0;
 		}
