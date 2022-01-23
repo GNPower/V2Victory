@@ -85,7 +85,7 @@ int main(int argc, char *argv[]){
 		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
 		time = time+TIMESTEP/1000;
 
-		if ((get_distance_traveled(location_x, target_x) < 10) & (light_state == 1)){
+		if ((get_distance_traveled(location_x, target_x) < 10) && (light_state == 1)){
 			break;
 			}
 		}
