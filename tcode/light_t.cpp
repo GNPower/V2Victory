@@ -22,7 +22,7 @@
 
 #define TIMESTEP 1000
 
-#define LIGHT_DISTANCE 600
+#define LIGHT_DISTANCE 400
 #define RED 1
 #define GREEN 0
 
