@@ -1,7 +1,7 @@
 #include "motor_drive.h"
 
 int main(){
-	if ((-1 == PWMExport(ENA))|(-1 == PWMExport(ENB)));
+	if ((-1 == PWMExport(ENA))|(-1 == PWMExport(ENB)))
 		return 1;
 
 	if (-1 == GPIOExport(STOP))
