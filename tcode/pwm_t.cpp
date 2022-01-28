@@ -2,7 +2,7 @@
 
 int main(){
 		if ((-1 == PWMExport(ENA))|(-1 == PWMExport(ENB)));
-			print("PWM Export Failed");
+			return 1;
 
 		if (-1 == GPIOExport(STOP))
 			return 1;
@@ -20,6 +20,8 @@ int main(){
 	if ((-1 == PWMEnable(ENA, 1))|(-1 == PWMEnable(ENB, 1)))
 		return 2;
 
+	printf("PWM setup complete");
+
 	while(1){
 		if(GPIORead(STOP)) break;
 	}
@@ -30,6 +32,8 @@ int main(){
 
 	if ((-1 == PWMUnexport(ENA))|(-1 == PWMUnexport(ENB)))
 		return 1;
+
+	printf("PWM desetup complete");
 
 	return 0;
 }
