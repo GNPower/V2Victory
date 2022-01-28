@@ -36,6 +36,7 @@ int main(int argc, char *argv[]){
 
 	//Enable GPIOs
 	if ((-1 == PWMExport(ENA))|
+		(-1 == PWMExport(ENB))|
 		(-1 == GPIOExport(LFORWARD))|
 		(-1 == GPIOExport(LBACKWARD))|
 		(-1 == GPIOExport(RFORWARD))|
@@ -59,13 +60,14 @@ int main(int argc, char *argv[]){
 		return 2;
 
 	//PWM Setup
-	if (-1 == PWMPeriod(ENA))
+	//PWM Setup
+	if ((-1 == PWMPeriod(ENA))|(-1 == PWMPeriod(ENB)))
 		return 2;
 
-	if (-1 == PWMDuty(ENA, duty))
+	if ((-1 == PWMDuty(ENA, duty))|(-1 == PWMDuty(ENB, duty)))
 		return 2;
 
-	if (-1 == PWMEnable(ENA, 1))
+	if ((-1 == PWMEnable(ENA, 1))|(-1 == PWMEnable(ENB, 1)))
 		return 2;
 
 
@@ -111,10 +113,12 @@ int main(int argc, char *argv[]){
 		}
 
 	//Disable GPIO
-	if (-1 == PWMEnable(ENA, 0))
+
+	if ((-1 == PWMEnable(ENA, 0))|(-1 == PWMEnable(ENB, 0)))
 		return 2;
 
 	if ((-1 == PWMUnexport(ENA))|
+		(-1 == PWMUnexport(ENB))|
 		(-1 == GPIOUnexport(LFORWARD))|
 		(-1 == GPIOUnexport(LBACKWARD))|
 		(-1 == GPIOUnexport(RFORWARD))|
