@@ -1,14 +1,14 @@
 #include "motor_drive.h"
 
 int main(){
-		if ((-1 == PWMExport(ENA))|(-1 == PWMExport(ENB)));
-			return 1;
+	if ((-1 == PWMExport(ENA))|(-1 == PWMExport(ENB)));
+		return 1;
 
-		if (-1 == GPIOExport(STOP))
-			return 1;
+	if (-1 == GPIOExport(STOP))
+		return 1;
 
-		if (-1 == GPIODirection(STOP, IN))
-		return 2;
+	if (-1 == GPIODirection(STOP, IN))
+	return 2;
 
 	//PWM Setup
 	if ((-1 == PWMPeriod(ENA))|(-1 == PWMPeriod(ENB)))
