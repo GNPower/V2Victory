@@ -24,6 +24,7 @@ int main(){
 
 	while(1){
 		if(GPIORead(STOP)) break;
+		usleep(1000);
 	}
 
 	if ((-1 == PWMEnable(ENA, 0))|(-1 == PWMEnable(ENB, 0)))
