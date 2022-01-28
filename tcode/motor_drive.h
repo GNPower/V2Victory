@@ -239,6 +239,34 @@ static int GPIODirection(int pin, int dir){
 	}
 
 
+static int GPIOEdge(int pin){
+	static const char edge[] = "rising";
+	
+	char path[PATH_MAX];
+	int fd;
+
+	snprintf(path, PATH_MAX, "/sys/class/gpio/gpio%d/edge", pin);
+	fd = open(path, O_WRONLY);
+
+	if (-1 == fd){
+		fprintf(stderr, "Failed to open edge for writing \n");
+		printf("ERROR: %d \n", errno);
+		printf("/sys/class/gpio/gpio%d/edge \n", pin);
+		return -1;
+	}
+
+	if (-1 == write(fd, &edge, sizeof(edge))){
+		fprintf(stderr, "Failed to set edge for %d \n", pin);
+		printf("ERROR: %d \n", errno);
+	}
+
+
+	close(fd);
+	return 0;
+
+	}
+
+
 static int GPIOWrite(int pin, int value){
 	static const char s_values_str[] = "01";
 
@@ -291,6 +319,9 @@ static int GPIORead(int pin){
 	close(fd);
 	return (atoi(value_str));
 	}
+
+
+
 
 
 static int set_forward(){
