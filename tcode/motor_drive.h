@@ -24,7 +24,7 @@
 #define RFORWARD 5             
 #define RBACKWARD 6         
 #define LBACKWARD 13    
-#define LFORWARD 19     
+#define LFORWARD 12    
 
 #define STOP 26  
 #define PWM_PERIOD 20000000
