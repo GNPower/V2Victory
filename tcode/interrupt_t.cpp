@@ -40,7 +40,7 @@ int main(){
 		count ++;
 		printf("COUNT: %d \n", count);
 
-		if (count = 10)
+		if (count == 10)
 			break;
 	}
 
