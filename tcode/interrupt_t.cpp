@@ -47,8 +47,7 @@ void* counter(void*){
 		count ++;
 		printf("COUNT: %d \n", count);
 
-		if (count == 20)
-			break;
+		if(GPIORead(STOP)) break;
 
 	}
 	return NULL;
