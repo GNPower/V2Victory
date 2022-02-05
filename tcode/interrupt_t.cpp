@@ -60,14 +60,14 @@ void* counter(void*){
 	
 	if (shmid == -1) {
 	  perror("Shared memory");
-	  return 1;
+	  return NULL;
 	}
 
 	// Attach to the segment to get a pointer to it.
 	shmp = shmat(shmid, NULL, 0);
 	if (shmp == (void *) -1) {
 	  perror("Shared memory attach");
-	  return 1;
+	  return NULL;
 	}
 
 
@@ -108,12 +108,12 @@ void* counter(void*){
 
 		if (shmdt(shmp) == -1) {
 			perror("shmdt");
-			return 1;
+			return NULL;
 		}
 
 		if (shmctl(shmid, IPC_RMID, 0) == -1) {
 			perror("shmctl");
-			return 1;
+			return NULL;
 		}
 
 
