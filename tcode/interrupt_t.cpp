@@ -2,7 +2,6 @@
 #include <poll.h>
 
 int main(){
-	char edge[] = "rising";
 	char str[256];
 	int fd;
 	struct pollfd pfd;
@@ -15,7 +14,7 @@ int main(){
 	if (-1 == GPIODirection(STOP, IN))
 		return 2;
 
-	if (-1 == GPIOEdge(STOP, edge))
+	if (-1 == GPIOEdge(STOP, RISING))
 		return 2;
 
 

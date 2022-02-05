@@ -19,6 +19,9 @@
 #define LOW 0
 #define HIGH 1
 
+#define RISING 0
+#define FALLING 1
+
 #define ENA 0      //GPIO PIN 18 - PWM Controls Speed Right -- Currently disabled and both motors are linked on ENB 
 #define ENB 1	   //PWM Controls Speed 
 #define RFORWARD 5             
@@ -239,8 +242,13 @@ static int GPIODirection(int pin, int dir){
 	}
 
 
-static int GPIOEdge(int pin, char* edge_select){
-	static const char edge[] = edge_select;
+static int GPIOEdge(int pin, int edge_sel){
+	static const char edge[7];
+
+	if (edge_sel == RISING)
+		edge = "rising";
+	else
+		edge = "falling";
 	
 	char path[PATH_MAX];
 	int fd;
