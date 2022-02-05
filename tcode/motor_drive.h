@@ -25,8 +25,8 @@
 #define RISING 0
 #define FALLING 1
 
-#define ENA 0      //GPIO PIN 18 - PWM Controls Speed Right -- Currently disabled and both motors are linked on ENB 
-#define ENB 1	   //PWM Controls Speed 
+#define ENA 0      //GPIO PIN 18 - PWM Controls Speed Right 
+#define ENB 1	   //GPIO PIN 19 - PWM Controls Speed 
 #define RFORWARD 5             
 #define RBACKWARD 6         
 #define LBACKWARD 13    
