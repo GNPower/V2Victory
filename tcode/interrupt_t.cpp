@@ -84,9 +84,7 @@ int main(){
 
 	pthread_create(&tid, NULL, counter, NULL);
 
-	while(1){
-		if(GPIORead(STOP)) break;
-	}
+
 
 
 	pthread_join(tid, NULL);
