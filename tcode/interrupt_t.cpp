@@ -46,7 +46,7 @@ void* counter(void*){
 
 
 int main(){
-	pthread_t *tid;
+	pthread_t tid;
 
 
 	if (-1 == GPIOExport(STOP))
