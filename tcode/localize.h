@@ -1,6 +1,9 @@
 //Localization Header for Rapberry Pi - LM298N
 //Sam Baker 01/2022
 
+#ifndef LOCAL 
+#define LOCAL
+
 #include <stdio.h>
 #include <math.h>
 
@@ -35,3 +38,6 @@ float get_abs_distance(float current_x, float current_y, float target_x, float t
 	float abs_distance = sqrt((x_distance*x_distance)+(y_distance*y_distance));
 	return abs_distance;
 	} 
+
+
+#endif
