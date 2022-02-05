@@ -17,7 +17,7 @@ void* counter(void*){
 		fprintf(stderr, "Failed to open gpio value for monitor \n");
 		printf("ERROR: %d \n", errno);
 		printf("/sys/class/gpio/gpio%d/value \n", LENCODER);
-		return NULL;
+		
 	}
 
 	while(1){
@@ -41,6 +41,7 @@ void* counter(void*){
 			break;
 
 	}
+	return NULL;
 
 }
 
