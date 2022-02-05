@@ -1,6 +1,9 @@
 //Motor Driver Header for Rapberry Pi - LM298N
 //Sam Baker 01/2022
 
+#ifndef MDRIVE
+#define MDRIVE
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
@@ -59,3 +62,5 @@ static int set_forward();
 static int set_backward();
 static int set_left();
 static int set_right();
+
+#endif 
