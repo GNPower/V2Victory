@@ -2,7 +2,7 @@
 #include <poll.h>
 
 int main(){
-	char* edge = "rising"
+	char edge[] = "rising";
 	char str[256];
 	int fd;
 	struct pollfd pfd;
