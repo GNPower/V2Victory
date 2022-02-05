@@ -30,6 +30,8 @@
 #define LFORWARD 12    
 
 #define STOP 26  
+#define LENCODER 23
+#define RENCODER 24
 #define PWM_PERIOD 20000000
 
 #define VALUE_MAX 30

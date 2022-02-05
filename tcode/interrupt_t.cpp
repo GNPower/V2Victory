@@ -8,22 +8,22 @@ int main(){
 	char buf[8];
 	int count = 0;
 
-	if (-1 == GPIOExport(STOP))
+	if (-1 == GPIOExport(LENCODER))
 		return 1;
 
 
-	if (-1 == GPIODirection(STOP, IN))
+	if (-1 == GPIODirection(LENCODER, IN))
 		return 2;
 
-	if (-1 == GPIOEdge(STOP, RISING))
+	if (-1 == GPIOEdge(LENCODER, RISING))
 		return 2;
 
 
-	sprintf(str, "/sys/class/gpio/gpio%d/value", STOP);
+	sprintf(str, "/sys/class/gpio/gpio%d/value", LENCODER);
 	if ((fd = open(str, O_RDONLY)) < 0){
 		fprintf(stderr, "Failed to open gpio value for monitor \n");
 		printf("ERROR: %d \n", errno);
-		printf("/sys/class/gpio/gpio%d/value \n", STOP);
+		printf("/sys/class/gpio/gpio%d/value \n", LENCODER);
 		return -1;
 	}
 	while(1){
@@ -45,7 +45,7 @@ int main(){
 	}
 
 
-	if (-1 == GPIOUnexport(STOP))
+	if (-1 == GPIOUnexport(LENCODER))
 		return 1;
 
 	printf("No problems today \n");
