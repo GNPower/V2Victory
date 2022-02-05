@@ -243,12 +243,11 @@ static int GPIODirection(int pin, int dir){
 
 
 static int GPIOEdge(int pin, int edge_sel){
-	static const char edge[7];
 
 	if (edge_sel == RISING)
-		edge = "rising";
+		static const char edge[] = "rising";
 	else
-		edge = "falling";
+		static const char edge[] = "falling";
 	
 	char path[PATH_MAX];
 	int fd;

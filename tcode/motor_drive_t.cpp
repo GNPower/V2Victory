@@ -119,6 +119,7 @@ int main(int argc, char *argv[]){
 
 	if ((-1 == PWMUnexport(ENA))|
 		(-1 == PWMUnexport(ENB))|
+		(-1 == GPIOUnexport(STOP))|
 		(-1 == GPIOUnexport(LFORWARD))|
 		(-1 == GPIOUnexport(LBACKWARD))|
 		(-1 == GPIOUnexport(RFORWARD))|
