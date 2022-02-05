@@ -17,7 +17,7 @@ void* counter(void*){
 		fprintf(stderr, "Failed to open gpio value for monitor \n");
 		printf("ERROR: %d \n", errno);
 		printf("/sys/class/gpio/gpio%d/value \n", LENCODER);
-		return -1;
+		return NULL;
 	}
 
 	while(1){
@@ -46,7 +46,7 @@ void* counter(void*){
 
 
 int main(){
-	pthread_t tid;
+	pthread_t *tid;
 
 
 	if (-1 == GPIOExport(STOP))
