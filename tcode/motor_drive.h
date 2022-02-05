@@ -259,7 +259,7 @@ static int GPIOEdge(int pin, int edge_sel){
 		return -1;
 	}
 
-	if (-1 == write(fd, ((edge_sel == RISING) ? rising : falling) , sizeof(edge))){
+	if (-1 == write(fd, ((edge_sel == RISING) ? rising : falling) , sizeof(((edge_sel == RISING) ? rising : falling)))){
 		fprintf(stderr, "Failed to set edge for %d \n", pin);
 		printf("ERROR: %d \n", errno);
 	}
