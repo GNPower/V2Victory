@@ -44,23 +44,23 @@
 #define BUFFER_MAX2 10
 
 
-static int GPIOExport(int pin);
-static int PWMExport(int pin);
-static int GPIOUnexport(int pin);
-static int PWMUnexport(int pin);
+int GPIOExport(int pin);
+int PWMExport(int pin);
+int GPIOUnexport(int pin);
+int PWMUnexport(int pin);
 
-static int PWMPeriod(int pin);
-static int PWMDuty(int pin, int duty);
-static int PWMEnable(int pin, int enable);
+int PWMPeriod(int pin);
+int PWMDuty(int pin, int duty);
+int PWMEnable(int pin, int enable);
 
-static int GPIODirection(int pin, int dir);
-static int GPIOEdge(int pin, int edge_sel);
-static int GPIOWrite(int pin, int value);
-static int GPIORead(int pin);
+int GPIODirection(int pin, int dir);
+int GPIOEdge(int pin, int edge_sel);
+int GPIOWrite(int pin, int value);
+int GPIORead(int pin);
 
-static int set_forward();
-static int set_backward();
-static int set_left();
-static int set_right();
+int set_forward();
+int set_backward();
+int set_left();
+int set_right();
 
 #endif 

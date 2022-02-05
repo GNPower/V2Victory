@@ -2,7 +2,7 @@
 
 
 
-static int GPIOExport(int pin){
+int GPIOExport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 	int fd;
@@ -23,7 +23,7 @@ static int GPIOExport(int pin){
 	}
 
 
-static int PWMExport(int pin){
+int PWMExport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 	int fd;
@@ -44,7 +44,7 @@ static int PWMExport(int pin){
  }
 
 
-static int GPIOUnexport(int pin){
+int GPIOUnexport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 
@@ -64,7 +64,7 @@ static int GPIOUnexport(int pin){
 	}
 
 
-static int PWMUnexport(int pin){
+int PWMUnexport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
 
@@ -83,8 +83,7 @@ static int PWMUnexport(int pin){
 	return 0;
 	}
 
-
-static int PWMPeriod(int pin){
+int PWMPeriod(int pin){
 	int fd;
 	int period_ns = PWM_PERIOD;
 	char path[PATH_MAX];
@@ -114,7 +113,7 @@ static int PWMPeriod(int pin){
 	}
 
 
-static int PWMDuty(int pin, int duty){
+int PWMDuty(int pin, int duty){
 	int fd;
 	int period_ns = PWM_PERIOD;
 	char path[PATH_MAX];
@@ -147,7 +146,7 @@ static int PWMDuty(int pin, int duty){
 	}
 
 
-static int PWMEnable(int pin, int enable){
+int PWMEnable(int pin, int enable){
 	int fd;
 	char path[PATH_MAX];
 
@@ -177,7 +176,7 @@ static int PWMEnable(int pin, int enable){
 	}
 
 
-static int GPIODirection(int pin, int dir){
+int GPIODirection(int pin, int dir){
 	static const char s_directions_str[] = "in\0out";
 	
 	char path[PATH_MAX];
@@ -205,7 +204,7 @@ static int GPIODirection(int pin, int dir){
 	}
 
 
-static int GPIOEdge(int pin, int edge_sel){
+int GPIOEdge(int pin, int edge_sel){
 	static const char rising[] = "rising";
 	static const char falling[] = "falling";
 	
@@ -234,7 +233,7 @@ static int GPIOEdge(int pin, int edge_sel){
 	}
 
 
-static int GPIOWrite(int pin, int value){
+int GPIOWrite(int pin, int value){
 	static const char s_values_str[] = "01";
 
 	char path[VALUE_MAX];
@@ -262,7 +261,7 @@ static int GPIOWrite(int pin, int value){
 	}
 
 
-static int GPIORead(int pin){
+int GPIORead(int pin){
 
 	char path[VALUE_MAX];
 	char value_str[3];
@@ -291,7 +290,7 @@ static int GPIORead(int pin){
 
 
 
-static int set_forward(){
+int set_forward(){
 	if ((-1 == GPIOWrite(LFORWARD, 1))|
 		(-1 == GPIOWrite(LBACKWARD, 0))|
 		(-1 == GPIOWrite(RBACKWARD, 0))|
@@ -302,7 +301,7 @@ static int set_forward(){
 	}
 
 
-static int set_backward(){
+int set_backward(){
 	if ((-1 == GPIOWrite(LFORWARD, 0))|
 		(-1 == GPIOWrite(LBACKWARD, 1))|
 		(-1 == GPIOWrite(RBACKWARD, 1))|
@@ -313,7 +312,7 @@ static int set_backward(){
 	}
 
 
-static int set_left(){
+int set_left(){
 	if ((-1 == GPIOWrite(LFORWARD, 1))|
 		(-1 == GPIOWrite(LBACKWARD, 0))|
 		(-1 == GPIOWrite(RBACKWARD, 1))|
@@ -324,7 +323,7 @@ static int set_left(){
 	}
 
 
-static int set_right(){
+int set_right(){
 	if ((-1 == GPIOWrite(LFORWARD, 0))|
 		(-1 == GPIOWrite(LBACKWARD, 1))|
 		(-1 == GPIOWrite(RBACKWARD, 0))|
