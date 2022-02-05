@@ -243,11 +243,8 @@ static int GPIODirection(int pin, int dir){
 
 
 static int GPIOEdge(int pin, int edge_sel){
-
-	if (edge_sel == RISING)
-		static const char edge[] = "rising";
-	else
-		static const char edge[] = "falling";
+	static const char rising[] = "rising";
+	static const char falling[] = "falling";
 	
 	char path[PATH_MAX];
 	int fd;
@@ -262,7 +259,7 @@ static int GPIOEdge(int pin, int edge_sel){
 		return -1;
 	}
 
-	if (-1 == write(fd, &edge, sizeof(edge))){
+	if (-1 == write(fd, ((edge_sel == RISING) ? rising : falling) , sizeof(edge))){
 		fprintf(stderr, "Failed to set edge for %d \n", pin);
 		printf("ERROR: %d \n", errno);
 	}
