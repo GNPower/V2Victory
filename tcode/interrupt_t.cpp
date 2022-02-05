@@ -67,14 +67,14 @@ int main(){
 		return 2;
 
 
-	pthread_create(tid, NULL, &counter, NULL);
+	pthread_create(&tid, NULL, &counter, NULL);
 
 	while(1){
 		if(GPIORead(STOP)) break;
 	}
 
 
-	pthread_join(tid, NULL);
+	pthread_join(&tid, NULL);
 
 	if (-1 == GPIOUnexport(LENCODER))
 		return 1;
