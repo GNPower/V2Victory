@@ -18,57 +18,12 @@
 #define BUF_SIZE 1024
 #define SHM_KEY 0x1234
 
-struct shmseg {
-   int cnt;
-   int complete;
-   char buf[BUF_SIZE];
-};
-
-int fill_buffer(char * bufptr, int size) {
-   static char ch = 'A';
-   int filled_count;
-   
-   //printf("size is %d\n", size);
-   memset(bufptr, ch, size - 1);
-   bufptr[size-1] = '\0';
-   if (ch > 122)
-   ch = 65;
-   if ( (ch >= 65) && (ch <= 122) ) {
-      if ( (ch >= 91) && (ch <= 96) ) {
-         ch = 65;
-      }
-   }
-   filled_count = strlen(bufptr);
-   
-   ch++;
-   return filled_count;
-}
-
-
 void* counter(void*){
 	char str[256];
 	int fd;
 	struct pollfd pfd;
 	char buf[8];
 	int count = 0;
-
-	int shmid;
-	struct shmseg *shmp;
-	char *bufptr;
-	int spaceavailable;
-	shmid = shmget(SHM_KEY, sizeof(struct shmseg), 0644|IPC_CREAT);
-	
-	if (shmid == -1) {
-	  perror("Shared memory");
-	  return NULL;
-	}
-
-	// Attach to the segment to get a pointer to it.
-	shmp = shmat(shmid, NULL, 0);
-	if (shmp == (void *) -1) {
-	  perror("Shared memory attach");
-	  return NULL;
-	}
 
 
 	sprintf(str, "/sys/class/gpio/gpio%d/value", LENCODER);
@@ -97,26 +52,6 @@ void* counter(void*){
 		count ++;
 		printf("COUNT: %d \n", count);
 
-		bufptr = shmp->buf;
-   		spaceavailable = BUF_SIZE;
-		shmp->cnt = fill_buffer(bufptr, spaceavailable);
-		shmp->complete = 0;
-		printf("Writing Process: Shared Memory Write: Wrote %d bytes\n", shmp->cnt);
-		bufptr = shmp->buf;
-		spaceavailable = BUF_SIZE;
-		shmp->complete = 1;
-
-		if (shmdt(shmp) == -1) {
-			perror("shmdt");
-			return NULL;
-		}
-
-		if (shmctl(shmid, IPC_RMID, 0) == -1) {
-			perror("shmctl");
-			return NULL;
-		}
-
-
 		if(GPIORead(STOP)) break;
 
 	}
@@ -127,9 +62,6 @@ void* counter(void*){
 
 int main(){
 	pthread_t tid;
-
-	
-
 
 
 	if (-1 == GPIOExport(STOP))
