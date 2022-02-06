@@ -53,6 +53,11 @@ int main(int argc, char *argv[]){
 		(-1 == setup_gpio(RBACKWARD, OUT)))
 		return 2;
 
+	if (-1 == GPIOEdge(LENCODER, FALLING))
+		return 2;
+	if (-1 == GPIOEdge(RENCODER, FALLING))
+		return 2;
+
 	//PWM Setup
 	if ((-1 == setup_pwm(ENA, duty_a))|(-1 == setup_pwm(ENB, duty_b)))
 		return 2;
