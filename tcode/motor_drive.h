@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include "localize.h"
+
 #define IN 0
 #define OUT 1
 
