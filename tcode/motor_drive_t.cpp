@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
 		int temp_enc_l = get_encoder_value(LENCODER);
 		int temp_enc_r = get_encoder_value(RENCODER);
 		encoder_average = (temp_enc_l + temp_enc_r)/2;
-		location_x = update_location(location_x, get_x_distance_traveled(encoder_average, 0));
+		location_x = get_x_distance_traveled(encoder_average, 0);
 		time = time+TIMESTEP/1000;
 
 		print_counter++;
