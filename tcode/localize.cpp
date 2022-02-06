@@ -14,7 +14,7 @@ float get_x_distance_traveled(int enc_value, int heading){
 
 float get_y_distance_traveled(int enc_value, int heading){
 	float cycles = enc_value/20;
-	const float circumference = 2*RAIDIUS*PI;
+	const float circumference = 2*RADIUS*PI;
 	float abs_traveled, y_traveled;
 
 	abs_traveled = circumference*cycles;
