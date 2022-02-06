@@ -58,4 +58,7 @@ int set_backward();
 int set_left();
 int set_right();
 
+int setup_gpio(int pin, int direction);
+
+
 #endif 

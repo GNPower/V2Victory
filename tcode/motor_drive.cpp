@@ -287,9 +287,6 @@ int GPIORead(int pin){
 	}
 
 
-
-
-
 int set_forward(){
 	if ((-1 == GPIOWrite(LFORWARD, 1))|
 		(-1 == GPIOWrite(LBACKWARD, 0))|
@@ -331,4 +328,12 @@ int set_right(){
 		return -1;
 	else
 		return 0;
+	}
+
+int setup_gpio(int pin, int direction){	
+	if (GPIOExport(pin) == -1)
+		return -1;
+	if (GPIODirection(pin, direction) == -1)
+		return -1;
+	return 0
 	}

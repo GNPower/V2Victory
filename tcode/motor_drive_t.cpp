@@ -37,27 +37,15 @@ int main(int argc, char *argv[]){
 
 	//Enable GPIOs
 	if ((-1 == PWMExport(ENA))|
-		(-1 == PWMExport(ENB))|
-		(-1 == GPIOExport(LFORWARD))|
-		(-1 == GPIOExport(LBACKWARD))|
-		(-1 == GPIOExport(RFORWARD))|
-		(-1 == GPIOExport(RBACKWARD)))
-		return 1;
-
-
-	if (-1 == GPIOExport(STOP))
+		(-1 == PWMExport(ENB)))
 		return 1;
 
 	//Set Direction
-	if (/*(-1 == GPIODirection(ENA, OUT))|
-		(-1 == GPIODirection(ENB, OUT))|*/
-		(-1 == GPIODirection(LFORWARD, OUT))|
-		(-1 == GPIODirection(LBACKWARD, OUT))|
-		(-1 == GPIODirection(RFORWARD, OUT))|
-		(-1 == GPIODirection(RBACKWARD, OUT)))
-		return 2;
-
-	if (-1 == GPIODirection(STOP, IN))
+	if ((-1 == setup_gpio(LFORWARD, OUT))|
+		(-1 == setup_gpio(LBACKWARD, OUT))|
+		(-1 == setup_gpio(RFORWARD, OUT))|
+		(-1 == setup_gpio(STOP, IN))|
+		(-1 == setup_gpio(RBACKWARD, OUT)))
 		return 2;
 
 	//PWM Setup
