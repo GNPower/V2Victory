@@ -26,7 +26,8 @@
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
 	
-	int duty = atoi(argv[1]);
+	int duty_a = atoi(argv[1]);
+	int duty_b = atoi(argv[1]);
 	int target_x = atoi(argv[2]);
 	char* direct = argv[3];
 
@@ -35,12 +36,7 @@ int main(int argc, char *argv[]){
 	float location_y = 0;
 	int time = 0;
 
-	//Enable GPIOs
-	if ((-1 == PWMExport(ENA))|
-		(-1 == PWMExport(ENB)))
-		return 1;
-
-	//Set Direction
+	//Setup GPIO
 	if ((-1 == setup_gpio(LFORWARD, OUT))|
 		(-1 == setup_gpio(LBACKWARD, OUT))|
 		(-1 == setup_gpio(RFORWARD, OUT))|
@@ -49,16 +45,8 @@ int main(int argc, char *argv[]){
 		return 2;
 
 	//PWM Setup
-	//PWM Setup
-	if ((-1 == PWMPeriod(ENA))|(-1 == PWMPeriod(ENB)))
+	if ((-1 == setup_pwm(ENA, duty_a))|(-1 == setup_pwm(ENB, duty_b)))
 		return 2;
-
-	if ((-1 == PWMDuty(ENA, duty))|(-1 == PWMDuty(ENB, duty)))
-		return 2;
-
-	if ((-1 == PWMEnable(ENA, 1))|(-1 == PWMEnable(ENB, 1)))
-		return 2;
-
 
 	//Main loop
 	while(get_x_distance(location_x, target_x) > 0){

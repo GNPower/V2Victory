@@ -59,6 +59,7 @@ int set_left();
 int set_right();
 
 int setup_gpio(int pin, int direction);
+int setup_pwm(int pin, int duty);
 
 
 #endif 

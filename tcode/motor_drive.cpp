@@ -330,10 +330,24 @@ int set_right(){
 		return 0;
 	}
 
+
 int setup_gpio(int pin, int direction){	
 	if (GPIOExport(pin) == -1)
 		return -1;
 	if (GPIODirection(pin, direction) == -1)
 		return -1;
 	return 0
+	}
+
+
+int setup_pwm(int pin, int duty){
+	if (PWMExport(pin) == -1)
+		return -1;
+	if (PWMPeriod(pin) == -1)
+		return -1;
+	if (PWMDuty(pin, duty) == -1)
+		return -1;
+	if (PWMEnable(pin, 1) == -1)
+		return -1
+	return 0;
 	}
