@@ -98,7 +98,7 @@ void* r_encode(void*){
 
 
 int main(){
-	pthread_t tid;
+	pthread_t left_tid, right_tid;
 
 
 	if (-1 == GPIOExport(STOP))
@@ -119,7 +119,8 @@ int main(){
 		return 2;
 
 
-	pthread_create(&tid, NULL, counter, NULL);
+	pthread_create(&left_tid, NULL, l_encode, NULL);
+	pthread_create(&right_tid, NULL, r_encode, NULL);
 
 	while(1){
 		printf("LEFT: %d \t RIGHT: %d \n", l_encoder, r_encoder);
@@ -135,7 +136,8 @@ int main(){
 	printf("No problems today \n");
 
 
-	pthread_kill(tid, SIGKILL);
+	pthread_kill(left_tid, SIGKILL);
+	pthread_kill(right_tid, SIGKILL);
 
 
 	return 0;
