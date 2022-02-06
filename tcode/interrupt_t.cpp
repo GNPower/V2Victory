@@ -142,6 +142,8 @@ int main(){
 
 	if (-1 == GPIOUnexport(LENCODER))
 		return 1;
+	if (-1 == GPIOUnexport(RENCODER))
+		return 1;
 	if (-1 == GPIOUnexport(STOP))
 		return 1;
 
