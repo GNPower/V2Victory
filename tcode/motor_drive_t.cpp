@@ -18,6 +18,7 @@
 #include <string.h>
 
 #include "motor_drive.h"
+#include "localize.h"
 
 
 #define TIMESTEP 1000
