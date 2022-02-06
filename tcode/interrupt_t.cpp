@@ -115,7 +115,19 @@ int main(){
 	if (-1 == GPIODirection(LENCODER, IN))
 		return 2;
 
-	if (-1 == GPIOEdge(LENCODER, RISING))
+	if (-1 == GPIOEdge(LENCODER, FALLING))
+		return 2;
+
+
+
+	if (-1 == GPIOExport(RENCODER))
+		return 1;
+
+
+	if (-1 == GPIODirection(RENCODER, IN))
+		return 2;
+
+	if (-1 == GPIOEdge(RENCODER, FALLING))
 		return 2;
 
 
