@@ -36,6 +36,9 @@ int main(int argc, char *argv[]){
 	float location_y = 0;
 	int time = 0;
 
+	int print_counter = 0;
+	int encoder_average;
+
 	//Setup GPIO
 	if ((-1 == setup_gpio(LFORWARD, OUT))|
 		(-1 == setup_gpio(LBACKWARD, OUT))|
@@ -47,6 +50,10 @@ int main(int argc, char *argv[]){
 	//PWM Setup
 	if ((-1 == setup_pwm(ENA, duty_a))|(-1 == setup_pwm(ENB, duty_b)))
 		return 2;
+
+	//Setup encoder threads
+	pthread_create(&left_tid, NULL, poll_l_encoder, NULL);
+	pthread_create(&right_tid, NULL, poll_r_encoder, NULL);
 
 	//Main loop
 	while(get_x_distance(location_x, target_x) > 0){
@@ -85,8 +92,15 @@ int main(int argc, char *argv[]){
 
 		//Wait and Update
 		usleep(TIMESTEP);
-		location_x = update_location(location_x, get_distance_traveled(duty, TIMESTEP/1000));
+		encoder_average = (get_encoder_value(LENCODER) + get_encoder_value(RENCODER))/2;
+		location_x = update_location(location_x, get_x_distance_traveled(encoder_average, 0));
 		time = time+TIMESTEP/1000;
+
+		print_counter++;
+		if (print_counter >= 1000){
+			print_counter = 0;
+			printf("Time: %d, Location: %f, L_ENC: %d, R_ENC %d, ENC AV: %d", time, location_x, get_encoder_value(LENCODER), get_encoder_value(RENCODER), encoder_average);
+			}
 		}
 
 	//Disable GPIO
@@ -104,5 +118,11 @@ int main(int argc, char *argv[]){
 		return 1;
 	
 	printf("Aprox Time Moving (ms): %d \n", time);
+
+	//kill encoder threads
+	pthread_kill(left_tid, SIGKILL);
+	pthread_kill(right_tid, SIGKILL);
+
+
 	return 0;
 }
