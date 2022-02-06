@@ -124,7 +124,7 @@ int main(){
 	while(1){
 		printf("LEFT: %d \t RIGHT: %d \n", l_encoder, r_encoder);
 		if(GPIORead(STOP)) break;
-		usleep(10000);
+		usleep(40000);
 	}
 
 	if (-1 == GPIOUnexport(LENCODER))
