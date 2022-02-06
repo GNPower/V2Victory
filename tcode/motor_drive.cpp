@@ -336,7 +336,7 @@ int setup_gpio(int pin, int direction){
 		return -1;
 	if (GPIODirection(pin, direction) == -1)
 		return -1;
-	return 0
+	return 0;
 	}
 
 
@@ -348,6 +348,6 @@ int setup_pwm(int pin, int duty){
 	if (PWMDuty(pin, duty) == -1)
 		return -1;
 	if (PWMEnable(pin, 1) == -1)
-		return -1
+		return -1;
 	return 0;
 	}
