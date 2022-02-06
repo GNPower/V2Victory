@@ -1,6 +1,10 @@
 #include "encode.h"
 
 
+volatile global int l_encoder;
+volatile global int r_encoder;
+
+
 void* poll_l_encoder(void*){
 	char str[256];
 	int fd;
