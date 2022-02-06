@@ -14,16 +14,18 @@
 #include "localize.h"
 #include <poll.h>
 #include <pthread.h>
+#include <signal.h>
 
 #define BUF_SIZE 1024
 #define SHM_KEY 0x1234
+
+volatile int count;
 
 void* counter(void*){
 	char str[256];
 	int fd;
 	struct pollfd pfd;
 	char buf[8];
-	int count = 0;
 
 
 	sprintf(str, "/sys/class/gpio/gpio%d/value", LENCODER);
@@ -38,7 +40,6 @@ void* counter(void*){
 	while(1){
 
 
-
 		pfd.fd = fd;
 		pfd.events = POLLPRI;
 
@@ -50,9 +51,7 @@ void* counter(void*){
 		lseek(fd, 0, SEEK_SET);
 		read(fd, buf, sizeof buf);
 		count ++;
-		printf("COUNT: %d \n", count);
-
-		if(GPIORead(STOP)) break;
+		
 
 	}
 	return NULL;
@@ -84,10 +83,14 @@ int main(){
 
 	pthread_create(&tid, NULL, counter, NULL);
 
+	while(1){
+		printf("COUNT: %d \n", count);
+		if(GPIORead(STOP)) break;
+		usleep(1000);
+	}
 
 
-
-	pthread_join(tid, NULL);
+	pthread_kill(tid, SIGKILL);
 
 	if (-1 == GPIOUnexport(LENCODER))
 		return 1;
