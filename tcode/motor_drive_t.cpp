@@ -48,6 +48,8 @@ int main(int argc, char *argv[]){
 		(-1 == setup_gpio(LBACKWARD, OUT))|
 		(-1 == setup_gpio(RFORWARD, OUT))|
 		(-1 == setup_gpio(STOP, IN))|
+		(-1 == setup_gpio(LENCODER, IN))|
+		(-1 == setup_gpio(RENCODER, IN))|
 		(-1 == setup_gpio(RBACKWARD, OUT)))
 		return 2;
 
@@ -115,6 +117,8 @@ int main(int argc, char *argv[]){
 	if ((-1 == PWMUnexport(ENA))|
 		(-1 == PWMUnexport(ENB))|
 		(-1 == GPIOUnexport(STOP))|
+		(-1 == GPIOUnexport(LENCODER))|
+		(-1 == GPIOUnexport(RENCODER))|
 		(-1 == GPIOUnexport(LFORWARD))|
 		(-1 == GPIOUnexport(LBACKWARD))|
 		(-1 == GPIOUnexport(RFORWARD))|
