@@ -77,3 +77,11 @@ void* poll_r_encoder(void*){
 
 	}
 	return NULL;}
+
+
+
+int get_encoder_value(int encoder){
+	if (encoder == LENCODER) return l_encoder;
+	else if (encoder == RENCODER) return r_encoder;
+	else return -1;
+	}

@@ -19,6 +19,6 @@
 void* poll_l_encoder(void*);
 void* poll_r_encoder(void*);
 
-
+int get_encoder_value(int encoder);
 
 #endif

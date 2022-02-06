@@ -56,7 +56,7 @@ int main(){
 	pthread_create(&right_tid, NULL, poll_r_encoder, NULL);
 
 	while(1){
-		printf("LEFT: %d \t RIGHT: %d \n", l_encoder, r_encoder);
+		printf("LEFT: %d \t RIGHT: %d \n", get_encoder_value(LENCODER), get_encoder_value(RENCODER));
 		if(GPIORead(STOP)) break;
 		usleep(40000);
 	}
