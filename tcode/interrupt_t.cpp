@@ -86,11 +86,8 @@ int main(){
 	while(1){
 		printf("COUNT: %d \n", count);
 		if(GPIORead(STOP)) break;
-		usleep(1000);
+		usleep(10000);
 	}
-
-
-	pthread_kill(tid, SIGKILL);
 
 	if (-1 == GPIOUnexport(LENCODER))
 		return 1;
@@ -98,6 +95,11 @@ int main(){
 		return 1;
 
 	printf("No problems today \n");
+
+
+	pthread_kill(tid, SIGKILL);
+
+
 	return 0;
 
 }
