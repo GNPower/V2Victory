@@ -1,3 +1,7 @@
+//Encoder Header for Rapberry Pi
+//Sam Baker 02/2022
+
+
 #ifndef ENCODE
 #define ENCODE
 

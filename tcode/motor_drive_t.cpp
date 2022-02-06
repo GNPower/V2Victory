@@ -27,7 +27,7 @@
 #define TIMESTEP 1000
 
 int main(int argc, char *argv[]){
-	printf("Onlookers were shocked \n");
+	printf("Don't Stare Directly At The Bugs \n");
 
 	pthread_t left_tid, right_tid;
 	int duty_a = atoi(argv[1]);
