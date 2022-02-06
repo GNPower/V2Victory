@@ -98,14 +98,16 @@ int main(int argc, char *argv[]){
 
 		//Wait and Update
 		usleep(TIMESTEP);
-		encoder_average = (get_encoder_value(LENCODER) + get_encoder_value(RENCODER))/2;
+		int temp_enc_l = get_encoder_value(LENCODER);
+		int temp_enc_r = get_encoder_value(RENCODER);
+		encoder_average = (temp_enc_l + temp_enc_r)/2;
 		location_x = update_location(location_x, get_x_distance_traveled(encoder_average, 0));
 		time = time+TIMESTEP/1000;
 
 		print_counter++;
-		if (print_counter >= 1000){
+		if (print_counter >= 100){
 			print_counter = 0;
-			printf("Time: %d, Location: %f, L_ENC: %d, R_ENC %d, ENC AV: %d", time, location_x, get_encoder_value(LENCODER), get_encoder_value(RENCODER), encoder_average);
+			printf("Time: %d, Location: %f, L_ENC: %d, R_ENC %d, ENC AV: %d \n", time, location_x, temp_enc_l, temp_enc_r, encoder_average);
 			}
 		}
 
