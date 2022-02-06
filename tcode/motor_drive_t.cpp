@@ -20,6 +20,8 @@
 #include "motor_drive.h"
 #include "localize.h"
 
+#include <pthread.h>
+#include <signal.h>
 
 #define TIMESTEP 1000
 
