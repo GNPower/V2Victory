@@ -19,9 +19,10 @@
 #define BUF_SIZE 1024
 #define SHM_KEY 0x1234
 
-volatile int count;
+volatile int l_encoder;
+volatile int r_encoder;
 
-void* counter(void*){
+void* l_encode(void*){
 	char str[256];
 	int fd;
 	struct pollfd pfd;
@@ -50,7 +51,44 @@ void* counter(void*){
 
 		lseek(fd, 0, SEEK_SET);
 		read(fd, buf, sizeof buf);
-		count ++;
+		l_encoder ++;
+		
+
+	}
+	return NULL;
+
+}
+
+void* r_encode(void*){
+	char str[256];
+	int fd;
+	struct pollfd pfd;
+	char buf[8];
+
+
+	sprintf(str, "/sys/class/gpio/gpio%d/value", RENCODER);
+	
+	if ((fd = open(str, O_RDONLY)) < 0){
+		fprintf(stderr, "Failed to open gpio value for monitor \n");
+		printf("ERROR: %d \n", errno);
+		printf("/sys/class/gpio/gpio%d/value \n", RENCODER);
+		
+	}
+
+	while(1){
+
+
+		pfd.fd = fd;
+		pfd.events = POLLPRI;
+
+		lseek(fd, 0, SEEK_SET);
+		read(fd, buf, sizeof buf);
+		poll(&pfd, 1, -1);
+
+
+		lseek(fd, 0, SEEK_SET);
+		read(fd, buf, sizeof buf);
+		r_encoder ++;
 		
 
 	}
@@ -84,7 +122,7 @@ int main(){
 	pthread_create(&tid, NULL, counter, NULL);
 
 	while(1){
-		printf("COUNT: %d \n", count);
+		printf("LEFT: %d \t RIGHT: %d \n", l_encoder, r_encoder);
 		if(GPIORead(STOP)) break;
 		usleep(10000);
 	}
