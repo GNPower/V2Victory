@@ -12,89 +12,14 @@
 
 #include "motor_drive.h"
 #include "localize.h"
+#include "encode.h"
+
 #include <poll.h>
 #include <pthread.h>
 #include <signal.h>
 
 #define BUF_SIZE 1024
 #define SHM_KEY 0x1234
-
-volatile int l_encoder;
-volatile int r_encoder;
-
-void* l_encode(void*){
-	char str[256];
-	int fd;
-	struct pollfd pfd;
-	char buf[8];
-
-
-	sprintf(str, "/sys/class/gpio/gpio%d/value", LENCODER);
-	
-	if ((fd = open(str, O_RDONLY)) < 0){
-		fprintf(stderr, "Failed to open gpio value for monitor \n");
-		printf("ERROR: %d \n", errno);
-		printf("/sys/class/gpio/gpio%d/value \n", LENCODER);
-		
-	}
-
-	while(1){
-
-
-		pfd.fd = fd;
-		pfd.events = POLLPRI;
-
-		lseek(fd, 0, SEEK_SET);
-		read(fd, buf, sizeof buf);
-		poll(&pfd, 1, -1);
-
-
-		lseek(fd, 0, SEEK_SET);
-		read(fd, buf, sizeof buf);
-		l_encoder ++;
-		
-
-	}
-	return NULL;
-
-}
-
-void* r_encode(void*){
-	char str[256];
-	int fd;
-	struct pollfd pfd;
-	char buf[8];
-
-
-	sprintf(str, "/sys/class/gpio/gpio%d/value", RENCODER);
-	
-	if ((fd = open(str, O_RDONLY)) < 0){
-		fprintf(stderr, "Failed to open gpio value for monitor \n");
-		printf("ERROR: %d \n", errno);
-		printf("/sys/class/gpio/gpio%d/value \n", RENCODER);
-		
-	}
-
-	while(1){
-
-
-		pfd.fd = fd;
-		pfd.events = POLLPRI;
-
-		lseek(fd, 0, SEEK_SET);
-		read(fd, buf, sizeof buf);
-		poll(&pfd, 1, -1);
-
-
-		lseek(fd, 0, SEEK_SET);
-		read(fd, buf, sizeof buf);
-		r_encoder ++;
-		
-
-	}
-	return NULL;
-
-}
 
 
 int main(){
@@ -131,8 +56,8 @@ int main(){
 		return 2;
 
 
-	pthread_create(&left_tid, NULL, l_encode, NULL);
-	pthread_create(&right_tid, NULL, r_encode, NULL);
+	pthread_create(&left_tid, NULL, poll_l_encoder, NULL);
+	pthread_create(&right_tid, NULL, poll_r_encoder, NULL);
 
 	while(1){
 		printf("LEFT: %d \t RIGHT: %d \n", l_encoder, r_encoder);
