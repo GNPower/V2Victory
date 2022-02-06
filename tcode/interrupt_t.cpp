@@ -5,16 +5,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
-
-#include<sys/ipc.h>
-#include<sys/shm.h>
 
 #include "motor_drive.h"
 #include "localize.h"
 #include "encode.h"
 
-#include <poll.h>
+
 #include <pthread.h>
 #include <signal.h>
 
