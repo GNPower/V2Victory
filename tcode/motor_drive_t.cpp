@@ -19,6 +19,7 @@
 
 #include "motor_drive.h"
 #include "localize.h"
+#include "encode.h"
 
 #include <pthread.h>
 #include <signal.h>
@@ -27,7 +28,8 @@
 
 int main(int argc, char *argv[]){
 	printf("Onlookers were shocked \n");
-	
+
+	pthread_t left_tid, right_tid;
 	int duty_a = atoi(argv[1]);
 	int duty_b = atoi(argv[1]);
 	int target_x = atoi(argv[2]);
