@@ -15,8 +15,6 @@
 #include <poll.h>
 #include <string.h>
 
-volatile int l_encoder;
-volatile int r_encoder;
 
 void* poll_l_encoder(void*);
 void* poll_r_encoder(void*);
