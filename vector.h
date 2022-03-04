@@ -12,7 +12,7 @@ public:
     Scalar x;
     Scalar y;
     Vector(Scalar x, Scalar y);
-    static Scalar distance(Vector v1, Vector v2);
+    static Scalar distance(const Vector v1, const Vector v2);
 };
 
 
