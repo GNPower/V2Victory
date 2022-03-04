@@ -1,6 +1,9 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include <ostream>
+
+
 typedef float Scalar;
 
 
@@ -11,5 +14,10 @@ public:
     Vector(Scalar x, Scalar y);
     static Scalar distance(Vector v1, Vector v2);
 };
+
+
+Vector operator+(const Vector v1, const Vector v2);
+Vector operator-(const Vector v1, const Vector v2);
+std::ostream &operator<<(std::ostream &out, const Vector v);
 
 #endif
