@@ -16,6 +16,8 @@
 #define TRAFFIC_ABS_DIFF 10 //amount of cars difference to trigger switch
 #define TRAFFIC_REL_DIFF 4.0 //relative difference in amount of cars to trigger switch
 #define MAX_STOP_SIGN_COAST 0.1 //how long since last update at stop sign
+#define STOPPED_SPEED 0.1 //minimum speed considered stop (tolerance)
+#define STOPPED_TIME 0.5 //amount of time vehicle must stop at stop sign before continuing
 #define STOP_SIGN_DISTANCE 2.0 //range vehicle must be from entrance to be considered stopped at the intersection
 #define EMS_COASTING 0.1 //how long since last update for EMS override
 
@@ -23,6 +25,7 @@
 #define SMART_TIMING_ENABLE //Stretch Goal #1: Smart Signal Timing
 #define EMS_OVERRIDE_ENABLE //Stretch Goal #2: Emergency Vehicle Response
 #define STOP_SIGN_ENABLE //Stretch Goal #4: Stop Sign Intersections
+#define PLATOONING_ENABLE //Stretch Goal #5: Platooning System
 
 //Enums
 enum y_int_state {RED, YELLOW, GREEN};
@@ -48,7 +51,7 @@ struct s_stopped_vehicle {
 };
 #endif
 
-struct s_new_vehicle_data {
+struct s_published_vehicle_data {
     unsigned int veh_id;
     double veh_pos_x;
     double veh_pos_y;
@@ -58,6 +61,11 @@ struct s_new_vehicle_data {
     #ifdef EMS_OVERRIDE_ENABLE
     y_veh_type veh_type;
     bool override;
+    #endif
+
+    #ifdef PLATOONING_ENABLE
+    bool platooning;
+    double platoon_set_speed;
     #endif
 };
 
@@ -77,17 +85,13 @@ struct s_input_vehicle_data {
     #endif
 };
 
-struct s_int_data {
+struct s_published_int_data {
     double ent_dir_1;
     double ent_dir_2;
     double int_length;
     double int_pos_x;
     double int_pos_y;
     unsigned int int_id;
-
-    #ifdef STOP_SIGN_ENABLE
-    y_int_type int_type;
-    #endif
 
     y_int_state int_1_state;
     y_int_state int_1_next_state;
@@ -98,6 +102,7 @@ struct s_int_data {
     double int_2_time_to_switch;
 
     #ifdef STOP_SIGN_ENABLE
+    y_int_type int_type;
     unsigned int int_next_veh_id;
     #endif
 };
@@ -118,14 +123,14 @@ class intersection
         
         //Callback
         #ifdef SIM
-        void new_vehicle_callback(s_new_vehicle_data data);
+        void new_vehicle_callback(s_published_vehicle_data data);
         #else
         void new_vehicle_callback(const std_msgs::String::ConstPtr& msg);
         #endif
 
         //Publish
         #ifdef SIM
-        s_int_data publish(void);
+        s_published_int_data publish(void);
         #else
         void publish(void);
         #endif
@@ -151,9 +156,9 @@ class intersection
         //Monitored Variables
         #if defined(SMART_TIMING_ENABLE) || defined(STOP_SIGN_ENABLE) || defined(EMS_OVERRIDE_ENABLE)
         int num_vehicles;
-        struct s_input_vehicle_data m_vehicle_data[MAX_VEHICLES];
+        s_input_vehicle_data m_vehicle_data[MAX_VEHICLES];
         int num_new_vehicles;
-        struct s_input_vehicle_data new_vehicles[MAX_VEHICLES];
+        s_input_vehicle_data new_vehicles[MAX_VEHICLES];
         //new_vehicles will be updated using callback in ROS on subscriber, in sim can then use as public function to update new_vehicles
         #endif
 
@@ -177,6 +182,7 @@ class intersection
         //Internal Variables
         double int_ent_pos_x[4];
         double int_ent_pos_y[4];
+        double int_ent_headings[4];
 
         #ifdef SMART_TIMING_ENABLE
         bool priority_enable;
@@ -201,7 +207,7 @@ class intersection
 
         //Functions
         //Init
-        void init_int_ent_pos(void);
+        void init_int_ent_data(void);
         void init_states(void);
         void init_traffic_signal(void);
         #if defined(SMART_TIMING_ENABLE) || defined(STOP_SIGN_ENABLE) || defined(EMS_OVERRIDE_ENABLE)
@@ -220,6 +226,7 @@ class intersection
         #if defined(SMART_TIMING_ENABLE) || defined(STOP_SIGN_ENABLE) || defined(EMS_OVERRIDE_ENABLE)
         void update_traffic_tracker(double dt);
         void assign_int_ents(void);
+        void reset_new_vehicles(void);
         #endif
         #ifdef SMART_TIMING_ENABLE
         void update_traffic_priority(void);
@@ -251,7 +258,7 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
     #endif
 
     //Initialize Intersection Entrance Positions
-    init_int_ent_pos();
+    init_int_ent_data();
 
     //States need validation
     p_ped_countdowns = ped_countdowns;
@@ -260,6 +267,7 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
     p_time_to_switch_1[2] = time_to_switch[2];
 
     //Init Intersection
+    init_states(); //needed in stopsign for publish
     #ifdef STOP_SIGN_ENABLE
     if (k_int_type == STOP)
     {
@@ -267,11 +275,9 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
     }
     else
     {
-        init_states();
         init_traffic_signal();
     }
     #else
-    init_states();
     init_traffic_signal();
     #endif
 
@@ -287,14 +293,14 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
 }
 
 #ifdef SIM
-s_int_data intersection::publish(void)
+s_published_int_data intersection::publish(void)
 #else
 void intersection::publish(void)
 #endif
 {
     #ifdef SIM
     //just output the data
-    s_int_data int_data;
+    s_published_int_data int_data;
     int_data.ent_dir_1 = k_ent_dirs[0];
     int_data.ent_dir_2 = k_ent_dirs[1];
     int_data.int_length = k_int_length;
@@ -319,19 +325,20 @@ void intersection::publish(void)
     #endif
     
     return int_data;
+
     #else
     //ROS setup here
     #endif
 }
 
 #ifdef SIM
-void intersection::new_vehicle_callback(s_new_vehicle_data data)
+void intersection::new_vehicle_callback(s_published_vehicle_data data)
 #else
 void intersection::new_vehicle_callback(const std_msgs::String::ConstPtr& msg)
 #endif
 {
     #ifndef SIM
-    //actually parse data, put into new_vehicle_data struct
+    //actually parse data, put into new_vehicle_data struct, then do below
     #endif
 
     if (num_new_vehicles < MAX_VEHICLES)
@@ -507,6 +514,12 @@ void intersection::update_traffic_signal(double dt)
                     }
                 }
             }
+            else
+            {
+                //Direction #1 is yellow, Direction #2 should be red
+                c_int_1_next_state = GREEN;
+                c_int_2_next_state = RED;
+            }
        } 
        else
        {
@@ -543,6 +556,12 @@ void intersection::update_traffic_signal(double dt)
                     }
                }
            }
+           else
+            {
+                //Direction #2 is yellow, Direction #1 should be red
+                c_int_2_next_state = GREEN;
+                c_int_1_next_state = RED;
+            }
        }
     }
     #endif
@@ -753,7 +772,7 @@ void intersection::update_traffic_tracker(double dt)
             {
                 for (int j = i; j < (num_vehicles - 1); j++)
                 {
-                    m_vehicle_data[j] = m_vehicle_data[j+1];
+                    m_vehicle_data[j] = m_vehicle_data[j + 1];
                 }
                 //lastly reset final vehicle
                 m_vehicle_data[num_vehicles - 1].veh_id = 0;
@@ -797,6 +816,9 @@ void intersection::update_traffic_tracker(double dt)
         }
     }
 
+    //new tracks are added, now reset new_vehicles for future callbacks
+    reset_new_vehicles();
+
     //now assign intersection entrance (-1 means already exited intersection)
     assign_int_ents();
 
@@ -838,16 +860,7 @@ void intersection::assign_int_ents(void)
         double closest_ent_dist = ent_dist;
 
         //Difference in heading compared to entrance
-        double dir_angle;
-        if (k_ent_dirs[0] >= 180)
-        {
-            dir_angle = k_ent_dirs[0] - 180;
-        }
-        else 
-        {
-            dir_angle = k_ent_dirs[0] + 180;
-        }
-        double ent_heading = abs(dir_angle - m_vehicle_data[i].veh_heading);
+        double ent_heading = abs(int_ent_headings[0] - m_vehicle_data[i].veh_heading);
         if (ent_heading > 180)
         {
             ent_heading = 360 - ent_heading;
@@ -862,26 +875,7 @@ void intersection::assign_int_ents(void)
             ent_dist = pow(ent_dist_x, 2) + pow(ent_dist_y, 2);
 
             //Calculate Heading
-            switch(j)
-            {
-                case 1:
-                    dir_angle = k_ent_dirs[0];
-                    break;
-                case 2:
-                    if (k_ent_dirs[1] >= 180)
-                    {
-                        dir_angle = k_ent_dirs[1] - 180;
-                    }
-                    else 
-                    {
-                        dir_angle = k_ent_dirs[1] + 180;
-                    }
-                    break;
-                case 3:
-                    dir_angle = k_ent_dirs[1];
-                    break;
-            }
-            ent_heading = abs(dir_angle - m_vehicle_data[i].veh_heading);
+            ent_heading = abs(int_ent_headings[j] - m_vehicle_data[i].veh_heading);
             if (ent_heading > 180)
             {
                 ent_heading = 360 - ent_heading;
@@ -937,6 +931,27 @@ void intersection::assign_int_ents(void)
         {
             m_vehicle_data[i].int_entrance = -1; //exiting intersection
         }
+    }
+}
+
+void intersection::reset_new_vehicles(void)
+{
+    num_new_vehicles = 0;
+    for (int i = 0; i < MAX_VEHICLES; i++)
+    {
+        new_vehicles[i].veh_id = 0;
+        new_vehicles[i].veh_pos_x  = 0;
+        new_vehicles[i].veh_pos_y = 0;
+        new_vehicles[i].veh_speed = 0;
+        new_vehicles[i].veh_heading = 0;
+        new_vehicles[i].time_since_update = 0;
+        new_vehicles[i].in_int = false;
+        new_vehicles[i].int_entrance = -1;
+
+        #ifdef EMS_OVERRIDE_ENABLE
+        new_vehicles[i].veh_type = NORMAL;
+        new_vehicles[i].override = false;
+        #endif
     }
 }
 #endif
@@ -1021,7 +1036,7 @@ void intersection::update_stop_sign_priority(double dt)
         {
             if (existing_id == m_vehicle_data[j].veh_id)
             {
-                if (m_vehicle_data[j].veh_speed <= 0.1 && m_vehicle_data[j].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[i].int_entrance != -1 && !m_vehicle_data[i].in_int)
+                if (m_vehicle_data[j].veh_speed <= STOPPED_SPEED && m_vehicle_data[j].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[i].int_entrance != -1 && !m_vehicle_data[i].in_int)
                 {
                     //still stopped, recently updated, approaching intersection, not inside intersection
                     stopped_vehicles[i].time_stopped += dt;
@@ -1062,7 +1077,7 @@ void intersection::update_stop_sign_priority(double dt)
     //now add any new vehicles
     for (int i = 0; i < num_vehicles; i++)
     {
-        if (m_vehicle_data[i].veh_speed <= 0.1 && m_vehicle_data[i].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[i].int_entrance != -1 && !m_vehicle_data[i].in_int)
+        if (m_vehicle_data[i].veh_speed <= STOPPED_SPEED && m_vehicle_data[i].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[i].int_entrance != -1 && !m_vehicle_data[i].in_int)
         {
             //must be stopped, updated recent enough, not past the intersection and not in the intersection
             bool match_found = false;
@@ -1109,7 +1124,7 @@ void intersection::update_stop_sign_priority(double dt)
     //now update next vehicle if id is currently 0
     if (next_stopped_veh_id == 0)
     {
-        double max_time_stopped = 0;
+        double max_time_stopped = STOPPED_TIME;
         for (int i = 0; i < num_stopped_vehicles; i++)
         {
             if (stopped_vehicles[i].time_stopped > max_time_stopped)
@@ -1146,8 +1161,11 @@ void intersection::init_traffic_tracker(void)
     #endif
 
     num_vehicles = 0;
+    num_new_vehicles = 0;
+
     for (int i = 0; i < MAX_VEHICLES; i++)
     {
+        //existing vehicles
         m_vehicle_data[i].veh_id = 0;
         m_vehicle_data[i].veh_pos_x  = 0;
         m_vehicle_data[i].veh_pos_y = 0;
@@ -1161,6 +1179,9 @@ void intersection::init_traffic_tracker(void)
         m_vehicle_data[i].veh_type = NORMAL;
         m_vehicle_data[i].override = false;
         #endif
+
+        //new vehicle
+        new_vehicles[i] = m_vehicle_data[i];
     }
 }
 #endif
@@ -1234,7 +1255,7 @@ void intersection::init_states(void)
     }
 }
 
-void intersection::init_int_ent_pos(void)
+void intersection::init_int_ent_data(void)
 {
     //entrance directions are in degrees
     double x, y, angle;
@@ -1268,6 +1289,29 @@ void intersection::init_int_ent_pos(void)
         int_ent_pos_x[i] = x;
         int_ent_pos_y[i] = y;
     }
+
+    //setup entrance headings
+    if (k_ent_dirs[0] >= 180)
+    {
+        int_ent_headings[0] = k_ent_dirs[0] - 180;
+    }
+    else 
+    {
+        int_ent_headings[0] = k_ent_dirs[0] + 180;
+    }
+
+    int_ent_headings[1] = k_ent_dirs[0];
+
+    if (k_ent_dirs[1] >= 180)
+    {
+        int_ent_headings[2] = k_ent_dirs[1] - 180;
+    }
+    else 
+    {
+        int_ent_headings[2] = k_ent_dirs[1] + 180;
+    }
+
+    int_ent_headings[3] = k_ent_dirs[1];
 }
 
 int main(void)
@@ -1279,9 +1323,10 @@ int main(void)
     double int_pos_x = 0.0;
     double int_pos_y = 0.0;
     y_int_type int_type = SIGNAL;
+    unsigned int id = 1;
     double ped_countdown = 5.0;
 
-    intersection test_int(ent_dirs, int_length, int_pos_x, int_pos_y, int_type, 1, ped_countdown, tts);
+    intersection test_int(ent_dirs, int_length, int_pos_x, int_pos_y, int_type, id, ped_countdown, tts);
     std::cout << "Initialized\n";
     
 }
