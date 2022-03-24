@@ -26,13 +26,11 @@ float get_y_distance_traveled(int enc_value, int heading){
 
 inline void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
 	*distance = (float)ego->position_x - (float)target->position_x;
-	printf("xdist: %f\n", *distance);
 	}
 
 
 inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
 	*distance = (float)ego->position_y - (float)target->position_y;
-	printf("ydist: %f\n", *distance);
 	}
 
 
@@ -49,4 +47,11 @@ void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* dista
 	*distance = sqrt((x_distance*x_distance)+(y_distance*y_distance));
 	} 
 
+void get_direction(Vehicle_Data *ego, Intersection_Data *target, float* direction){
+	float x_distance, y_distance;
+	get_x_distance(ego, target, &x_distance);
+	get_y_distance(ego, target, &y_distance);
+	*direction = atan2(y_distance, x_distance);
+
+	} 
 
