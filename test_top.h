@@ -3,11 +3,6 @@
 
 #include "stdint.h"
 
-#include "localize/localize.h"
-#include "motor_drive/motor_drive.h"
-#include "encoder/encode.h"
-
-
 struct Vehicle_Data{
 	uint32_t position_x, position_y;
 	uint32_t heading;

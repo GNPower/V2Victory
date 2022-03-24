@@ -11,6 +11,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include "test_top.h"
 
 #define IN 0
 #define OUT 1
