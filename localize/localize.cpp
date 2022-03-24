@@ -25,12 +25,12 @@ float get_y_distance_traveled(int enc_value, int heading){
 
 
 inline void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
-	distance = (float)ego->position_x - (float)target->position_x;
+	distance = (float)(ego->position_x) - (float)(target->position_x);
 	}
 
 
 inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
-	distance = (float)ego->position_y - (float)target->position_y;
+	distance = (float)(ego->position_y) - (float)(target->position_y);
 	}
 
 
