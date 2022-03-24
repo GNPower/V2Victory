@@ -1,6 +1,7 @@
 //vehicle.hpp
 #include "defines.hpp"
 #include "common.hpp"
+#include <stdint.h>
 
 //Structs
 struct s_vehicle_data {
@@ -9,7 +10,7 @@ struct s_vehicle_data {
     double veh_pos_y;
     double veh_speed;
     double veh_heading;
-    uint8 veh_priority;
+    uint8_t veh_priority;
 
     double time_since_update;
 
