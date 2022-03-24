@@ -19,9 +19,9 @@ float get_y_distance_traveled(int enc_value, int heading);
 
 void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance);
 
-float get_x_distance(float current_x, float target_x);
+void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance);
 
-float get_y_distance(float current_y, float target_y);
+void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance);
 
 void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance);
 
