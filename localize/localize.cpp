@@ -24,13 +24,13 @@ float get_y_distance_traveled(int enc_value, int heading){
 	}
 
 
-inline void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, uint32_t* distance){
-	distance = ego->position_x - target->position_x;
+inline void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
+	distance = (float)ego->position_x - (float)target->position_x;
 	}
 
 
-inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, uint32_t* distance){
-	distance = ego->position_y - target->position_y;
+inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
+	distance = (float)ego->position_y - (float)target->position_y;
 	}
 
 
@@ -41,7 +41,7 @@ void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance
 
 
 void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance){
-	uint32_t x_distance, y_distance;
+	float x_distance, y_distance;
 	get_x_distance(ego, target, &x_distance);
 	get_y_distance(ego, target, &y_distance);
 	*distance = sqrt((x_distance*x_distance)+(y_distance*y_distance));
