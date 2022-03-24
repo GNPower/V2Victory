@@ -19,9 +19,14 @@ int main(){
 
 	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
 	update_location(&ego, 2, 7);
-
-
 	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
+	
+
+	float distance;
+	get_abs_distance(&ego, &intersection, &distance);
+	printf("dist: %d\n", distance);
+
+
 	printf("No Sleep Till Brooklyn \n");
 
 
