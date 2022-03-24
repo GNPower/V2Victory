@@ -23,6 +23,6 @@ float get_x_distance(float current_x, float target_x);
 
 float get_y_distance(float current_y, float target_y);
 
-void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* x_y_distance[]);
+void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance);
 
 #endif

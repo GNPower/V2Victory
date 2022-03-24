@@ -24,7 +24,7 @@ int main(){
 
 	float distance;
 	get_abs_distance(&ego, &intersection, &distance);
-	printf("dist: %d\n", distance);
+	printf("dist: %l\n", distance);
 
 
 	printf("No Sleep Till Brooklyn \n");
