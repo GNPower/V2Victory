@@ -9,6 +9,7 @@ struct s_vehicle_data {
     double veh_pos_y;
     double veh_speed;
     double veh_heading;
+    uint8 priority;
 
     double time_since_update;
 
