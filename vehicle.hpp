@@ -9,7 +9,7 @@ struct s_vehicle_data {
     double veh_pos_y;
     double veh_speed;
     double veh_heading;
-    uint8 priority;
+    uint8 veh_priority;
 
     double time_since_update;
 
@@ -18,6 +18,8 @@ struct s_vehicle_data {
     double platoon_set_speed;
     #endif
 };
+
+typedef s_vehicle_data s_vehicle_data;
 
 struct s_int_data {
     double int_ent_pos_x[4];
@@ -42,6 +44,7 @@ struct s_int_data {
     #endif
 };
 
+typedef s_int_data s_int_data;
 
 //Class
 class vehicle
