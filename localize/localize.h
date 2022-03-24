@@ -7,9 +7,6 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "test_top.h"
-
-
 #define RADIUS 3.3
 #define PI 3.14159
 
