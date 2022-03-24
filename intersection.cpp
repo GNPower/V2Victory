@@ -615,12 +615,36 @@ void intersection::assign_int_ents(void)
         //determine if vehicle is approaching or exiting intersection
         //if approaching determine from which entrance
         int closest_ent = 0;
+        bool approach_ent = false;
         
         //Distance to entrance
-        double ent_dist_x = coasted_x - int_ent_pos_x[0];
-        double ent_dist_y = coasted_y - int_ent_pos_y[0];
+        double ent_dist_x = int_ent_pos_x[0] - coasted_x;
+        double ent_dist_y = int_ent_pos_y[0] - coasted_y;
         double ent_dist = pow(ent_dist_x,2) + pow(ent_dist_y,2); //don't need sqrt to determine closest
         double closest_ent_dist = ent_dist;
+
+        //need to see if approaching or leaving
+        //assume const vel and see if time to reach is positive
+        double x_time, y_time;
+        if (ent_dist_x == 0)
+        {
+            x_time = 0;
+        }
+        else
+        {
+            x_time = ent_dist_x/cos(M_PI/180*m_vehicle_data[i].veh_heading);
+        }
+        
+        if (ent_dist_y == 0)
+        {
+            y_time = 0;
+        }
+        else
+        {
+            y_time = ent_dist_y/sin(M_PI/180*m_vehicle_data[i].veh_heading);
+        }
+            
+        approach_ent = x_time >= 0 && y_time >= 0;
 
         //Difference in heading compared to entrance
         double ent_heading = abs(int_ent_headings[0] - m_vehicle_data[i].veh_heading);
@@ -633,8 +657,8 @@ void intersection::assign_int_ents(void)
         for (int j = 1; j < 4; j++) //start at 1 since 0 index used in init
         {
             //Calculate Distance
-            ent_dist_x = coasted_x - int_ent_pos_x[j];
-            ent_dist_y = coasted_y - int_ent_pos_y[j];
+            ent_dist_x = int_ent_pos_x[j] - coasted_x;
+            ent_dist_y = int_ent_pos_y[j] - coasted_y;
             ent_dist = pow(ent_dist_x, 2) + pow(ent_dist_y, 2);
 
             //Calculate Heading
@@ -650,28 +674,34 @@ void intersection::assign_int_ents(void)
                 closest_ent = j;
                 closest_ent_dist = ent_dist;
                 closest_ent_heading = ent_heading;
+
+                //need to see if approaching or leaving
+                //assume const vel and see if time to reach is positive
+                double x_time, y_time;
+                if (ent_dist_x == 0)
+                {
+                    x_time = 0;
+                }
+                else
+                {
+                    x_time = ent_dist_x/cos(M_PI/180*m_vehicle_data[i].veh_heading);
+                }
+                
+                if (ent_dist_y == 0)
+                {
+                    y_time = 0;
+                }
+                else
+                {
+                    y_time = ent_dist_y/sin(M_PI/180*m_vehicle_data[i].veh_heading);
+                }
+                    
+                approach_ent = x_time >= 0 && y_time >= 0;
             }
         }
         //now have closest int, distance to int, heading difference
 
         //check in intersection:
-        //get min and max x and y (needs to be within bounds)
-        bool in_int;
-        double min_x, max_x, min_y, max_y;
-        if (closest_ent == 0 || closest_ent == 1)
-        {
-            min_x = fmin(int_ent_pos_x[0], int_ent_pos_x[1]);
-            max_x = fmax(int_ent_pos_x[0], int_ent_pos_x[1]);
-            min_y = fmin(int_ent_pos_y[0], int_ent_pos_y[1]);
-            max_y = fmax(int_ent_pos_y[0], int_ent_pos_y[1]);
-        }
-        else
-        {
-            min_x = fmin(int_ent_pos_x[2], int_ent_pos_x[3]);
-            max_x = fmax(int_ent_pos_x[2], int_ent_pos_x[3]);
-            min_y = fmin(int_ent_pos_y[2], int_ent_pos_y[3]);
-            max_y = fmax(int_ent_pos_y[2], int_ent_pos_y[3]);
-        }
         //actual check is here
         if (coasted_x > min_x && coasted_x < max_x && coasted_y > min_y && coasted_y < max_y)
         {
@@ -694,6 +724,11 @@ void intersection::assign_int_ents(void)
         {
             m_vehicle_data[i].int_entrance = -1; //exiting intersection
         }
+
+        #ifdef DEBUG
+        std::cout << "assign_int_ents: Vehicle ID: " << m_vehicle_data[i].veh_id << "\tEntrance: " << m_vehicle_data[i].int_entrance << "\tIn Int: " << m_vehicle_data[i].in_int << "\n";
+        std::cout << "assign_int_ents: Position X: " << coasted_x << "\t Position Y: " << coasted_y << "\n";
+        #endif
     }
 }
 
@@ -1021,7 +1056,13 @@ void intersection::init_states(void)
 void intersection::init_int_ent_data(void)
 {
     //entrance directions are in degrees
+    //entrance 0 is forward from center by dir 1 (heading is opposite of dir 1)
+    //entrance 1 is backward from center by dir 1 (heading is same as dir 1)
+    //entrance 2 is forward from center by dir 2 (heading is opposite of dir 2)
+    //entrance 3 is backward from center by dir 2 (heading is same as dir 2)
+    //all the entrance headings are backwards of these since those are angle of entrance through intersection
     double x, y, angle;
+    
     for (int i = 0; i < 4; i++)
     {
         if (i < 2) //Entrance Direction #1
@@ -1049,9 +1090,35 @@ void intersection::init_int_ent_data(void)
             y = k_int_pos_y - y_delta;
         }
 
+        if (i == 0)
+        {
+            //need to initialize values
+            min_x = x;
+            max_x = x;
+            min_y = y;
+            max_y = y;
+        }
+        else
+        {
+            //compare
+            min_x = fmin(min_x, x);
+            max_x = fmax(max_x, x);
+            min_y = fmin(min_y, y);
+            max_y = fmax(max_y, y);
+        }
+
         int_ent_pos_x[i] = x;
         int_ent_pos_y[i] = y;
+
+        #ifdef DEBUG
+        std::cout << "Ent #: " << i << "\tX: " << x << "\tY: " << y << "\n";
+        #endif
+
     }
+
+    #ifdef DEBUG
+    std::cout << "Min X: " << min_x << "\tMax X: " << max_x << "\tMin Y: " << min_y << "\tMax Y: " << max_y << "\n";
+    #endif
 
     //setup entrance headings
     if (k_ent_dirs[0] >= 180)

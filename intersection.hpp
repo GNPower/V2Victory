@@ -110,6 +110,10 @@ class intersection
         double int_ent_pos_x[4];
         double int_ent_pos_y[4];
         double int_ent_headings[4];
+        double min_x;
+        double max_x;
+        double min_y;
+        double max_y;
 
         #ifdef SMART_TIMING_ENABLE
         bool priority_enable;

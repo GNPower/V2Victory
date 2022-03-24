@@ -214,6 +214,11 @@ void vehicle::new_int_callback(const std_msgs::String::ConstPtr& msg)
         #endif
         
         //copied from intersection, same logic
+        //entrance 0 is forward from center by dir 1 (heading is opposite of dir 1)
+        //entrance 1 is backward from center by dir 1 (heading is same as dir 1)
+        //entrance 2 is forward from center by dir 2 (heading is opposite of dir 2)
+        //entrance 3 is backward from center by dir 2 (heading is same as dir 2)
+        //all the entrance headings are backwards of these since those are angle of entrance through intersection
         double x, y, angle;
         for (int i = 0; i < 4; i++)
         {
@@ -356,22 +361,38 @@ void vehicle::update_sys_accel_req(void)
 
     if (lead_exists && approaching_int)
     {
+        #ifdef DEBUG
+        std::cout << "update_sys_accel_req: Lead + Intersection\n";
+        #endif
+
         double int_accel_req = get_int_accel_req();
         double lead_accel_req = get_lead_accel_req();
         system_accel_req = fmin(int_accel_req, lead_accel_req);
     }
     else if (lead_exists)
     {
+        #ifdef DEBUG
+        std::cout << "update_sys_accel_req: Lead\n";
+        #endif
+
         //lead vehicle, no intersection
         system_accel_req = get_lead_accel_req();
     }
     else if (approaching_int)
     {
+        #ifdef DEBUG
+        std::cout << "update_sys_accel_req: Intersection\n";
+        #endif
+
         //intersection, no lead vehicle
         system_accel_req = get_int_accel_req();
     }
     else
     {
+        #ifdef DEBUG
+        std::cout << "update_sys_accel_req: None\n";
+        #endif
+
         //no lead vehicle or intersection, go to set speed
         system_accel_req = p_set_speed - coasted_ego_speed;
     }
@@ -863,7 +884,31 @@ void vehicle::update_rel_int(void)
                 double x_dist = m_int_data[i].int_ent_pos_x[j] - coasted_ego_pos_x;
                 double y_dist = m_int_data[i].int_ent_pos_y[j] - coasted_ego_pos_y;
                 double dist = pow(x_dist, 2) + pow(y_dist, 2); //dont need to square since just for comparing
-                if (!int_found)
+
+                //need to see if approaching or leaving
+                //assume const vel and see if time to reach is positive
+                double x_time, y_time;
+                if (x_dist == 0)
+                {
+                    x_time = 0;
+                }
+                else
+                {
+                    x_time = x_dist/cos(M_PI/180*m_ego_heading);
+                }
+                
+                if (y_dist == 0)
+                {
+                    y_time = 0;
+                }
+                else
+                {
+                    y_time = y_dist/sin(M_PI/180*m_ego_heading);
+                }
+                 
+                bool pos_times = x_time >= 0 && y_time >= 0;
+
+                if (!int_found && pos_times)
                 {
                     int_found = true;
                     closest_int_dist = dist;
@@ -890,7 +935,7 @@ void vehicle::update_rel_int(void)
                     }
                     
                 }
-                else if (int_found && closest_int_dist > dist)
+                else if (int_found && pos_times && closest_int_dist > dist)
                 {
                     closest_int_dist = dist;
                     closest_int_length = m_int_data[i].int_length;

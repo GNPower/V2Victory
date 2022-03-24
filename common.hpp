@@ -5,7 +5,7 @@
 #define SYS_COMMON
 
 //Enums
-enum y_int_state {RED, YELLOW, GREEN};
+enum y_int_state {GREEN, YELLOW, RED};
 #ifdef STOP_SIGN_ENABLE
 enum y_int_type {SIGNAL, STOP};
 #endif

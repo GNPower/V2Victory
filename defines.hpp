@@ -11,6 +11,7 @@
 
 //Environment (SIM vs IRL)
 #define SIM
+#define DEBUG
 
 //Performance/Tunable
 //Intersection & Vehicle Data
