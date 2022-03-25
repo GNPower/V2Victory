@@ -65,7 +65,7 @@ s_veh_sim_data add_veh_error(s_veh_sim_data input_veh)
     output_veh.accel_req = input_veh.accel_req;
     output_veh.pos_x = input_veh.pos_x + pos_error(generator);
     output_veh.pos_y = input_veh.pos_y + pos_error(generator);
-    output_veh.speed = input_veh.speed + speed_error(generator);
+    output_veh.speed = fmax(input_veh.speed + speed_error(generator), 0); //scalar
     output_veh.heading = input_veh.heading + heading_error(generator);
 
     return output_veh;
@@ -163,12 +163,40 @@ int main(void)
     while (!sim_done)
     {
         std::cout << "\nTime: " << sim_time;
-        
+        /*
+        Note: Everything has been initialized
+        NEED TO FIGURE OUT WHEN/WHERE TO PRINTOUT VEH + INT DATA!!! (so that in sync/useful)
+        Order of Operations:
+        1. Publish Data and Send using Callbacks (Int -> Veh, Veh -> Int, Veh -> Veh)
+            - this has chance of failing (COMMS_ERROR)
+            - should add chance of corruption once CRCs are added
+            - during this step, data is written to file for visualization tool
+        2. Get Accel Requests from Vehicles
+        3. Update Vehicle Data for timestep using existing data + accel requests
+            - this should have random error so that system doesnt perfectly fulfil requests
+            - additional error to model the sensor errors (GPS, IMU, etc.) is sent to vehicles
+                - this is not effecting actual state, just measured state on vehicle callback
+        4. Update Vehicles and Intersections for timestep
+
+        Potential Future Additions: 
+        - change set speed
+            - could be random, or setup in init
+        - change driver accel req
+            - could be random or setup in init
+            - makes it hard to test system
+        - change override mode
+            - could be random or setup in init
+        - change platooning mode
+            - could be random or setup in init
+        - get vehicle driver alerts (needs to be fleshed out more)
+        */
+
+        //1. Publish Data and Send using Callbacks
         //collect int data
         for (int i = 0; i < num_ints; i++)
         {
             int_published[i] = int_list[i].publish();
-            print_sim_int_data(int_published[i]);
+            print_sim_int_data(int_published[i]); // t = sim_time
         }
 
         //collect veh data
@@ -178,7 +206,7 @@ int main(void)
         }
 
         int comms_pct;
-        //send data to eachother
+        //send int/veh data to eachother using callbacks
         for (int i = 0; i < num_ints; i++)
         {
             for (int j = 0; j < num_vehs; j++)
@@ -190,6 +218,10 @@ int main(void)
                     //comms work
                     int_list[i].new_vehicle_callback(veh_published[j]);
                 }
+                else 
+                {
+                    std::cout << "COMMS ERROR! Receiver: int #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                }
 
                 //send int data to vehs
                 comms_pct = (rand() % 100) + 1;
@@ -198,9 +230,13 @@ int main(void)
                     //comms work
                     veh_list[j].new_int_callback(int_published[i]);
                 }
+                else 
+                {
+                    std::cout << "COMMS ERROR! Receiver: veh #" << j + 1 << " \tSender: int #" << i + 1 << "\n";
+                }
             }
         }
-        //send data between vehicles
+        //send data between vehicles using callbacks
         for (int i = 0; i < num_vehs; i++)
         {
             for (int j = 0; j < num_vehs; j++)
@@ -217,10 +253,47 @@ int main(void)
                     //comms work
                     veh_list[i].new_vehicle_callback(veh_published[j]);
                 }
+                else 
+                {
+                    std::cout << "COMMS ERROR! Receiver: veh #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                }
             }
         }
 
-        //now that data has been published and callbacks have run, can update
+        //2. Get Accel Requests from Vehicles
+        //3. Update Vehicle Data
+        for (int i = 0; i < num_vehs; i++)
+        {
+            //get accel req
+            sim_vehs[i].accel_req = veh_list[i].get_accel_req();
+
+            //now update vehicle data (with some error)
+            sim_vehs[i] = update_veh_data(sim_vehs[i]);
+
+            //print vehicle's actual data
+            print_sim_veh_data(sim_vehs[i]); //t = sim_time + TIMESTEP
+            
+            //now add error to measured pos, speed, heading (actual values are unchanged)
+            s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
+
+            //print vehicle's measured data
+            std::cout << "\nVEHICLE FEEDBACK\n";
+            print_sim_veh_data(veh_error_data); // t = sim_time + TIMESTEP
+
+            //update dynamics (maybe)
+            int ego_data_pct = (rand() % 100) + 1;
+            if (ego_data_pct > EGO_DATA_ERROR_PCT)
+            {
+                //ego data works
+                veh_list[i].ego_data_callback(veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading);
+            }
+            else 
+            {
+                std::cout << "EGO DATA ERROR! veh #" << i + 1 << "\n";
+            }
+        }
+
+        //4. Update Vehicles and Intersections
         //update ints
         for (int i = 0; i < num_ints; i++)
         {
@@ -230,39 +303,15 @@ int main(void)
         //update vehs
         for (int i = 0; i < num_vehs; i++)
         {
-            //first update pos, speed based on accel req (with some error)
-            sim_vehs[i] = update_veh_data(sim_vehs[i]);
-            
-            //now add error to measured pos, speed, heading (actual values are unchanged)
-            s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
-
-            //publish vehicle's sensors
-            std::cout << "\nVEHICLE FEEDBACK\n";
-            print_sim_veh_data(veh_error_data);
-
-            //update dynamics (maybe)
-            int ego_data_pct = (rand() % 100) + 1;
-            if (ego_data_pct > EGO_DATA_ERROR_PCT)
-            {
-                //ego data works
-                veh_list[i].ego_data_callback(veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading);
-            }
-
-            //now update vehicle
             veh_list[i].update(TIMESTEP);
-
-            //get accel req
-            sim_vehs[i].accel_req = veh_list[i].get_accel_req();
-
-            print_sim_veh_data(sim_vehs[i]);
-
         }
 
-    sim_time += TIMESTEP;
-    if (sim_time > MAX_TIME)
-    {
-        sim_done = true;
-    }
+        //Check if sim is finished
+        sim_time += TIMESTEP;
+        if (sim_time > MAX_TIME)
+        {
+            sim_done = true;
+        }
     }
     std::cout << "Simulation Ended!\n";
 }

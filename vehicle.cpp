@@ -344,13 +344,19 @@ void vehicle::update_accel_req(void)
     update_sys_accel_req();
 
     //check if any driver overrides apply
-    if (m_driver_accel_req >= 0)
+    if (m_driver_accel_req == 0)
+    {
+        //no driver input, take system's
+        c_accel_req = system_accel_req;
+    }
+    else if (m_driver_accel_req > 0)
     {
         //driver wants to accelerate
         c_accel_req = fmax(m_driver_accel_req, system_accel_req);
     }
     else
     {
+        //driver wants to decelerate
         c_accel_req = fmin(m_driver_accel_req, system_accel_req);
     }
 }
