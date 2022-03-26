@@ -17,6 +17,13 @@ Scalar Vector::distance(const Vector v1, const Vector v2) {
 }
 
 
+Vector Vector::from_polar_form(Scalar magnitude, Scalar angle) {
+    Scalar x = magnitude * std::cos(angle);
+    Scalar y = magnitude * std::sin(angle);
+    return Vector (x, y);
+}
+
+
 Vector operator+(const Vector v1, const Vector v2) {
     return Vector (v1.x+v2.x, v1.y+v2.y);
 }

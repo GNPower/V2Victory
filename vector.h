@@ -13,6 +13,10 @@ public:
     Scalar y;
     Vector(Scalar x, Scalar y);
     static Scalar distance(const Vector v1, const Vector v2);
+    /*
+     * "angle" is the radians CCW from the positive x direction
+     */
+    static Vector from_polar_form(Scalar magnitude, Scalar angle);
 };
 
 
