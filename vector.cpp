@@ -1,7 +1,7 @@
 #include <cmath>
 #include <ostream>
 
-#include "vector.h"
+#include "vector.hpp"
 
 
 Vector::Vector(Scalar x, Scalar y):
