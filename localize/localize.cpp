@@ -38,6 +38,6 @@ void get_speed(Vehicle_Data *ego, float timestep){
 	float x_distance, y_distance, abs_distance;
 	get_x_distance_traveled(&ego, &x_distance);
 	get_y_distance_traveled(&ego, &y_distance);
-	abs_distance = sqrt(x_distance**2 + y_distance**2);
+	abs_distance = sqrt(x_distance*x_distance + y_distance*y_distance);
 	ego->speed = (uint32_t)(abs_distance/timestep);
 }
