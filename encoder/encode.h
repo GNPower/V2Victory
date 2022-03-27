@@ -23,7 +23,10 @@
 #include <poll.h>
 #include <string.h>
 
+#include <pthread.h>
+#include <signal.h>
 
+void init_encoders(pthread_t* l_encoder, pthread_t* r_encoder);
 
 void* poll_l_encoder(void*);
 void* poll_r_encoder(void*);

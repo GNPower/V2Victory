@@ -4,6 +4,10 @@
 volatile int l_encoder;
 volatile int r_encoder;
 
+void init_encoders(pthread_t* l_encoder, pthread_t* r_encoder){
+	pthread_create(l_encoder, NULL, poll_l_encoder, NULL);
+	pthread_create(r_encoder, NULL, poll_r_encoder, NULL);
+}
 
 void* poll_l_encoder(void*){
 	char str[256];
