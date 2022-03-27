@@ -62,11 +62,11 @@ int main(int argc, char *argv[]){
 	while(1){
 
 		current_time = clock();
-		time_passed = (double)(current_time - past_time)/CLOCKS_PER_SECOND;
+		time_passed = (double)(current_time - past_time)/CLOCKS_PER_SEC;
 		printf("TIME: %f \t", time_passed);
 		past_time = current_time;
 
-		
+
 		get_x_distance_traveled(&ego, &distance_x);
 		//printf("X_t: %f\t", distance_x);
 		get_y_distance_traveled(&ego, &distance_y);
