@@ -129,6 +129,11 @@ void print_sim_veh_data(s_veh_sim_data input_veh, bool actual_data, unsigned int
 
 int main(void)
 {
+    //Setup Simulation
+    bool sim_done = false;
+    double sim_time = 0;
+    std::cout << "Time: " << sim_time << "\n";
+
     //open file if needed
     #ifdef VIS_FILE_ENABLE
     vis_file.open("vis.log");
@@ -188,9 +193,9 @@ int main(void)
         sim_vehs[i].speed = speed;
         sim_vehs[i].heading = heading;
         sim_vehs[i].accel_req = 0;
-        print_sim_veh_data(sim_vehs[i], true, veh_id);
+        print_sim_veh_data(sim_vehs[i], true, veh_id); //t = sim_time
         s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
-        print_sim_veh_data(veh_error_data, false, veh_id);
+        print_sim_veh_data(veh_error_data, false, veh_id); //t = sim_time
         veh_list.push_back(vehicle (veh_id, max_speed, veh_type, front_pos, set_speed, veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading, override, platooning, driver_accel));
         std::cout << "Vehicle Initialized! \n";
     }
@@ -199,13 +204,8 @@ int main(void)
     vis_file << "\n";
     #endif
 
-    //Setup Simulation
-    bool sim_done = false;
-    double sim_time = 0;
-
     while (!sim_done)
     {
-        std::cout << "\nTime: " << sim_time;
         /*
         Note: Everything has been initialized
         NEED TO FIGURE OUT WHEN/WHERE TO PRINTOUT VEH + INT DATA!!! (so that in sync/useful)
@@ -305,9 +305,13 @@ int main(void)
 
         //2. Get Accel Requests from Vehicles
         //3. Update Vehicle Data
-        #ifdef VIS_FILE_ENABLE
-        vis_file << sim_time + TIMESTEP;
-        #endif
+        if (sim_time + TIMESTEP <= MAX_TIME)
+        {
+            std::cout << "\nTime: " << sim_time + TIMESTEP;
+            #ifdef VIS_FILE_ENABLE
+            vis_file << sim_time + TIMESTEP;
+            #endif
+        }
         for (int i = 0; i < num_vehs; i++)
         {
             //get accel req
@@ -316,15 +320,21 @@ int main(void)
             //now update vehicle data (with some error)
             sim_vehs[i] = update_veh_data(sim_vehs[i]);
 
-            //print vehicle's actual data
-            print_sim_veh_data(sim_vehs[i], true, veh_published[i].veh_id); //t = sim_time + TIMESTEP
-            
+            if (sim_time + TIMESTEP <= MAX_TIME)
+            {
+                //print vehicle's actual data
+                print_sim_veh_data(sim_vehs[i], true, veh_published[i].veh_id); //t = sim_time + TIMESTEP
+            }
+
             //now add error to measured pos, speed, heading (actual values are unchanged)
             s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
 
             //print vehicle's measured data
-            print_sim_veh_data(veh_error_data, false, veh_published[i].veh_id); // t = sim_time + TIMESTEP
-
+            if (sim_time + TIMESTEP <= MAX_TIME)
+            {
+                print_sim_veh_data(veh_error_data, false, veh_published[i].veh_id); // t = sim_time + TIMESTEP
+            }
+            
             //update dynamics (maybe)
             int ego_data_pct = (rand() % 100) + 1;
             if (ego_data_pct > EGO_DATA_ERROR_PCT)
