@@ -13,7 +13,7 @@
 #include "../encoder/encode.h"
 
 
-void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance);
+void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance, double timestep);
 
 void get_x_distance(Vehicle_Data *ego, Intersection_Data *target, uint32_t* distance);
 

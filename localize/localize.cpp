@@ -15,7 +15,7 @@ inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* 
 
 
 void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance, float timestep){
-	abs_distance = sqrt(x_distance*x_distance + y_distance*y_distance);
+	float abs_distance = sqrt(x_distance*x_distance + y_distance*y_distance);
 	ego->speed = (uint32_t)(abs_distance/timestep);
 	ego->position_x += x_distance;
 	ego->position_y += y_distance;
