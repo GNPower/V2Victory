@@ -75,7 +75,7 @@ int main(int argc, char *argv[]){
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d TimeStep: %d\n", ego.position_x, ego.position_y, time_passed);
+			printf("X: %d, Y: %d TimeStep: %f\n", ego.position_x, ego.position_y, time_passed);
 		}
 
 		count++;
