@@ -26,6 +26,8 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include "../test_top.h"
+
 void init_encoders(pthread_t* l_encoder, pthread_t* r_encoder);
 
 void* poll_l_encoder(void*);

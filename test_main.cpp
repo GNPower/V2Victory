@@ -8,7 +8,7 @@
 #include <pthread.h>
 #include <signal.h>
 
-int main(){
+int main(int argc, char *argv[]){
 	pthread_t left_tid, right_tid;
 	float distance_x, distance_y;
 	int duty_a = atoi(argv[1]);

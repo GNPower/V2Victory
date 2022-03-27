@@ -28,8 +28,8 @@
 
 int main(int argc, char *argv[]){
 	printf("Don't Stare Directly At The Bugs \n");
-
-	pthread_t left_tid, right_tid;
+pthread_t left_tid, right_tid;
+	
 	int duty_a = atoi(argv[1]);
 	int duty_b = atoi(argv[1]);
 	int target_x = atoi(argv[2]);

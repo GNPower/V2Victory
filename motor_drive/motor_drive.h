@@ -40,6 +40,7 @@
 #define BUFFER_MAX 3
 #define BUFFER_MAX2 10
 
+#include "../test_top.h"
 
 int GPIOExport(int pin);
 int PWMExport(int pin);

@@ -11,9 +11,6 @@
 
 #include "../test_top.h"
 
-void get_x_distance_traveled(Vehicle_Data *ego, float* distance);
-
-void get_y_distance_traveled(Vehicle_Data *ego, float* distance);
 
 void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance);
 
