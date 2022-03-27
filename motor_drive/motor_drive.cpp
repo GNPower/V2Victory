@@ -1,6 +1,27 @@
 #include "motor_drive.h"
 
+int GPIO_init(){
+	if ((-1 == setup_gpio(LFORWARD, OUT))|
+		(-1 == setup_gpio(LBACKWARD, OUT))|
+		(-1 == setup_gpio(RFORWARD, OUT))|
+		(-1 == setup_gpio(STOP, IN))|
+		(-1 == setup_gpio(LENCODER, IN))|
+		(-1 == setup_gpio(RENCODER, IN))|
+		(-1 == setup_gpio(RBACKWARD, OUT)))
+		return 2;
 
+	if (-1 == GPIOEdge(LENCODER, FALLING))
+		return 2;
+	if (-1 == GPIOEdge(RENCODER, FALLING))
+		return 2;
+
+	//PWM Setup
+	if ((-1 == setup_pwm(ENA, duty_a))|
+		(-1 == setup_pwm(ENB, duty_b)))
+		return 2;
+
+	return 1;
+}
 
 int GPIOExport(int pin){
 	char buffer[BUFFER_MAX];
