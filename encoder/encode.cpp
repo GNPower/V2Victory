@@ -85,8 +85,15 @@ void* poll_r_encoder(void*){
 
 
 int get_encoder_value(int encoder){
-	if (encoder == LENCODER) return l_encoder;
-	else if (encoder == RENCODER) return r_encoder;
+	int value;
+	if (encoder == LENCODER) {
+		value = l_encoder;
+		l_encoder = 0;
+		return value};
+	else if (encoder == RENCODER) {
+		value = r_encoder;
+		r_encoder = 0;
+		return value}
 	else return -1;
 	}
 
