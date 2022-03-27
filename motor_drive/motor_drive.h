@@ -42,7 +42,7 @@
 
 #include "../test_top.h"
 
-int GPIO_init();
+int GPIO_init(int duty_a, int duty_b);
 
 int GPIOExport(int pin);
 int PWMExport(int pin);

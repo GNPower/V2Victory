@@ -1,6 +1,6 @@
 #include "motor_drive.h"
 
-int GPIO_init(){
+int GPIO_init(int duty_a, int duty_b){
 	if ((-1 == setup_gpio(LFORWARD, OUT))|
 		(-1 == setup_gpio(LBACKWARD, OUT))|
 		(-1 == setup_gpio(RFORWARD, OUT))|
@@ -22,6 +22,7 @@ int GPIO_init(){
 
 	return 1;
 }
+
 
 int GPIOExport(int pin){
 	char buffer[BUFFER_MAX];
