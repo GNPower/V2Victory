@@ -62,7 +62,7 @@ int main(int argc, char *argv[]){
 	while(1){
 
 		current_time = clock();
-		time_passed = (double)(current_time - past_time)/CLOCKS_PER_SEC;
+		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
 		past_time = current_time;
 
 
