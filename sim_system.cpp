@@ -5,8 +5,11 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include <fstream>
+#include <iomanip>
 
 #define ERROR_ENABLE
+#define VIS_FILE_ENABLE //write to file for visualization
 #define TIMESTEP 0.5 //timestep in s of simulation
 #define MAX_TIME 10.0 //max time in seconds to stop sim
 
@@ -38,6 +41,11 @@ struct s_veh_sim_data{
     double accel_req;
 };
 
+//setup file
+#ifdef VIS_FILE_ENABLE
+std::ofstream vis_file;
+#endif
+
 //setup errors
 std::default_random_engine generator;
 std::normal_distribution<double> pos_error(0, ERROR_POS);
@@ -67,7 +75,14 @@ s_veh_sim_data add_veh_error(s_veh_sim_data input_veh)
     output_veh.pos_y = input_veh.pos_y + pos_error(generator);
     output_veh.speed = fmax(input_veh.speed + speed_error(generator), 0); //scalar
     output_veh.heading = input_veh.heading + heading_error(generator);
-
+    while (output_veh.heading >= 360)
+    {
+        output_veh.heading -= 360;
+    }
+    while (output_veh.heading < 0)
+    {
+        output_veh.heading += 360;
+    }
     return output_veh;
 }
 
@@ -86,11 +101,27 @@ void print_sim_int_data(s_published_int_data input_int)
     {
         std::cout << "Next Vehicle ID: " << input_int.int_next_veh_id << "\n";
     }
+
+    #ifdef VIS_FILE_ENABLE
+    //later add stuff
+    //vis_file << "stuff"
+    #endif
 }
 
-void print_sim_veh_data(s_veh_sim_data input_veh)
+void print_sim_veh_data(s_veh_sim_data input_veh, bool actual_data, unsigned int id) //actual_data: true = sim, false = feedback (w/error)
 {
-    std::cout << "\nVEHICLE\n";
+    if (actual_data)
+    {
+        std::cout << "\nVEHICLE ACTUAL DATA\n";
+        #ifdef VIS_FILE_ENABLE
+        vis_file << std::fixed << ",(" << id << "," << std::setprecision(2) << input_veh.pos_x << "," << std::setprecision(2) << input_veh.pos_y << "," << std::setprecision(2) << input_veh.heading << ")";
+        #endif
+    }
+    else
+    {
+        std::cout << "\nVEHICLE FEEDBACK DATA\n";
+    }
+    
     std::cout << "Position X: " << input_veh.pos_x << "\tPosition Y: " << input_veh.pos_y << "\n";
     std::cout << "Speed: " << input_veh.speed << "\tHeading: " << input_veh.heading << "\n";
     std::cout << "Accel Req: " << input_veh.accel_req << "\n";
@@ -98,6 +129,12 @@ void print_sim_veh_data(s_veh_sim_data input_veh)
 
 int main(void)
 {
+    //open file if needed
+    #ifdef VIS_FILE_ENABLE
+    vis_file.open("vis.log");
+    vis_file << "0.00";
+    #endif
+
     unsigned int id = 1;
     //Initialize Intersection(s)
     int num_ints = 1;
@@ -146,15 +183,21 @@ int main(void)
         double driver_accel = 0.0;
 
         std::cout << "Initializing Vehicle...\n";
-        veh_list.push_back(vehicle (veh_id, max_speed, veh_type, front_pos, set_speed, pos_x, pos_y, speed, heading, override, platooning, driver_accel));
         sim_vehs[i].pos_x = pos_x;
         sim_vehs[i].pos_y = pos_y;
         sim_vehs[i].speed = speed;
         sim_vehs[i].heading = heading;
-        sim_vehs[i].accel_req = veh_list[i].get_accel_req();
+        sim_vehs[i].accel_req = 0;
+        print_sim_veh_data(sim_vehs[i], true, veh_id);
+        s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
+        print_sim_veh_data(veh_error_data, false, veh_id);
+        veh_list.push_back(vehicle (veh_id, max_speed, veh_type, front_pos, set_speed, veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading, override, platooning, driver_accel));
         std::cout << "Vehicle Initialized! \n";
     }
     std::cout << "All Vehicles Initialized! \n";
+    #ifdef VIS_FILE_ENABLE
+    vis_file << "\n";
+    #endif
 
     //Setup Simulation
     bool sim_done = false;
@@ -262,6 +305,9 @@ int main(void)
 
         //2. Get Accel Requests from Vehicles
         //3. Update Vehicle Data
+        #ifdef VIS_FILE_ENABLE
+        vis_file << sim_time + TIMESTEP;
+        #endif
         for (int i = 0; i < num_vehs; i++)
         {
             //get accel req
@@ -271,14 +317,13 @@ int main(void)
             sim_vehs[i] = update_veh_data(sim_vehs[i]);
 
             //print vehicle's actual data
-            print_sim_veh_data(sim_vehs[i]); //t = sim_time + TIMESTEP
+            print_sim_veh_data(sim_vehs[i], true, veh_published[i].veh_id); //t = sim_time + TIMESTEP
             
             //now add error to measured pos, speed, heading (actual values are unchanged)
             s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
 
             //print vehicle's measured data
-            std::cout << "\nVEHICLE FEEDBACK\n";
-            print_sim_veh_data(veh_error_data); // t = sim_time + TIMESTEP
+            print_sim_veh_data(veh_error_data, false, veh_published[i].veh_id); // t = sim_time + TIMESTEP
 
             //update dynamics (maybe)
             int ego_data_pct = (rand() % 100) + 1;
@@ -292,6 +337,9 @@ int main(void)
                 std::cout << "EGO DATA ERROR! veh #" << i + 1 << "\n";
             }
         }
+        #ifdef VIS_FILE_ENABLE
+        vis_file << "\n";
+        #endif
 
         //4. Update Vehicles and Intersections
         //update ints
@@ -314,4 +362,7 @@ int main(void)
         }
     }
     std::cout << "Simulation Ended!\n";
+    #ifdef VIS_FILE_ENABLE
+    vis_file.close();
+    #endif
 }
