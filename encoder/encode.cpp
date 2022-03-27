@@ -118,7 +118,7 @@ void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
 void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
 	int l_encoder, r_encoder, encoder_average;
 	float abs_traveled, y_traveled;
-	static float y_traveled;
+	static float past_y_traveled;
 
 	l_encoder = get_encoder_value(LENCODER);
 	r_encoder = get_encoder_value(RENCODER);
