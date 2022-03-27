@@ -58,12 +58,11 @@ int main(int argc, char *argv[]){
 	int count = 0;
 	clock_t past_time = clock();
 	clock_t current_time = clock();
-	double time_passed;
+	double time_passed = 0;
 	while(1){
 
 		current_time = clock();
 		time_passed = (double)(current_time - past_time)/CLOCKS_PER_SEC;
-		printf("TIME: %f \t", time_passed);
 		past_time = current_time;
 
 
@@ -76,7 +75,7 @@ int main(int argc, char *argv[]){
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d \n", ego.position_x, ego.position_y);
+			printf("X: %d, Y: %d TimeStep: %d\n", ego.position_x, ego.position_y, time_passed);
 		}
 
 		count++;
