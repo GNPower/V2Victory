@@ -12,8 +12,7 @@
 #include <unistd.h>
 #include <errno.h>
 
-#include "../test_top.h"
-#include "../encoder/encode.h"
+#include "localize.h"
 
 #define IN 0
 #define OUT 1
@@ -41,9 +40,6 @@
 #define BUFFER_MAX 3
 #define BUFFER_MAX2 10
 
-#include "../test_top.h"
-
-int GPIO_init(int duty_a, int duty_b);
 
 int GPIOExport(int pin);
 int PWMExport(int pin);
