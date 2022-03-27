@@ -208,7 +208,6 @@ int main(void)
     {
         /*
         Note: Everything has been initialized
-        NEED TO FIGURE OUT WHEN/WHERE TO PRINTOUT VEH + INT DATA!!! (so that in sync/useful)
         Order of Operations:
         1. Publish Data and Send using Callbacks (Int -> Veh, Veh -> Int, Veh -> Veh)
             - this has chance of failing (COMMS_ERROR)
@@ -334,7 +333,7 @@ int main(void)
             {
                 print_sim_veh_data(veh_error_data, false, veh_published[i].veh_id); // t = sim_time + TIMESTEP
             }
-            
+
             //update dynamics (maybe)
             int ego_data_pct = (rand() % 100) + 1;
             if (ego_data_pct > EGO_DATA_ERROR_PCT)
