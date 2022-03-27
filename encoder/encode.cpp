@@ -99,37 +99,37 @@ int get_encoder_value(int encoder){
 
 
 void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
-	static int lx_encoder, rx_encoder;
-	int encoder_average;
-	float abs_traveled, x_traveled;
+	int l_encoder, r_encoder, encoder_average;
+	float abs_traveled;
+	static float x_traveled;
 
-	lx_encoder = get_encoder_value(LENCODER) - lx_encoder;
-	rx_encoder = get_encoder_value(RENCODER) - rx_encoder;
-	encoder_average = (lx_encoder+rx_encoder)/2;
+	l_encoder = get_encoder_value(LENCODER);
+	r_encoder = get_encoder_value(RENCODER);
+	encoder_average = (l_encoder+r_encoder)/2;
 	float cycles = encoder_average/20.0;
 	printf("x_cycles: %f \t", cycles);
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
-	x_traveled = abs_traveled*cos((ego->heading*2*PI)/360);
+	x_traveled = abs_traveled*cos((ego->heading*2*PI)/360) - x_traveled;
 
 	*distance = x_traveled;
 }
 
 void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
-	static int ly_encoder, ry_encoder;
-	int encoder_average;
-	float abs_traveled, y_traveled;
+	int l_encoder, r_encoder, encoder_average;
+	float abs_traveled;
+	static float y_traveled;
 
-	ly_encoder = get_encoder_value(LENCODER) - ly_encoder;
-	ry_encoder = get_encoder_value(RENCODER) - ry_encoder;
-	encoder_average = (ly_encoder+ry_encoder)/2;
+	l_encoder = get_encoder_value(LENCODER);
+	r_encoder = get_encoder_value(RENCODER);
+	encoder_average = (l_encoder+r_encoder)/2;
 	float cycles = encoder_average/20.0;
 	printf("y_cycles: %f \t", cycles);
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
-	y_traveled = abs_traveled*sin((ego->heading*2*PI)/360);
+	y_traveled = abs_traveled*sin((ego->heading*2*PI)/360) - y_traveled;
 
 	*distance = y_traveled;
 }
