@@ -128,7 +128,7 @@ void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
-	printf("C: %f", circumference);
+	printf("C: %f\t ", circumference);
 	y_traveled = abs_traveled*sin((ego->heading*2*PI)/360) - past_y_traveled;
 	past_y_traveled += y_traveled;
 
