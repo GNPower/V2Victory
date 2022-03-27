@@ -63,6 +63,8 @@ int main(int argc, char *argv[]){
 	int Status = set_forward();
 
 	while(1){
+		if(GPIORead(STOP)) break;
+
 
 		current_time = clock();
 		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
@@ -86,6 +88,21 @@ int main(int argc, char *argv[]){
 
 
 	}
+
+	if ((-1 == PWMEnable(ENA, 0))|(-1 == PWMEnable(ENB, 0)))
+		return 2;
+
+	if ((-1 == PWMUnexport(ENA))|
+		(-1 == PWMUnexport(ENB))|
+		(-1 == GPIOUnexport(STOP))|
+		(-1 == GPIOUnexport(LENCODER))|
+		(-1 == GPIOUnexport(RENCODER))|
+		(-1 == GPIOUnexport(LFORWARD))|
+		(-1 == GPIOUnexport(LBACKWARD))|
+		(-1 == GPIOUnexport(RFORWARD))|
+		(-1 == GPIOUnexport(RBACKWARD)))
+		return 1;
+
 
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
