@@ -33,19 +33,22 @@ class IntersectionMessager : public rclcpp::Node
 {
   public:
     IntersectionMessager()
-    : Node("car_publisher")
+    : Node("intersection_publisher")
     {
-      publisher_ = this->create_publisher<car_pkg::msg::car_msg>("car_data", 10);
+      publisher_ = this->create_publisher<car_pkg::msg::intersection_msg>("intersection_data", 10);
     }
 
-    void publish(struct CarMsg CarMsg)
+    void publish(struct IntersectionMsg IntersectionMsg)
     {
-      auto message = car_pkg::msg::car_msg();
-      message.position_x = CarMsg.position_x;
-      message.position_y = CarMsg.position_y;
-      message.heading = CarMsg.heading;
-      message.vehicle_speed = CarMsg.vehicle_speed;
-      message.priority = CarMsg.priority;
+      auto message = car_pkg::msg::intersection_msg();
+      message.position_x = IntersectionMsg.position_x;
+      message.position_y = IntersectionMsg.position_y;
+      message.num_directions = IntersectionMsg.num_directions;
+      message.directions = IntersectionMsg.directions;
+      message.intersection_state = IntersectionMsg.intersection_state;
+      message.intersection_next_state = IntersectionMsg.intersection_next_state;
+      message.intersection_switch_time = IntersectionMsg.intersection_switch_time;
+
       // RCLCPP_INFO(this->get_logger(), "Publishing: '%f' '%d'", message.vehicle_speed, message.heading);
       publisher_->publish(message);
     }
@@ -56,14 +59,12 @@ class IntersectionMessager : public rclcpp::Node
 
 void subscriber(const car_pkg::msg::intersection_msg::ConstPtr& msg)
 {
-  struct IntersectionMsg IMsg;
-  IMsg.position_x = msg->position_x;
-  IMsg.position_y = msg->position_y;
-  IMsg.num_directions = msg->num_directions;
-  IMsg.directions[32] = msg->directions;
-  IMsg.intersection_state = msg->intersection_state;
-  IMsg.intersection_next_state = msg->intersection_next_state;
-  IMsg.intersection_switch_time = msg->intersection_switch_time;
+  struct CarMsg CMsg;
+  CMsg.position_x = msg->position_x;
+  CMsg.position_y = msg->position_y;
+  CMsg.heading = msg->heading;
+  CMsg.vehicle_speed = msg->vehicle_speed;
+  CMsg.priority = msg->priority;
 
   //TODO: CALL CALLBACK AND PASS IN STRUCTURE
 
@@ -77,7 +78,7 @@ int main(int argc, char * argv[])
   rclcpp::init(argc, argv);
 
   rclcpp::NodeHandle n;
-  rclcpp::Subscriber sub = n.subscribe("intersection_data", 1, subscriber);
+  rclcpp::Subscriber sub = n.subscribe("car_data", 1, subscriber);
 
   rclcpp::spin(std::make_shared<IntersectionMessager>());
 
