@@ -42,6 +42,8 @@
 
 #include "../test_top.h"
 
+int GPIO_init();
+
 int GPIOExport(int pin);
 int PWMExport(int pin);
 int GPIOUnexport(int pin);
