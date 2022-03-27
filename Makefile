@@ -11,10 +11,10 @@ SRC_DIR := src
 OBJ_DIR := obj
 BIN_DIR := bin
 
-EXECUTABLE := $(BIN_DIR)/asteroids
+EXECUTABLE := $(BIN_DIR)/main_intersection
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
-LIBRARIES := -lglut -lGLU -lGL
+LIBRARIES :=
 
 # Windows (cygwin)
 ifeq "$(OS)" "Windows_NT"
@@ -22,12 +22,14 @@ ifeq "$(OS)" "Windows_NT"
 	EXECUTABLE := $(EXECUTABLE).exe
 	# rm command for Windows PowerShell
 	RM := del
-	LIBRARIES := -lfreeglut -lglu32 -lopengl32
+	# Windows may require its own libraries
+	#LIBRARIES :=
 else
 # OS X
 	OS := $(shell uname)
 	ifeq ($(OS), Darwin)
-		LIBRARIES := -framework Carbon -framework OpenGL -framework GLUT
+		# MacOS may require its own libraries
+		#LIBRARIES :=
 	endif
 endif
 
