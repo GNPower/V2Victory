@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
 	int count = 0;
 	clock_t past_time = clock();
 	clock_t current_time = clock();
-	double time_passed = 0;
+	double time_passed_ms = 0;
 	while(1){
 
 		current_time = clock();
