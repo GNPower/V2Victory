@@ -20,4 +20,8 @@ void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, uint32_t* dist
 
 void get_abs_distance(Vehicle_Data *ego, Intersection_Data *target, float* distance);
 
+void get_direction(Vehicle_Data *ego, Intersection_Data *target, float* direction);
+
+void get_speed(Vehicle_Data *ego, uint32_t past_x, uint32_t past_y, float timestep);
+
 #endif
