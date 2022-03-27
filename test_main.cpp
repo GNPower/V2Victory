@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 
 	ego.position_x = 0;
 	ego.position_y = 0;
-	ego.heading = argv[2];
+	ego.heading = (uint32_t)argv[2];
 
 	intersection.position_x = 100;
 	intersection.position_y = 200;
