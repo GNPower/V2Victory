@@ -58,11 +58,11 @@ int main(int argc, char *argv[]){
 	int count = 0;
 	clock_t past_time = clock();
 	clock_t current_time = clock();
-	double time_passed_ms = 0;
+	double time_passed= 0;
 	while(1){
 
 		current_time = clock();
-		time_passed_ms = (double)(current_time - past_time)/(CLOCKS_PER_SEC/1000);
+		time_passed = (double)(current_time - past_time)/CLOCKS_PER_SEC;
 		past_time = current_time;
 
 
@@ -70,13 +70,12 @@ int main(int argc, char *argv[]){
 		//printf("X_t: %f\t", distance_x);
 		get_y_distance_traveled(&ego, &distance_y);
 		//printf("Y_t: %f\t", distance_y);
-		get_speed(&ego, time_passed_ms);
-		update_location(&ego, distance_x, distance_y);
+		update_location(&ego, distance_x, distance_y, time_passed);
 		
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d Speed: %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed_ms);
+			printf("X: %d, Y: %d Speed: %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
 
 		count++;
