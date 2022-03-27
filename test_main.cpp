@@ -42,7 +42,7 @@ int main(int argc, char *argv[]){
 
 	ego.position_x = 0;
 	ego.position_y = 0;
-	ego.heading = 45;
+	ego.heading = argv[2];
 
 	intersection.position_x = 100;
 	intersection.position_y = 200;
@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 		update_location(&ego, distance_x, distance_y);
 		printf("X: %d, Y: %d \n", ego.position_x, ego.position_y);
 
-		usleep(10000000);
+		usleep(1000000);
 	}
 
 	pthread_kill(left_tid, SIGKILL);

@@ -105,7 +105,7 @@ void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
 	r_encoder = get_encoder_value(RENCODER);
 	encoder_average = (l_encoder+r_encoder)/2;
 	float cycles = encoder_average/20.0;
-	printf("x_cycles: %f \t", cycles);
+	//printf("x_cycles: %f \t", cycles);
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
@@ -124,10 +124,11 @@ void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
 	r_encoder = get_encoder_value(RENCODER);
 	encoder_average = (l_encoder+r_encoder)/2;
 	float cycles = encoder_average/20.0;
-	printf("y_cycles: %f \t", cycles);
+	//printf("y_cycles: %f \t", cycles);
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
+	printf("C: %f", circumference);
 	y_traveled = abs_traveled*sin((ego->heading*2*PI)/360) - past_y_traveled;
 	past_y_traveled += y_traveled;
 
