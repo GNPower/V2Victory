@@ -99,12 +99,13 @@ int get_encoder_value(int encoder){
 
 
 void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
-	int l_encoder, r_encoder, encoder_average;
+	static int lx_encoder, rx_encoder;
+	int encoder_average;
 	float abs_traveled, x_traveled;
 
-	l_encoder = get_encoder_value(LENCODER);
-	r_encoder = get_encoder_value(RENCODER);
-	encoder_average = (l_encoder+r_encoder)/2;
+	lx_encoder = get_encoder_value(LENCODER) - lx_encoder;
+	rx_encoder = get_encoder_value(RENCODER) - rx_encoder;
+	encoder_average = (lx_encoder+rx_encoder)/2;
 	float cycles = encoder_average/20.0;
 	printf("x_cycles: %f \t", cycles);
 
@@ -116,12 +117,13 @@ void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
 }
 
 void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
-	int l_encoder, r_encoder, encoder_average;
+	static int ly_encoder, ry_encoder;
+	int encoder_average;
 	float abs_traveled, y_traveled;
 
-	l_encoder = get_encoder_value(LENCODER);
-	r_encoder = get_encoder_value(RENCODER);
-	encoder_average = (l_encoder+r_encoder)/2;
+	ly_encoder = get_encoder_value(LENCODER) - ly_encoder;
+	ry_encoder = get_encoder_value(RENCODER) - ry_encoder;
+	encoder_average = (ly_encoder+ry_encoder)/2;
 	float cycles = encoder_average/20.0;
 	printf("y_cycles: %f \t", cycles);
 
