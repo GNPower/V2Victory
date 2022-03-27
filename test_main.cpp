@@ -70,12 +70,13 @@ int main(int argc, char *argv[]){
 		//printf("X_t: %f\t", distance_x);
 		get_y_distance_traveled(&ego, &distance_y);
 		//printf("Y_t: %f\t", distance_y);
+		get_speed(&ego, time_passed);
 		update_location(&ego, distance_x, distance_y);
 		
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d TimeStep: %f\n", ego.position_x, ego.position_y, time_passed);
+			printf("X: %d, Y: %d Speed: %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
 
 		count++;
