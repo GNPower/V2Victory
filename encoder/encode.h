@@ -8,7 +8,7 @@
 #define LENCODER 23
 #define RENCODER 24
 
-#define RADIUS 3.3
+#define RADIUS 33 //mm
 #define PI 3.14159
 
 #include <sys/stat.h>
