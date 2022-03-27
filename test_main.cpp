@@ -40,26 +40,25 @@ int main(int argc, char *argv[]){
 	Vehicle_Data ego;
 	Intersection_Data intersection;
 
-	ego.position_x = 10;
-	ego.position_y = 20;
+	ego.position_x = 0;
+	ego.position_y = 0;
 	ego.heading = 45;
 
-	intersection.position_x = 15;
-	intersection.position_y = 25;
+	intersection.position_x = 100;
+	intersection.position_y = 200;
 
 
 	///////////////////////////////////////////////////////////////////////////////////////////
 
+	/*
 	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
 	update_location(&ego, 2, 7);
 	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
-	
-	init_encoders(&left_tid, &right_tid);
 
 	float distance;
 	get_abs_distance(&ego, &intersection, &distance);
 	printf("dist: %f\n", distance);
-
+	*/
 	
 
 	printf("No Sleep Till Brooklyn \n");
@@ -72,7 +71,7 @@ int main(int argc, char *argv[]){
 		update_location(&ego, distance_x, distance_y);
 		printf("X: %d, Y: %d \n", ego.position_x, ego.position_y);
 
-		usleep(100000);
+		usleep(1000000000);
 	}
 
 	pthread_kill(left_tid, SIGKILL);
