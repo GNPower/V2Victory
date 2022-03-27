@@ -59,6 +59,9 @@ int main(int argc, char *argv[]){
 	clock_t past_time = clock();
 	clock_t current_time = clock();
 	float time_passed= 0;
+	
+	int Status = set_forward();
+
 	while(1){
 
 		current_time = clock();
