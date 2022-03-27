@@ -109,7 +109,7 @@ void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
-	x_traveled = abs_traveled*cos(ego->heading);
+	x_traveled = abs_traveled*cos((ego->heading*2*PI)/360);
 
 	*distance = x_traveled;
 }
@@ -125,7 +125,7 @@ void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
 
 	float circumference = 2.0*RADIUS*PI;
 	abs_traveled = circumference*cycles;
-	y_traveled = abs_traveled*sin(ego->heading);
+	y_traveled = abs_traveled*sin((ego->heading*2*PI)/360);
 
 	*distance = y_traveled;
 }
