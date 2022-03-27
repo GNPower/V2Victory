@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 		update_location(&ego, distance_x, distance_y);
 		printf("X: %d, Y: %d \n", ego.position_x, ego.position_y);
 
-		usleep(1000000000);
+		usleep(10000000);
 	}
 
 	pthread_kill(left_tid, SIGKILL);
