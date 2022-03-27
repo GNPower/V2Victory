@@ -63,9 +63,13 @@ int main(int argc, char *argv[]){
 
 	while(1){
 		get_x_distance_traveled(&ego, &distance_x);
+		printf("X_t: %d\t", distance_x);
 		get_y_distance_traveled(&ego, &distance_y);
+		printf("Y_t: %d\t", distance_y);
 		update_location(&ego, distance_x, distance_y);
-		printf("X: %d, Y: %d", ego.position_x, ego.position_y);
+		printf("X: %d, Y: %d \n", ego.position_x, ego.position_y);
+
+		usleep(100000);
 	}
 
 	pthread_kill(left_tid, SIGKILL);
