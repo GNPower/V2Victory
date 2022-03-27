@@ -85,3 +85,36 @@ int get_encoder_value(int encoder){
 	else if (encoder == RENCODER) return r_encoder;
 	else return -1;
 	}
+
+
+void get_x_distance_traveled(Vehicle_Data *ego, float* distance){
+	int l_encoder, r_encoder, encoder_average;
+	float abs_traveled, x_traveled;
+
+	l_encoder = get_encoder_value(LENCODER);
+	r_encoder = get_encoder_value(RENCODER);
+	encoder_average = (l_encoder+r_encoder)/2;
+	float cycles = encoder_average/20.0;
+
+	float circumference = 2.0*RADIUS*PI;
+	abs_traveled = circumference*cycles;
+	x_traveled = abs_traveled*cos(ego->heading);
+
+	*distance = x_traveled;
+}
+
+void get_y_distance_traveled(Vehicle_Data *ego, float* distance){
+	int l_encoder, r_encoder, encoder_average;
+	float abs_traveled, y_traveled;
+
+	l_encoder = get_encoder_value(LENCODER);
+	r_encoder = get_encoder_value(RENCODER);
+	encoder_average = (l_encoder+r_encoder)/2;
+	float cycles = encoder_average/20.0;
+
+	float circumference = 2.0*RADIUS*PI;
+	abs_traveled = circumference*cycles;
+	y_traveled = abs_traveled*sin(ego->heading);
+
+	*distance = y_traveled;
+}
