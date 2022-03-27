@@ -10,6 +10,7 @@
 #include <math.h>
 
 #include "../test_top.h"
+#include "../encoder/encode.h"
 
 
 void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance);
