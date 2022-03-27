@@ -13,6 +13,7 @@
 #include <errno.h>
 
 #include "../test_top.h"
+#include "../encoder/encode.h"
 
 #define IN 0
 #define OUT 1
