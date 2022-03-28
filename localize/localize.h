@@ -5,6 +5,7 @@
 #define LOCAL
 
 #define PI 3.14159
+#define BUFFER_SIZE 100
 
 #include <stdio.h>
 #include <math.h>
