@@ -16,7 +16,7 @@ typedef Vehicle_Data Vehicle_Data;
 
 struct Intersection_Data{
 	uint32_t position_x, position_y;
-	uint32_t Directions[4];
+	uint32_t Directions[2];
 	uint8_t State;
 	uint8_t Next_State;
 	uint32_t Next_State_Change;
