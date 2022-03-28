@@ -24,7 +24,7 @@ void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance
 	}
 
 	speed_unconverted = speed_unconverted/(timestep*(BUFFER_SIZE-1));
-	ego->speed = (uint32_t)(speed_unconverted);   //Conversion factor necessary
+	ego->speed = (speed_unconverted*0.001);   
 
 	for (int i = BUFFER_SIZE-1; i > 0; i--){
 		distance_buffer[i] = distance_buffer[i-1];

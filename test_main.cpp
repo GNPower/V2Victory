@@ -9,8 +9,67 @@
 #include <pthread.h>
 #include <signal.h>
 
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <string>
+
+#include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/string.hpp"
+#include "car_pkg/msg/car_msg.h"
+#include "car_pkg/msg/intersection_msg.h"
+
+using namespace std::chrono_literals;
+
 #define DUTY 60
 #define HEADING 0
+
+
+////////////////////////////COM CLASSES///////////////////////////////////////////////////
+class IntersectionMessager : public rclcpp::Node
+{
+  public:
+    IntersectionMessager()
+    : Node("car_publisher")
+    {
+      publisher_ = this->create_publisher<car_pkg::msg::car_msg>("car_data", 10);
+    }
+
+    void publish(struct Vehicle_Data Vehicle_Data)
+    {
+      auto message = car_pkg::msg::car_msg();
+      message.position_x = Vehicle_Data.position_x;
+      message.position_y = Vehicle_Data.position_y;
+      message.heading = Vehicle_Data.heading;
+      message.vehicle_speed = Vehicle_Data.vehicle_speed;
+      message.priority = Vehicle_Data.priority;
+      // RCLCPP_INFO(this->get_logger(), "Publishing: '%f' '%d'", message.vehicle_speed, message.heading);
+      publisher_->publish(message);
+    }
+    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
+
+    private:
+};
+
+void subscriber(const car_pkg::msg::intersection_msg::ConstPtr& msg)
+{
+  struct Intersection_Data IMsg;
+  IMsg.position_x = msg->position_x;
+  IMsg.position_y = msg->position_y;
+  IMsg.num_directions = msg->num_directions;
+  IMsg.directions[32] = msg->directions;
+  IMsg.intersection_state = msg->intersection_state;
+  IMsg.intersection_next_state = msg->intersection_next_state;
+  IMsg.intersection_switch_time = msg->intersection_switch_time;
+
+  //TODO: CALL CALLBACK AND PASS IN STRUCTURE
+
+  // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
+  // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
+  // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+
 
 int main(int argc, char *argv[]){
 	pthread_t left_tid, right_tid;
@@ -20,13 +79,17 @@ int main(int argc, char *argv[]){
 
 
 
-	//Setup GPIOS///////////////////////////////////////////////////////////////////////////////////
+	//INITS///////////////////////////////////////////////////////////////////////////////////
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Initiating GPIOs");
 	}
 	
 	init_encoders(&left_tid, &right_tid);
 	
+	rclcpp::init(argc, argv);
+	rclcpp::NodeHandle n;
+  	rclcpp::Subscriber sub = n.subscribe("intersection_data", 1, subscriber);
+
 	clock_t past = clock();
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,6 +129,7 @@ int main(int argc, char *argv[]){
 	while(1){
 		if(GPIORead(STOP)) break;
 
+		rclcpp::spin(std::make_shared<IntersectionMessager>());
 
 		current_time = clock();
 		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
@@ -81,7 +145,7 @@ int main(int argc, char *argv[]){
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d Speed (mm/s): %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
+			printf("X: %d, Y: %d Speed (mm/s): %f TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
 
 		count++;
@@ -94,6 +158,7 @@ int main(int argc, char *argv[]){
 		printf("Error Closing GPIOs");
 	}
 
+	rclcpp::shutdown();
 
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
