@@ -14,6 +14,7 @@ BIN_DIR := bin
 EXECUTABLE := $(BIN_DIR)/main_intersection
 SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
 OBJECTS := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SOURCES))
+# Flags to link libraries (e.g., -lglut -lGLU -lGL)
 LIBRARIES :=
 
 # Windows (cygwin)
