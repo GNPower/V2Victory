@@ -16,8 +16,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "car_pkg/msg/car_msg.h"
-#include "car_pkg/msg/intersection_msg.h"
+#include "car_pkg/msg/Car.h"
+#include "car_pkg/msg/Intersection.h"
 
 using namespace std::chrono_literals;
 

@@ -1,7 +1,0 @@
-uint32 position_x
-uint32 position_y
-uint8 num_directions
-uint32[32] directions
-uint8 intersection_state
-uint8 intersection_next_state
-float intersection_switch_time

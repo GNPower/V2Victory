@@ -22,9 +22,17 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(Threads REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+	"car_pkg/msg/Car.msg"
+	"car_pkg/msg/Intersection.msg"
+	)
 
 add_executable(tm test_main.cpp encoder/encoder.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
 ament_target_dependencies(tm rclcpp std_msgs)
+	
 
 install(TARGETS
   tm
