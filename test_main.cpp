@@ -9,13 +9,14 @@
 #include <pthread.h>
 #include <signal.h>
 
-
+#define DUTY 60
+#define HEADING 0
 
 int main(int argc, char *argv[]){
 	pthread_t left_tid, right_tid;
 	float distance_x, distance_y;
-	int duty_a = atoi(argv[1]);
-	int duty_b = atoi(argv[1]);
+	int duty_a = DUTY;
+	int duty_b = DUTY;
 
 
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]){
 
 	ego.position_x = 0;
 	ego.position_y = 0;
-	ego.heading = atoi(argv[2]);
+	ego.heading = HEADING;
 
 	intersection.position_x = 100;
 	intersection.position_y = 200;
@@ -80,7 +81,7 @@ int main(int argc, char *argv[]){
 
 		if (count > 100){
 			count = 0;
-			printf("X: %d, Y: %d Speed: %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
+			printf("X: %d, Y: %d Speed (mm/s): %d TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
 
 		count++;
@@ -89,19 +90,9 @@ int main(int argc, char *argv[]){
 
 	}
 
-	if ((-1 == PWMEnable(ENA, 0))|(-1 == PWMEnable(ENB, 0)))
-		return 2;
-
-	if ((-1 == PWMUnexport(ENA))|
-		(-1 == PWMUnexport(ENB))|
-		(-1 == GPIOUnexport(STOP))|
-		(-1 == GPIOUnexport(LENCODER))|
-		(-1 == GPIOUnexport(RENCODER))|
-		(-1 == GPIOUnexport(LFORWARD))|
-		(-1 == GPIOUnexport(LBACKWARD))|
-		(-1 == GPIOUnexport(RFORWARD))|
-		(-1 == GPIOUnexport(RBACKWARD)))
-		return 1;
+	if (2 == GPIO_init(duty_a, duty_b)){
+		printf("Error Closing GPIOs");
+	}
 
 
 	pthread_kill(left_tid, SIGKILL);

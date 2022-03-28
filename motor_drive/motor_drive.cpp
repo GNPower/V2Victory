@@ -24,6 +24,24 @@ int GPIO_init(int duty_a, int duty_b){
 }
 
 
+int GPIO_Close(){
+	if ((-1 == PWMEnable(ENA, 0))|(-1 == PWMEnable(ENB, 0)))
+		return 2;
+
+	if ((-1 == PWMUnexport(ENA))|
+		(-1 == PWMUnexport(ENB))|
+		(-1 == GPIOUnexport(STOP))|
+		(-1 == GPIOUnexport(LENCODER))|
+		(-1 == GPIOUnexport(RENCODER))|
+		(-1 == GPIOUnexport(LFORWARD))|
+		(-1 == GPIOUnexport(LBACKWARD))|
+		(-1 == GPIOUnexport(RFORWARD))|
+		(-1 == GPIOUnexport(RBACKWARD)))
+		return 1;
+
+} 
+
+
 int GPIOExport(int pin){
 	char buffer[BUFFER_MAX];
 	ssize_t bytes_written;
