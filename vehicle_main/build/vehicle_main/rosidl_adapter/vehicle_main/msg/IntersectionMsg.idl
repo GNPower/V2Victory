@@ -1,0 +1,25 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from vehicle_main/car_pkg/msg/IntersectionMsg.msg
+// generated code does not contain a copyright notice
+
+
+module vehicle_main {
+  module msg {
+    typedef uint32 uint32__32[32];
+    struct IntersectionMsg {
+      uint32 position_x;
+
+      uint32 position_y;
+
+      uint8 num_directions;
+
+      uint32__32 directions;
+
+      uint8 intersection_state;
+
+      uint8 intersection_next_state;
+
+      double intersection_switch_time;
+    };
+  };
+};
