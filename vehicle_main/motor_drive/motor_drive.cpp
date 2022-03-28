@@ -156,7 +156,6 @@ int PWMPeriod(int pin){
 
 int PWMDuty(int pin, int duty){
 	int fd;
-	int period_ns = PWM_PERIOD;
 	char path[PATH_MAX];
 
 	char buffer[BUFFER_MAX2];

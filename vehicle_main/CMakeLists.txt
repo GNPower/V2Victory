@@ -15,16 +15,19 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(Threads REQUIRED)
 
 add_executable(tm test_main.cpp encoder/encoder.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
-ament_target_dependencies(tm rclcpp std_msgs -pthread)
+ament_target_dependencies(tm rclcpp std_msgs)
 
 install(TARGETS
-  talker
+  tm
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
