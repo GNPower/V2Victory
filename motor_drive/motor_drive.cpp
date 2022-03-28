@@ -37,8 +37,9 @@ int GPIO_Close(){
 		(-1 == GPIOUnexport(LBACKWARD))|
 		(-1 == GPIOUnexport(RFORWARD))|
 		(-1 == GPIOUnexport(RBACKWARD)))
-		return 1;
+		return 2;
 
+	return 1;
 } 
 
 
