@@ -21,7 +21,7 @@ find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
 add_executable(tm test_main.cpp encoder/encoder.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
-ament_target_dependencies(tm rclcpp std_msgs pthread)
+ament_target_dependencies(tm rclcpp std_msgs -pthread)
 
 install(TARGETS
   talker
