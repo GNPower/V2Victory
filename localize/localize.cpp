@@ -15,9 +15,21 @@ inline void get_y_distance(Vehicle_Data *ego, Intersection_Data *target, float* 
 
 
 void update_location(Vehicle_Data *ego, uint32_t x_distance, uint32_t y_distance, float timestep){
-	float abs_distance = sqrt(x_distance*x_distance + y_distance*y_distance);
-	float speed_unconverted = abs_distance/timestep;
+	static float distance_buffer[BUFFER_SIZE];
+	float distance_buffer[0] = sqrt(x_distance*x_distance + y_distance*y_distance);
+	float speed_unconverted = 0;
+
+	for (int i = 0; i < BUFFER_SIZE; i++){
+		speed_unconverted += distance_buffer[i];
+	}
+
+	float speed_unconverted = abs_distance/(timestep*(BUFFER_SIZE-1));
 	ego->speed = (uint32_t)(speed_unconverted*0.001);
+
+	for (i = BUFFER_SIZE-1; i > 0; i--){
+		distance_buffer[i] = distance_buffer[i-1];
+	}
+
 	ego->position_x += x_distance;
 	ego->position_y += y_distance;
 	}

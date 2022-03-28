@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 
-#define TIMESTEP 10000
+#define TIMESTEP 1000
 
 struct Vehicle_Data{
 	uint32_t position_x, position_y;
