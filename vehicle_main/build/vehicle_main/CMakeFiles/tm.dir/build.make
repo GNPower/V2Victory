@@ -125,6 +125,10 @@ tm: CMakeFiles/tm.dir/localize/localize.cpp.o
 tm: CMakeFiles/tm.dir/motor_drive/motor_drive.cpp.o
 tm: CMakeFiles/tm.dir/build.make
 tm: /opt/ros/foxy/lib/librclcpp.so
+tm: ../../car_interface/install/car_interface/lib/libcar_interface__rosidl_typesupport_introspection_c.so
+tm: ../../car_interface/install/car_interface/lib/libcar_interface__rosidl_typesupport_c.so
+tm: ../../car_interface/install/car_interface/lib/libcar_interface__rosidl_typesupport_introspection_cpp.so
+tm: ../../car_interface/install/car_interface/lib/libcar_interface__rosidl_typesupport_cpp.so
 tm: /opt/ros/foxy/lib/liblibstatistics_collector.so
 tm: /opt/ros/foxy/lib/liblibstatistics_collector_test_msgs__rosidl_typesupport_introspection_c.so
 tm: /opt/ros/foxy/lib/liblibstatistics_collector_test_msgs__rosidl_generator_c.so
@@ -162,15 +166,16 @@ tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_typesupport_introspection_c.
 tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_generator_c.so
 tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_typesupport_c.so
 tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_typesupport_introspection_cpp.so
+tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_typesupport_cpp.so
+tm: /opt/ros/foxy/lib/libtracetools.so
+tm: ../../car_interface/install/car_interface/lib/libcar_interface__rosidl_generator_c.so
 tm: /opt/ros/foxy/lib/librosidl_typesupport_introspection_cpp.so
 tm: /opt/ros/foxy/lib/librosidl_typesupport_introspection_c.so
-tm: /opt/ros/foxy/lib/libbuiltin_interfaces__rosidl_typesupport_cpp.so
 tm: /opt/ros/foxy/lib/librosidl_typesupport_cpp.so
 tm: /opt/ros/foxy/lib/librosidl_typesupport_c.so
 tm: /opt/ros/foxy/lib/librcpputils.so
 tm: /opt/ros/foxy/lib/librosidl_runtime_c.so
 tm: /opt/ros/foxy/lib/librcutils.so
-tm: /opt/ros/foxy/lib/libtracetools.so
 tm: CMakeFiles/tm.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable tm"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tm.dir/link.txt --verbose=$(VERBOSE)

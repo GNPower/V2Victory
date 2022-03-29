@@ -22,10 +22,10 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(Threads REQUIRED)
-
+find_package(car_interface REQUIRED)
 
 add_executable(tm test_main.cpp encoder/encoder.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
-ament_target_dependencies(tm rclcpp std_msgs)
+ament_target_dependencies(tm rclcpp std_msgs car_interface)
 	
 
 install(TARGETS

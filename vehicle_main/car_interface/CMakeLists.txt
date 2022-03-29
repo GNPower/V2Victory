@@ -21,8 +21,8 @@ find_package(rosidl_default_generators REQUIRED)
 
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "car_pkg/msg/Car.msg"
-  "car_pkg/msg/Intersection.msg"
+  "msg/Car.msg"
+  "msg/Intersection.msg"
   )
   
 if(BUILD_TESTING)

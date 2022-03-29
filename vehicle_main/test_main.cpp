@@ -16,8 +16,8 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
-#include "car_pkg/msg/car.hpp"
-#include "car_pkg/msg/intersection.hpp"
+#include "car_interface/msg/car.hpp"
+#include "car_interface/msg/intersection.hpp"
 
 using namespace std::chrono_literals;
 
@@ -32,16 +32,17 @@ class IntersectionMessager : public rclcpp::Node
     IntersectionMessager()
     : Node("car_publisher")
     {
-      publisher_ = this->create_publisher<car_pkg::msg::car_msg>("car_data", 10);
-    }
+      publisher_ = this->create_publisher<car_interface::msg::Car>("car_data, 10");
+} 
+
 
     void publish(struct Vehicle_Data Vehicle_Data)
     {
-      auto message = car_pkg::msg::car_msg();
+      auto message = car_interface::msg::Car();
       message.position_x = Vehicle_Data.position_x;
       message.position_y = Vehicle_Data.position_y;
       message.heading = Vehicle_Data.heading;
-      message.vehicle_speed = Vehicle_Data.vehicle_speed;
+      message.vehicle_speed = Vehicle_Data.speed;
       message.priority = Vehicle_Data.priority;
       // RCLCPP_INFO(this->get_logger(), "Publishing: '%f' '%d'", message.vehicle_speed, message.heading);
       publisher_->publish(message);
@@ -51,7 +52,7 @@ class IntersectionMessager : public rclcpp::Node
     private:
 };
 
-void subscriber(const car_pkg::msg::intersection_msg::ConstPtr& msg)
+void subscriber(const car_interface::msg::Intersection::ConstPtr& msg)
 {
   struct Intersection_Data IMsg;
   IMsg.position_x = msg->position_x;
@@ -90,7 +91,6 @@ int main(int argc, char *argv[]){
 	rclcpp::NodeHandle n;
   	rclcpp::Subscriber sub = n.subscribe("intersection_data", 1, subscriber);
 
-	clock_t past = clock();
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Vehicle_Data ego;
@@ -118,13 +118,13 @@ int main(int argc, char *argv[]){
 	
 
 	printf("No Sleep Till Brooklyn \n");
-
+/*
 	int count = 0;
 	clock_t past_time = clock();
 	clock_t current_time = clock();
 	float time_passed= 0;
 	
-	int Status = set_forward();
+	set_forward();
 
 	while(1){
 		if(GPIORead(STOP)) break;
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]){
 
 
 	}
-
+*/
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Closing GPIOs");
 	}

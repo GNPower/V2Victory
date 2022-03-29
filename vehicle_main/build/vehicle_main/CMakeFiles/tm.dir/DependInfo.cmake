@@ -15,12 +15,12 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_TARGET_DEFINITIONS_CXX
   "DEFAULT_RMW_IMPLEMENTATION=rmw_fastrtps_cpp"
   "RCUTILS_ENABLE_FAULT_INJECTION"
-  "ROS_PACKAGE_NAME=\"vehicle_main\""
   "SPDLOG_COMPILED_LIB"
   )
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "../../car_interface/install/car_interface/include"
   "/opt/ros/foxy/include"
   )
 
