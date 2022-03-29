@@ -6,15 +6,15 @@
 
 #IncludeRegexTransform: 
 
-/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/car_msg__type_support.cpp
+/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/car__type_support.cpp
 cstddef
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/cstddef
 rosidl_runtime_c/message_type_support_struct.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/rosidl_runtime_c/message_type_support_struct.h
 vehicle_main/msg/rosidl_typesupport_c__visibility_control.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/rosidl_typesupport_c__visibility_control.h
-vehicle_main/msg/detail/car_msg__struct.h
-/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/detail/car_msg__struct.h
+vehicle_main/msg/detail/car__struct.h
+/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/detail/car__struct.h
 rosidl_typesupport_c/identifier.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/rosidl_typesupport_c/identifier.h
 rosidl_typesupport_c/message_type_support_dispatch.h
@@ -26,15 +26,15 @@ rosidl_typesupport_c/visibility_control.h
 rosidl_typesupport_interface/macros.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/rosidl_typesupport_interface/macros.h
 
-/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/intersection_msg__type_support.cpp
+/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/intersection__type_support.cpp
 cstddef
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/cstddef
 rosidl_runtime_c/message_type_support_struct.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/rosidl_runtime_c/message_type_support_struct.h
 vehicle_main/msg/rosidl_typesupport_c__visibility_control.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/rosidl_typesupport_c__visibility_control.h
-vehicle_main/msg/detail/intersection_msg__struct.h
-/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/detail/intersection_msg__struct.h
+vehicle_main/msg/detail/intersection__struct.h
+/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/vehicle_main/msg/detail/intersection__struct.h
 rosidl_typesupport_c/identifier.h
 /home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/rosidl_typesupport_c/vehicle_main/msg/rosidl_typesupport_c/identifier.h
 rosidl_typesupport_c/message_type_support_dispatch.h
@@ -72,7 +72,7 @@ cstddef
 
 /opt/ros/foxy/include/rosidl_typesupport_interface/macros.h
 
-rosidl_generator_c/vehicle_main/msg/detail/car_msg__struct.h
+rosidl_generator_c/vehicle_main/msg/detail/car__struct.h
 stdbool.h
 -
 stddef.h
@@ -80,7 +80,7 @@ stddef.h
 stdint.h
 -
 
-rosidl_generator_c/vehicle_main/msg/detail/intersection_msg__struct.h
+rosidl_generator_c/vehicle_main/msg/detail/intersection__struct.h
 stdbool.h
 -
 stddef.h

@@ -95,10 +95,10 @@ rclcpp/rclcpp.hpp
 /home/ubuntu/V2Victory/vehicle_main/rclcpp/rclcpp.hpp
 std_msgs/msg/string.hpp
 /home/ubuntu/V2Victory/vehicle_main/std_msgs/msg/string.hpp
-car_pkg/msg/Car.h
-/home/ubuntu/V2Victory/vehicle_main/car_pkg/msg/Car.h
-car_pkg/msg/Intersection.h
-/home/ubuntu/V2Victory/vehicle_main/car_pkg/msg/Intersection.h
+car_pkg/msg/car.hpp
+/home/ubuntu/V2Victory/vehicle_main/car_pkg/msg/car.hpp
+car_pkg/msg/intersection.hpp
+/home/ubuntu/V2Victory/vehicle_main/car_pkg/msg/intersection.hpp
 
 /home/ubuntu/V2Victory/vehicle_main/test_top.h
 stdint.h
