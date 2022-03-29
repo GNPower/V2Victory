@@ -22,7 +22,7 @@ struct {
   uint32_t position_x;
   uint32_t position_y;
   uint8_t num_directions;
-  uint32_t directions[32];
+  uint8_t directions[4];
   uint8_t intersection_state;
   uint8_t intersection_next_state;
   float intersection_switch_time;
@@ -45,7 +45,12 @@ class IntersectionMessager : public rclcpp::Node
       message.position_x = IntersectionMsg.position_x;
       message.position_y = IntersectionMsg.position_y;
       message.num_directions = IntersectionMsg.num_directions;
-      message.directions = IntersectionMsg.directions;
+      uint32_t directions;
+      directions = (IntersectionMsg.directions[0]  <<  0);
+      directions |= (IntersectionMsg.directions[1] <<  8);
+      directions |= (IntersectionMsg.directions[2] << 16);
+      directions |= (IntersectionMsg.directions[3] << 24);
+      message.directions = directions;
       message.intersection_state = IntersectionMsg.intersection_state;
       message.intersection_next_state = IntersectionMsg.intersection_next_state;
       message.intersection_switch_time = IntersectionMsg.intersection_switch_time;
