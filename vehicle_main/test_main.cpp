@@ -26,15 +26,15 @@ using namespace std::chrono_literals;
 
 
 ////////////////////////////COM CLASSES///////////////////////////////////////////////////
-class IntersectionMessager : public rclcpp::Node
+class CarMessager : public rclcpp::Node
 {
   public:
-    IntersectionMessager()
-    : Node("car_publisher")
+    CarMessager()
+    : Node("car_messager")
     {
-      publisher_ = this->create_publisher<car_interface::msg::Car>("car_data, 10");
-} 
-
+      publisher_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
+      subscription_ = this->create_subscription<car_interface::msg::Intersection>("intersection_data", 10, std::bind(&CarMessager::intersection_callback, this, _1));
+    }
 
     void publish(struct Vehicle_Data Vehicle_Data)
     {
@@ -42,33 +42,38 @@ class IntersectionMessager : public rclcpp::Node
       message.position_x = Vehicle_Data.position_x;
       message.position_y = Vehicle_Data.position_y;
       message.heading = Vehicle_Data.heading;
-      message.vehicle_speed = Vehicle_Data.speed;
+      message.vehicle_speed = Vehicle_Data.vehicle_speed;
       message.priority = Vehicle_Data.priority;
       // RCLCPP_INFO(this->get_logger(), "Publishing: '%f' '%d'", message.vehicle_speed, message.heading);
       publisher_->publish(message);
     }
-    rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher_;
 
-    private:
+  private:
+    void intersection_callback(const car_interface::msg::Intersection & msg) const
+    {
+      struct Intersection_Data IMsg;
+      IMsg.position_x = msg->position_x;
+      IMsg.position_y = msg->position_y;
+      IMsg.num_directions = msg->num_directions;
+      uint32_t directions = msg->directions;
+      IMsg.directions[0] = (directions >>  0) & 0xFF;
+      IMsg.directions[1] = (directions >>  8) & 0xFF;
+      IMsg.directions[2] = (directions >> 16) & 0xFF;
+      IMsg.directions[3] = (directions >> 24) & 0xFF;
+      IMsg.intersection_state = msg->intersection_state;
+      IMsg.intersection_next_state = msg->intersection_next_state;
+      IMsg.intersection_switch_time = msg->intersection_switch_time;
+
+      // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
+      // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
+      // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
+
+      //TODO: CALL CALLBACK AND PASS IN STRUCTURE
+    }
+
+    rclcpp::Publisher<car_interface::msg::Car>::SharedPtr publisher_;
+    rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
 };
-
-void subscriber(const car_interface::msg::Intersection::ConstPtr& msg)
-{
-  struct Intersection_Data IMsg;
-  IMsg.position_x = msg->position_x;
-  IMsg.position_y = msg->position_y;
-  IMsg.num_directions = msg->num_directions;
-  IMsg.directions[32] = msg->directions;
-  IMsg.intersection_state = msg->intersection_state;
-  IMsg.intersection_next_state = msg->intersection_next_state;
-  IMsg.intersection_switch_time = msg->intersection_switch_time;
-
-  //TODO: CALL CALLBACK AND PASS IN STRUCTURE
-
-  // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
-  // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
-  // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
-}
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -81,15 +86,15 @@ int main(int argc, char *argv[]){
 
 
 	//INITS///////////////////////////////////////////////////////////////////////////////////
+	/*
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Initiating GPIOs");
 	}
 	
 	init_encoders(&left_tid, &right_tid);
-	
-	rclcpp::init(argc, argv);
-	rclcpp::NodeHandle n;
-  	rclcpp::Subscriber sub = n.subscribe("intersection_data", 1, subscriber);
+	*/
+    rclcpp::init(argc, argv);
+	rclcpp::spin(std::make_shared<CarMessager>());
 
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,7 +158,7 @@ int main(int argc, char *argv[]){
 
 
 	}
-*/
+
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Closing GPIOs");
 	}
@@ -162,7 +167,7 @@ int main(int argc, char *argv[]){
 
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
-
+*/
 
 
 	return 0;
