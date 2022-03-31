@@ -20,8 +20,8 @@ set(CMAKE_TARGET_DEFINITIONS_CXX
 
 # The include file search paths:
 set(CMAKE_CXX_TARGET_INCLUDE_PATH
-  "../../car_interface/install/car_interface/include"
   "/opt/ros/foxy/include"
+  "../../car_interface/install/car_interface/include"
   )
 
 # Targets to which this target links.

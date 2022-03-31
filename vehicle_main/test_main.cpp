@@ -33,7 +33,7 @@ class CarMessager : public rclcpp::Node
     : Node("car_messager")
     {
       publisher_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
-      subscription_ = this->create_subscription<car_interface::msg::Intersection>("intersection_data", 10, std::bind(&CarMessager::intersection_callback, this, _1));
+      subscription_ = this->create_subscription<car_interface::msg::Intersection>("intersection_data", 10, std::bind(&CarMessager::intersection_callback, this, std::placeholders::_1));
     }
 
     void publish(struct Vehicle_Data Vehicle_Data)
@@ -42,14 +42,14 @@ class CarMessager : public rclcpp::Node
       message.position_x = Vehicle_Data.position_x;
       message.position_y = Vehicle_Data.position_y;
       message.heading = Vehicle_Data.heading;
-      message.vehicle_speed = Vehicle_Data.vehicle_speed;
+      message.vehicle_speed = Vehicle_Data.speed;
       message.priority = Vehicle_Data.priority;
       // RCLCPP_INFO(this->get_logger(), "Publishing: '%f' '%d'", message.vehicle_speed, message.heading);
       publisher_->publish(message);
     }
 
   private:
-    void intersection_callback(const car_interface::msg::Intersection & msg) const
+    void intersection_callback(const car_interface::msg::Intersection::SharedPtr msg)
     {
       struct Intersection_Data IMsg;
       IMsg.position_x = msg->position_x;
@@ -93,9 +93,9 @@ int main(int argc, char *argv[]){
 	
 	init_encoders(&left_tid, &right_tid);
 	*/
-    rclcpp::init(argc, argv);
+        rclcpp::init(argc, argv);
+	printf("All your base \n");
 	rclcpp::spin(std::make_shared<CarMessager>());
-
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Vehicle_Data ego;
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]){
 	intersection.position_x = 100;
 	intersection.position_y = 200;
 
-
+        CarMessager Test;
 	///////////////////////////////////////////////////////////////////////////////////////////
 
 	/*
@@ -130,8 +130,10 @@ int main(int argc, char *argv[]){
 	float time_passed= 0;
 	
 	set_forward();
-
+*/
 	while(1){
+		Test.publish(ego);
+		/*
 		if(GPIORead(STOP)) break;
 
 		rclcpp::spin(std::make_shared<IntersectionMessager>());
@@ -156,9 +158,9 @@ int main(int argc, char *argv[]){
 		count++;
 		usleep(TIMESTEP);
 
-
+*/
 	}
-
+/*
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Closing GPIOs");
 	}
