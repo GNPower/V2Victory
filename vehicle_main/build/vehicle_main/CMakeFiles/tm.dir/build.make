@@ -70,18 +70,18 @@ CMakeFiles/tm.dir/test_main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tm.dir/test_main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/V2Victory/vehicle_main/test_main.cpp -o CMakeFiles/tm.dir/test_main.cpp.s
 
-CMakeFiles/tm.dir/encoder/encoder.cpp.o: CMakeFiles/tm.dir/flags.make
-CMakeFiles/tm.dir/encoder/encoder.cpp.o: ../../encoder/encoder.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tm.dir/encoder/encoder.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tm.dir/encoder/encoder.cpp.o -c /home/ubuntu/V2Victory/vehicle_main/encoder/encoder.cpp
+CMakeFiles/tm.dir/encoder/encode.cpp.o: CMakeFiles/tm.dir/flags.make
+CMakeFiles/tm.dir/encoder/encode.cpp.o: ../../encoder/encode.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ubuntu/V2Victory/vehicle_main/build/vehicle_main/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tm.dir/encoder/encode.cpp.o"
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tm.dir/encoder/encode.cpp.o -c /home/ubuntu/V2Victory/vehicle_main/encoder/encode.cpp
 
-CMakeFiles/tm.dir/encoder/encoder.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tm.dir/encoder/encoder.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ubuntu/V2Victory/vehicle_main/encoder/encoder.cpp > CMakeFiles/tm.dir/encoder/encoder.cpp.i
+CMakeFiles/tm.dir/encoder/encode.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tm.dir/encoder/encode.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ubuntu/V2Victory/vehicle_main/encoder/encode.cpp > CMakeFiles/tm.dir/encoder/encode.cpp.i
 
-CMakeFiles/tm.dir/encoder/encoder.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tm.dir/encoder/encoder.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/V2Victory/vehicle_main/encoder/encoder.cpp -o CMakeFiles/tm.dir/encoder/encoder.cpp.s
+CMakeFiles/tm.dir/encoder/encode.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tm.dir/encoder/encode.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ubuntu/V2Victory/vehicle_main/encoder/encode.cpp -o CMakeFiles/tm.dir/encoder/encode.cpp.s
 
 CMakeFiles/tm.dir/localize/localize.cpp.o: CMakeFiles/tm.dir/flags.make
 CMakeFiles/tm.dir/localize/localize.cpp.o: ../../localize/localize.cpp
@@ -112,7 +112,7 @@ CMakeFiles/tm.dir/motor_drive/motor_drive.cpp.s: cmake_force
 # Object files for target tm
 tm_OBJECTS = \
 "CMakeFiles/tm.dir/test_main.cpp.o" \
-"CMakeFiles/tm.dir/encoder/encoder.cpp.o" \
+"CMakeFiles/tm.dir/encoder/encode.cpp.o" \
 "CMakeFiles/tm.dir/localize/localize.cpp.o" \
 "CMakeFiles/tm.dir/motor_drive/motor_drive.cpp.o"
 
@@ -120,7 +120,7 @@ tm_OBJECTS = \
 tm_EXTERNAL_OBJECTS =
 
 tm: CMakeFiles/tm.dir/test_main.cpp.o
-tm: CMakeFiles/tm.dir/encoder/encoder.cpp.o
+tm: CMakeFiles/tm.dir/encoder/encode.cpp.o
 tm: CMakeFiles/tm.dir/localize/localize.cpp.o
 tm: CMakeFiles/tm.dir/motor_drive/motor_drive.cpp.o
 tm: CMakeFiles/tm.dir/build.make

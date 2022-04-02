@@ -27,7 +27,7 @@ find_package(builtin_interfaces REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
 
-add_executable(tm test_main.cpp encoder/encoder.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
+add_executable(tm test_main.cpp encoder/encode.cpp localize/localize.cpp motor_drive/motor_drive.cpp)
 ament_target_dependencies(tm rclcpp std_msgs car_interface)
 	
 

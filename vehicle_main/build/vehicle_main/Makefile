@@ -206,32 +206,32 @@ uninstall/fast:
 	$(MAKE) -f CMakeFiles/uninstall.dir/build.make CMakeFiles/uninstall.dir/build
 .PHONY : uninstall/fast
 
-encoder/encoder.o: encoder/encoder.cpp.o
+encoder/encode.o: encoder/encode.cpp.o
 
-.PHONY : encoder/encoder.o
+.PHONY : encoder/encode.o
 
 # target to build an object file
-encoder/encoder.cpp.o:
-	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encoder.cpp.o
-.PHONY : encoder/encoder.cpp.o
+encoder/encode.cpp.o:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encode.cpp.o
+.PHONY : encoder/encode.cpp.o
 
-encoder/encoder.i: encoder/encoder.cpp.i
+encoder/encode.i: encoder/encode.cpp.i
 
-.PHONY : encoder/encoder.i
+.PHONY : encoder/encode.i
 
 # target to preprocess a source file
-encoder/encoder.cpp.i:
-	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encoder.cpp.i
-.PHONY : encoder/encoder.cpp.i
+encoder/encode.cpp.i:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encode.cpp.i
+.PHONY : encoder/encode.cpp.i
 
-encoder/encoder.s: encoder/encoder.cpp.s
+encoder/encode.s: encoder/encode.cpp.s
 
-.PHONY : encoder/encoder.s
+.PHONY : encoder/encode.s
 
 # target to generate assembly for a file
-encoder/encoder.cpp.s:
-	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encoder.cpp.s
-.PHONY : encoder/encoder.cpp.s
+encoder/encode.cpp.s:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/encoder/encode.cpp.s
+.PHONY : encoder/encode.cpp.s
 
 localize/localize.o: localize/localize.cpp.o
 
@@ -330,9 +330,9 @@ help:
 	@echo "... tm"
 	@echo "... vehicle_main_uninstall"
 	@echo "... uninstall"
-	@echo "... encoder/encoder.o"
-	@echo "... encoder/encoder.i"
-	@echo "... encoder/encoder.s"
+	@echo "... encoder/encode.o"
+	@echo "... encoder/encode.i"
+	@echo "... encoder/encode.s"
 	@echo "... localize/localize.o"
 	@echo "... localize/localize.i"
 	@echo "... localize/localize.s"

@@ -86,16 +86,14 @@ int main(int argc, char *argv[]){
 
 
 	//INITS///////////////////////////////////////////////////////////////////////////////////
-	/*
+	
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Initiating GPIOs");
 	}
 	
 	init_encoders(&left_tid, &right_tid);
-	*/
+	
         rclcpp::init(argc, argv);
-	printf("All your base \n");
-	rclcpp::spin(std::make_shared<CarMessager>());
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Vehicle_Data ego;
@@ -123,20 +121,20 @@ int main(int argc, char *argv[]){
 	
 
 	printf("No Sleep Till Brooklyn \n");
-/*
+
 	int count = 0;
 	clock_t past_time = clock();
 	clock_t current_time = clock();
 	float time_passed= 0;
 	
 	set_forward();
-*/
+
 	while(1){
 		Test.publish(ego);
-		/*
+		rclcpp::spin_some(std::make_shared<CarMessager>());
+		
+		
 		if(GPIORead(STOP)) break;
-
-		rclcpp::spin(std::make_shared<IntersectionMessager>());
 
 		current_time = clock();
 		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
@@ -157,19 +155,15 @@ int main(int argc, char *argv[]){
 
 		count++;
 		usleep(TIMESTEP);
-
-*/
 	}
-/*
+
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Closing GPIOs");
 	}
 
 	rclcpp::shutdown();
-
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
-*/
 
 
 	return 0;
