@@ -64,6 +64,7 @@ int set_forward();
 int set_backward();
 int set_left();
 int set_right();
+int set_stop();
 
 int setup_gpio(int pin, int direction);
 int setup_pwm(int pin, int duty);

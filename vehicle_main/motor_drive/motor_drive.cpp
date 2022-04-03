@@ -371,6 +371,17 @@ int set_right(){
 	}
 
 
+int set_stop(){
+	if ((-1 == GPIOWrite(LFORWARD, 0))|
+		(-1 == GPIOWrite(LBACKWARD, 0))|
+		(-1 == GPIOWrite(RBACKWARD, 0))|
+		(-1 == GPIOWrite(RFORWARD, 0)))
+		return -1;
+	else
+		return 0;
+	}	
+
+
 int setup_gpio(int pin, int direction){	
 	if (GPIOExport(pin) == -1)
 		return -1;
