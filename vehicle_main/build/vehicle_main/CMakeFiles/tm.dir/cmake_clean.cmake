@@ -3,6 +3,7 @@ file(REMOVE_RECURSE
   "CMakeFiles/tm.dir/localize/localize.cpp.o"
   "CMakeFiles/tm.dir/motor_drive/motor_drive.cpp.o"
   "CMakeFiles/tm.dir/test_main.cpp.o"
+  "CMakeFiles/tm.dir/vector/vector.cpp.o"
   "tm"
   "tm.pdb"
 )

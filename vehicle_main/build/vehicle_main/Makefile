@@ -314,6 +314,33 @@ test_main.cpp.s:
 	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/test_main.cpp.s
 .PHONY : test_main.cpp.s
 
+vector/vector.o: vector/vector.cpp.o
+
+.PHONY : vector/vector.o
+
+# target to build an object file
+vector/vector.cpp.o:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/vector/vector.cpp.o
+.PHONY : vector/vector.cpp.o
+
+vector/vector.i: vector/vector.cpp.i
+
+.PHONY : vector/vector.i
+
+# target to preprocess a source file
+vector/vector.cpp.i:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/vector/vector.cpp.i
+.PHONY : vector/vector.cpp.i
+
+vector/vector.s: vector/vector.cpp.s
+
+.PHONY : vector/vector.s
+
+# target to generate assembly for a file
+vector/vector.cpp.s:
+	$(MAKE) -f CMakeFiles/tm.dir/build.make CMakeFiles/tm.dir/vector/vector.cpp.s
+.PHONY : vector/vector.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -342,6 +369,9 @@ help:
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"
+	@echo "... vector/vector.o"
+	@echo "... vector/vector.i"
+	@echo "... vector/vector.s"
 .PHONY : help
 
 

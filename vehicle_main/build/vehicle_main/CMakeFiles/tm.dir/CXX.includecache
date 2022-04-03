@@ -167,6 +167,8 @@ motor_drive/motor_drive.h
 /home/ubuntu/V2Victory/vehicle_main/motor_drive/motor_drive.h
 encoder/encode.h
 /home/ubuntu/V2Victory/vehicle_main/encoder/encode.h
+vector/vector.hpp
+/home/ubuntu/V2Victory/vehicle_main/vector/vector.hpp
 pthread.h
 -
 signal.h
@@ -191,6 +193,10 @@ car_interface/msg/intersection.hpp
 /home/ubuntu/V2Victory/vehicle_main/test_top.h
 stdint.h
 /home/ubuntu/V2Victory/vehicle_main/stdint.h
+
+/home/ubuntu/V2Victory/vehicle_main/vector/vector.hpp
+ostream
+-
 
 /opt/ros/foxy/include/builtin_interfaces/msg/detail/duration__builder.hpp
 builtin_interfaces/msg/detail/duration__struct.hpp
