@@ -5,6 +5,7 @@
 #include "localize/localize.h"
 #include "motor_drive/motor_drive.h"
 #include "encoder/encode.h"
+#include "vector/vector.h"
 
 #include <pthread.h>
 #include <signal.h>
@@ -126,12 +127,14 @@ int main(int argc, char *argv[]){
 	clock_t past_time = clock();
 	clock_t current_time = clock();
 	float time_passed= 0;
-	
+	Vector vector_car, vector_int;
+	Scalar vector_distance;
 	set_forward();
 
 	while(1){
 		Test.publish(ego);
 		rclcpp::spin_some(std::make_shared<CarMessager>());
+		intersection = IMsg;
 		
 		
 		if(GPIORead(STOP)) break;
@@ -146,28 +149,15 @@ int main(int argc, char *argv[]){
 		get_y_distance_traveled(&ego, &distance_y);
 		//printf("Y_t: %f\t", distance_y);
 		update_location(&ego, distance_x, distance_y, time_passed);
-		
-		if (count == 200){
-		set_left();
-		}
 
-		if (count == 400){
-		set_right();
-		}
-			
-
-		if (count == 600){
-		set_backward();
-		}	
-
-		if (count == 800){
-		GPIOWrite(RBACKWARD, 0);
-		GPIOWrite(LBACKWARD, 0);
-		}
+		vector_car = Vector(ego.position_x, ego.position_y);
+		vector_int = Vector(ego.position_x, ego.position_y);
+		vector_distance = vector_car.distance(vector_car, vector_int);
 
 		if (count > 1000){
-			set_forward();
+//			set_forward();
 			count = 0;
+			printf("DX: %f, DY %f", vector_distance.x, vector_distance.y);
 			printf("X: %d, Y: %d Speed (mm/s): %f TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
 
