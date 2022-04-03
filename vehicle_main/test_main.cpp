@@ -21,7 +21,7 @@
 
 using namespace std::chrono_literals;
 
-#define DUTY 60
+#define DUTY 90
 #define HEADING 0
 
 
@@ -147,8 +147,26 @@ int main(int argc, char *argv[]){
 		//printf("Y_t: %f\t", distance_y);
 		update_location(&ego, distance_x, distance_y, time_passed);
 		
+		if (count == 200){
+		set_left();
+		}
 
-		if (count > 100){
+		if (count == 400){
+		set_right();
+		}
+			
+
+		if (count == 600){
+		set_backward();
+		}	
+
+		if (count == 800){
+		GPIOWrite(RBACKWARD, 0);
+		GPIOWrite(LBACKWARD, 0);
+		}
+
+		if (count > 1000){
+			set_forward();
 			count = 0;
 			printf("X: %d, Y: %d Speed (mm/s): %f TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}

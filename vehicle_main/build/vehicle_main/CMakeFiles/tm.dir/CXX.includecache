@@ -94,10 +94,6 @@ car_interface/msg/detail/intersection__builder.hpp
 car_interface/msg/detail/intersection__traits.hpp
 ../../car_interface/install/car_interface/include/car_interface/msg/car_interface/msg/detail/intersection__traits.hpp
 
-/home/ubuntu/V2Victory/vehicle_main/encoder/encode.cpp
-encode.h
-/home/ubuntu/V2Victory/vehicle_main/encoder/encode.h
-
 /home/ubuntu/V2Victory/vehicle_main/encoder/encode.h
 sys/stat.h
 -
@@ -126,10 +122,6 @@ signal.h
 ../test_top.h
 /home/ubuntu/V2Victory/vehicle_main/test_top.h
 
-/home/ubuntu/V2Victory/vehicle_main/localize/localize.cpp
-localize.h
-/home/ubuntu/V2Victory/vehicle_main/localize/localize.h
-
 /home/ubuntu/V2Victory/vehicle_main/localize/localize.h
 stdio.h
 -
@@ -139,10 +131,6 @@ math.h
 /home/ubuntu/V2Victory/vehicle_main/test_top.h
 ../encoder/encode.h
 /home/ubuntu/V2Victory/vehicle_main/encoder/encode.h
-
-/home/ubuntu/V2Victory/vehicle_main/motor_drive/motor_drive.cpp
-motor_drive.h
-/home/ubuntu/V2Victory/vehicle_main/motor_drive/motor_drive.h
 
 /home/ubuntu/V2Victory/vehicle_main/motor_drive/motor_drive.h
 sys/stat.h
