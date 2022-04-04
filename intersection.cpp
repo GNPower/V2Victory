@@ -31,17 +31,12 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
 
     //Init Intersection
     init_states(); //needed in stopsign for publish
+    init_traffic_signal();
     #ifdef STOP_SIGN_ENABLE
     if (k_int_type == STOP)
     {
         init_stop_sign();
     }
-    else
-    {
-        init_traffic_signal();
-    }
-    #else
-    init_traffic_signal();
     #endif
 
     //Init Emergency Override Queue
