@@ -22,7 +22,7 @@ vehicle::vehicle(unsigned int id, double max_speed, double front_pos, double set
 #endif
 #endif
 {
-    //Setup inputs
+    //Setup Inputs
     k_id = id;
     k_max_speed = max_speed;
     k_front_pos = front_pos;
@@ -340,6 +340,10 @@ void vehicle::update_ego_data(double dt)
 
 void vehicle::update_accel_req(void)
 {
+    #ifdef DRIVER
+    //modelling human driver
+    update_sys_accel_req();
+    #else
     //first calculate system's accel request
     update_sys_accel_req();
 
@@ -348,18 +352,63 @@ void vehicle::update_accel_req(void)
     {
         //no driver input, take system's
         c_accel_req = system_accel_req;
+        #ifdef DEBUG
+        std::cout << "update_accel_req: No Driver Input\n";
+        #endif
     }
     else if (m_driver_accel_req > 0)
     {
         //driver wants to accelerate
         c_accel_req = fmax(m_driver_accel_req, system_accel_req);
+        #ifdef DEBUG
+        std::cout << "update_accel_req: Driver Accel\n";
+        #endif
     }
     else
     {
         //driver wants to decelerate
         c_accel_req = fmin(m_driver_accel_req, system_accel_req);
+        #ifdef DEBUG
+        std::cout << "update_accel_req: Driver Decel\n";
+        #endif
     }
+    #endif
 }
+
+#ifdef DRIVER
+double vehicle::get_driver_int_accel_req(void)
+{
+    double int_accel_req;
+    if (int_state == RED)
+    {
+        //Red Light, stop at int entrance
+        int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist);
+    }
+    else if (int_state == YELLOW)
+    {
+        //Yellow Light, see if we should continue or stop
+        //only continue if we cannot stop in time
+        //if continue, go for set speed
+        //if stop, go for int entrance
+        double stopping_dist = -pow(coasted_ego_speed, 2)/(2*MAX_DECEL);
+        if (stopping_dist > int_ent_dist)
+        {
+            //cannot stop in time, continue
+            int_accel_req = p_set_speed - coasted_ego_speed;
+        }
+        else
+        {
+            //can stop in time, stop at entrance
+            int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist);
+        }
+    }
+    else {
+        //Green Light, go for set speed
+        int_accel_req = p_set_speed - coasted_ego_speed;
+    }
+    return int_accel_req;
+}
+#endif
 
 void vehicle::update_sys_accel_req(void)
 {
@@ -371,8 +420,18 @@ void vehicle::update_sys_accel_req(void)
         std::cout << "update_sys_accel_req: Lead + Intersection\n";
         #endif
 
+        #ifdef DRIVER
+        double int_accel_req = get_driver_int_accel_req();
+        #else
         double int_accel_req = get_int_accel_req();
+        #endif
+        
         double lead_accel_req = get_lead_accel_req();
+
+        #ifdef DEBUG
+        std::cout << "update_sys_accel_req: int_accel_req = " << int_accel_req << "\tlead_accel_req = " << lead_accel_req << "\n";
+        #endif
+
         system_accel_req = fmin(int_accel_req, lead_accel_req);
     }
     else if (lead_exists)
@@ -391,7 +450,11 @@ void vehicle::update_sys_accel_req(void)
         #endif
 
         //intersection, no lead vehicle
+        #ifdef DRIVER
+        system_accel_req = get_driver_int_accel_req();
+        #else
         system_accel_req = get_int_accel_req();
+        #endif
     }
     else
     {
@@ -431,8 +494,15 @@ double vehicle::get_lead_accel_req(void)
     #else
     desired_lead_gap = k_front_pos + fmax(LEAD_GAP_DIST, LEAD_GAP_TIME*m_ego_speed);
     #endif
+
+    #ifdef DEBUG
+    std::cout << "get_lead_accel_req: desired_lead_gap = " << desired_lead_gap << "\n";
+    #endif
     
     double dist_error = lead_rel_pos_x - desired_lead_gap;
+    #ifdef DEBUG
+    std::cout << "get_lead_accel_req: dist_error = " << dist_error << "\n";
+    #endif
     //since using relative stuff need to use rel_vel_x
     double set_speed_error;
     #ifdef PLATOONING_ENABLE
@@ -453,6 +523,10 @@ double vehicle::get_lead_accel_req(void)
     set_speed_error = p_set_speed - coasted_ego_speed;
     #endif
     
+    #ifdef DEBUG
+    std::cout << "get_lead_accel_req: set_speed_error = " << set_speed_error << "\n";
+    #endif
+
     //lead_rel_vel_x = lead_vel_x - coasted_ego_speed
     if (set_speed_error < lead_rel_vel_x)
     {
@@ -477,6 +551,10 @@ double vehicle::get_lead_accel_req(void)
     }
     //This probably doesn't work, very unsure how to determine acceleration
     
+    #ifdef DEBUG
+    std::cout << "get_lead_accel_req: lead_accel_req = " << lead_accel_req << "\n";
+    #endif
+
     return lead_accel_req;
 }
 
@@ -492,6 +570,9 @@ double vehicle::get_int_accel_req(void)
         //traffic signal red, check if turning green soon
         if (int_next_state == GREEN)
         {
+            #ifdef DEBUG
+            std::cout << "get_int_accel_req: RED->GREEN\n";
+            #endif
             //should be green, but need to account for ems override/dynamic timing
             //try to arrive at intersection with min accel
             //using: delta_s = vi*delta_t + a/2*delta_t^2
@@ -501,6 +582,10 @@ double vehicle::get_int_accel_req(void)
 
             //need to ensure we dont go over set speed, so compare vf with set speed 
             double vf = coasted_ego_speed + make_light_req*int_time_to_switch;
+
+            #ifdef DEBUG
+            std::cout << "get_int_accel_req: safe_tts = " << safe_tts << "\tmake_light_req = " << make_light_req << "\tvf = " << vf << "\n";
+            #endif
             if (vf > p_set_speed || make_light_req > MAX_ACCEL)
             {
                 //need to reduce req
@@ -515,6 +600,9 @@ double vehicle::get_int_accel_req(void)
         }
         else
         {
+            #ifdef DEBUG
+            std::cout << "get_int_accel_req: RED->RED/YELLOW\n";
+            #endif
             //next state is red/yellow, just try to approach and stop at intersection
             //using: vf^2 = vi^2 + 2*a*delta_s where vf^2 is 0 and solving for a
             int_accel_req = -pow(coasted_ego_speed, 2)/(2*(int_ent_dist - k_front_pos));
@@ -526,6 +614,9 @@ double vehicle::get_int_accel_req(void)
     else
     #endif
     {
+        #ifdef DEBUG
+        std::cout << "get_int_accel_req: GREEN/YELLOW\n";
+        #endif
         //traffic signal green or yellow, check if can make through int or should slow down
         double time_to_red = int_time_to_switch;
         switch(int_next_state)
@@ -538,6 +629,11 @@ double vehicle::get_int_accel_req(void)
                 break;
             //for red dont increment
         }
+
+        #ifdef DEBUG
+        std::cout << "get_int_accel_req: time_to_red = " << time_to_red << "\n";
+        #endif
+
         //now have time til red, see if we can exit intersection
         double exit_light_req = (int_exit_dist - k_front_pos - coasted_ego_speed*time_to_red)*2/pow(time_to_red, 2);
         //now check if we go over set speed to reach it
@@ -570,12 +666,17 @@ double vehicle::get_int_accel_req(void)
         }
     }
     #endif
+
+    #ifdef DEBUG
+    std::cout << "get_int_accel_req: int_accel_req = " << int_accel_req << "\n";
+    #endif
+
     return int_accel_req;
 }
 
 void vehicle::update_veh_data(double dt)
 {
-    //first update existing tracks and delte ones that have coasted too long
+    //first update existing tracks and delete ones that have coasted too long
     for (int i = 0; i < num_vehicles; i++)
     {
         bool match_found = false;
@@ -779,7 +880,7 @@ void vehicle::update_lead_veh(void)
     //need to find closest vehicle (if any) in path
     //since we have cars as points but in reality have width, need to account for that when searching
 
-    bool lead_found;
+    bool lead_found = false;
     double lead_dist;
     s_vehicle_data lead_vehicle;
 
@@ -790,35 +891,125 @@ void vehicle::update_lead_veh(void)
         double coasted_x = m_vehicle_data[i].veh_pos_x + m_vehicle_data[i].time_since_update*m_vehicle_data[i].veh_speed*cos(M_PI/180*m_vehicle_data[i].veh_heading);
         double coasted_y = m_vehicle_data[i].veh_pos_y + m_vehicle_data[i].time_since_update*m_vehicle_data[i].veh_speed*sin(M_PI/180*m_vehicle_data[i].veh_heading);
         
-        double x1, x2, y1, y2, angle_1, angle_2;
-        angle_1 = m_ego_heading + 90;
-        angle_2 = m_ego_heading - 90;
-        x1 = coasted_ego_pos_x + INPATH_WIDTH*cos(M_PI/180*angle_1);
-        x2 = coasted_ego_pos_x + INPATH_WIDTH*cos(M_PI/180*angle_2);
-        y1 = coasted_ego_pos_y + INPATH_WIDTH*sin(M_PI/180*angle_1);
-        y2 = coasted_ego_pos_y + INPATH_WIDTH*sin(M_PI/180*angle_2);
+        double x1, x2, y1, y2, angle;
+        angle = m_ego_heading + 90.0;
+        x1 = coasted_ego_pos_x + INPATH_WIDTH*cos(M_PI/180*angle);
+        x2 = coasted_ego_pos_x - INPATH_WIDTH*cos(M_PI/180*angle);
+        y1 = coasted_ego_pos_y + INPATH_WIDTH*sin(M_PI/180*angle);
+        y2 = coasted_ego_pos_y - INPATH_WIDTH*sin(M_PI/180*angle);
 
-        //to check if in path, solve for x at the coasted_x position based on heading
-        double sol_x1, sol_x2;
-        sol_x1 = (coasted_x - x1)/cos(M_PI/180*m_ego_heading);
-        sol_x2 = (coasted_x - x2)/cos(M_PI/180*m_ego_heading);
-        if (sol_x1 <= 0 || sol_x2 <= 0)
+        bool in_path_y, in_path_x;
+        double x1_dist = coasted_x - x1;
+        double x2_dist = coasted_x - x2;
+        double y1_dist = coasted_y - y1;
+        double y2_dist = coasted_y - y2;
+
+        if (m_ego_heading == 0 || m_ego_heading == 180)
         {
-            //if these are negative, it is in reverse path (behind us)
-            continue;
+            #ifdef DEBUG
+            std::cout << "update_lead_veh: Up/Down\n";
+            #endif
+            //going straight up or down, y dist will never change
+            //first see if y_dist within ranges
+            if ((coasted_y >= y1 && coasted_y <= y2) || (coasted_y >= y2 && coasted_y <= y1))
+            {
+                in_path_y = true;
+            }
+            else
+            {
+                in_path_y = false;
+            }
+
+            //now see if we are approaching or going away from object
+            if (m_ego_heading == 0 && (x1_dist >= 0 || x2_dist >= 0)) //going up
+            {
+                in_path_x = true;
+            }
+            else if (m_ego_heading == 180 && (x1_dist <= 0 || x2_dist <= 0)) //going down
+            {
+                in_path_x = true;
+            }
+            else
+            {
+                in_path_x = false;
+            }
         }
-        //now have x, can see where y is at this x val
-        double sol_y1, sol_y2;
-        sol_y1 = y1 + sol_x1*sin(M_PI/180*m_ego_heading);
-        sol_y2 = y2 + sol_x2*sin(M_PI/180*m_ego_heading);
+        else if (m_ego_heading == 90 || m_ego_heading == 270)
+        {
+            #ifdef DEBUG
+            std::cout << "update_lead_veh: Left/Right\n";
+            #endif
+            //going straight left or right, x dist will never change
+            //first see if x_dist within ranges
+            if ((coasted_x >= x1 && coasted_x <= x2) || (coasted_x >= x2 && coasted_x <= x1))
+            {
+                in_path_x = true;
+            }
+            else
+            {
+                in_path_x = false;
+            }
+
+            //now see if we are approaching or going away from object
+            if (m_ego_heading == 90 && (y1_dist >= 0 || y2_dist >= 0)) //going up
+            {
+                in_path_y = true;
+            }
+            else if (m_ego_heading == 270 && (y1_dist <= 0 || y2_dist <= 0)) //going down
+            {
+                in_path_y = true;
+            }
+            else
+            {
+                in_path_y = false;
+            }
+        }
+        else
+        {
+            #ifdef DEBUG
+            std::cout << "update_lead_veh: Both Directions\n";
+            #endif
+            //no special angles to consider, both dists will change
+            //start with x
+            double h1_sol = x1_dist/cos(M_PI/180*m_ego_heading);
+            double h2_sol = x2_dist/cos(M_PI/180*m_ego_heading);
+
+            //check positive (forward)
+            if (h1_sol >= 0 || h2_sol >= 0)
+            {
+                in_path_x = true;
+            }
+            else
+            {
+                in_path_x = false;
+            }
+
+            //see where y would be
+            double y1_sol = y1 + h1_sol*sin(M_PI/180*m_ego_heading);
+            double y2_sol = y2 + h2_sol*sin(M_PI/180*m_ego_heading);
+
+            //now see if in range for y
+            if ((y1_sol >= coasted_y && coasted_y <= y2_sol) || (y2_sol >= coasted_y && coasted_y <= y1_sol))
+            {
+                in_path_y = true;
+            }
+            else
+            {
+                in_path_y = false;
+            }
+        }
+
+        #ifdef DEBUG
+        std::cout << "update_lead_veh: in_path_x = " << in_path_x << "\tin_path_y = " << in_path_y << "\n";
+        #endif
 
         //now see if our coasted_y is between the sol_y1 and sol_y2
-        if ((coasted_y >= sol_y1 && coasted_y <= sol_y2) || (coasted_y >= sol_y2 && coasted_y <= sol_y1))
+        if (in_path_x && in_path_y)
         {
             //in path, get distance
             double dist_x = coasted_x - coasted_ego_pos_x;
             double dist_y = coasted_y - coasted_ego_pos_y;
-            double dist = pow(dist_x, 2) + pow(dist_y, 2); //dont need to square since using for comparison
+            double dist = sqrt(pow(dist_x, 2) + pow(dist_y, 2)); //dont need to square since using for comparison
             
             if (!lead_found)
             {
@@ -866,11 +1057,15 @@ void vehicle::update_lead_veh(void)
         lead_platoon_set_speed = 0;
         #endif
     }
+
+    #ifdef DEBUG
+    std::cout << "update_lead_veh: lead_exists = " << lead_exists << "\tlead_rel_pos_x = " << lead_rel_pos_x << "\tlead_rel_vel_x = " << lead_rel_vel_x << "\n";
+    #endif
 }
 
 void vehicle::update_rel_int(void)
 {
-    bool int_found;
+    bool int_found = false;
     double closest_int_dist;
     double closest_int_length;
     double int_update_time;
@@ -885,16 +1080,17 @@ void vehicle::update_rel_int(void)
             {
                 heading_diff = 360 - heading_diff;
             }
+
             if (heading_diff < INLANE_HEADING)
             {
                 double x_dist = m_int_data[i].int_ent_pos_x[j] - coasted_ego_pos_x;
                 double y_dist = m_int_data[i].int_ent_pos_y[j] - coasted_ego_pos_y;
-                double dist = pow(x_dist, 2) + pow(y_dist, 2); //dont need to square since just for comparing
+                double dist = sqrt(pow(x_dist, 2) + pow(y_dist, 2)); //dont need to square since just for comparing
 
                 //need to see if approaching or leaving
                 //assume const vel and see if time to reach is positive
                 double x_time, y_time;
-                if (x_dist == 0)
+                if (abs(x_dist) < INPATH_WIDTH)
                 {
                     x_time = 0;
                 }
@@ -903,7 +1099,7 @@ void vehicle::update_rel_int(void)
                     x_time = x_dist/cos(M_PI/180*m_ego_heading);
                 }
                 
-                if (y_dist == 0)
+                if (abs(y_dist) < INPATH_WIDTH)
                 {
                     y_time = 0;
                 }
@@ -1015,7 +1211,13 @@ void vehicle::update_rel_int(void)
         int_type = SIGNAL;
         int_next_id = 0;
         #endif
-    }    
+    }
+
+    #ifdef DEBUG
+    std::cout << "update_rel_int: int_found = " << int_found << "\tint_ent_dist = " << int_ent_dist << "\tint_exit_dist = " << int_exit_dist << "\n";
+    std::cout << "update_rel_int: int_state = " << int_state << "\tint_next_state = " << int_next_state << "\tint_time_to_switch = " << int_time_to_switch << "\n";
+    #endif
+
 }
 
 void vehicle::init_veh_data(void)

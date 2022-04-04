@@ -161,6 +161,10 @@ void intersection::update_traffic_signal(double dt)
     //Direction #1
     if (dt >= c_int_1_time_to_switch)
     {
+        #ifdef DEBUG
+        std::cout << "update_traffic_signal: direction #1 switch state\n";
+        #endif
+
         //switch to next state
         c_int_1_state = c_int_1_next_state;
 
@@ -201,6 +205,11 @@ void intersection::update_traffic_signal(double dt)
     //Direction #2
     if (dt >= c_int_2_time_to_switch)
     {
+
+        #ifdef DEBUG
+        std::cout << "update_traffic_signal: direction #2 switch state\n";
+        #endif
+
         //switch to next state
         c_int_2_state = c_int_2_next_state;
 
@@ -244,6 +253,9 @@ void intersection::update_traffic_signal(double dt)
     {
        if (ems_override_entrance == 0 || ems_override_entrance == 1)
        {
+            #ifdef DEBUG
+            std::cout << "update_traffic_signal: direction #1 EMS override active\n";
+            #endif
             //Direction #1
             if (c_int_1_state == GREEN && c_int_2_state == RED)
             {
@@ -286,6 +298,9 @@ void intersection::update_traffic_signal(double dt)
        } 
        else
        {
+            #ifdef DEBUG
+            std::cout << "update_traffic_signal: direction #2 EMS override active\n";
+            #endif
            //Direction #2
            if (c_int_2_state == GREEN && c_int_1_state == RED)
            {
@@ -342,6 +357,10 @@ void intersection::update_traffic_signal(double dt)
         //also can only set to ped countdown, so need to check if possible to reduce
         if (priority_direction == 0 && c_int_1_state == RED && c_int_2_state == GREEN && c_int_2_time_to_switch > c_int_2_ped_countdown)
         {
+            #ifdef DEBUG
+            std::cout << "update_traffic_signal: direction #1 prioritized\n";
+            #endif
+
             //Direction #1
             //need to account for difference
             double time_diff = c_int_2_time_to_switch - c_int_2_ped_countdown;
@@ -350,6 +369,10 @@ void intersection::update_traffic_signal(double dt)
         }
         else if (priority_direction == 1 && c_int_2_state == RED && c_int_1_state == GREEN && c_int_1_time_to_switch > c_int_1_ped_countdown)
         {
+            #ifdef DEBUG
+            std::cout << "update_traffic_signal: direction #2 prioritized\n";
+            #endif
+
             //Direction #2
             //need to account for difference
             double time_diff = c_int_1_time_to_switch - c_int_1_ped_countdown;
@@ -776,6 +799,10 @@ void intersection::update_traffic_priority(void)
             dir_counts[1]++;
         }
     }
+
+    #ifdef DEBUG
+    std::cout << "update_traffic_priority: dir_count[0] = " << dir_counts[0] << "\tdir_count[1] = " << dir_counts[1] << "\n";
+    #endif
 
     //have dir_counts, can see if switching is possible
     

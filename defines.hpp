@@ -12,6 +12,10 @@
 //Environment (SIM vs IRL)
 #define SIM
 #define DEBUG
+//#define DRIVER //determines if simulating human driver
+
+//Driver Tunable
+#define DRIVER_REACTION 0.25 //time in seconds for driver to react to visual changes
 
 //Performance/Tunable
 //Intersection & Vehicle Data

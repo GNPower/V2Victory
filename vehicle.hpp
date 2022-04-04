@@ -10,9 +10,12 @@ struct s_vehicle_data {
     double veh_pos_y;
     double veh_speed;
     double veh_heading;
-    uint8_t veh_priority;
 
     double time_since_update;
+
+    #ifdef EMS_OVERRIDE_ENABLE
+    uint8_t veh_priority;
+    #endif
 
     #ifdef PLATOONING_ENABLE
     bool platooning;
@@ -213,5 +216,8 @@ class vehicle
         double get_lead_accel_req(void);
         #ifdef PLATOONING_ENABLE
         void update_platooning(void);
+        #endif
+        #ifdef DRIVER
+        double get_driver_int_accel_req(void); 
         #endif
 };

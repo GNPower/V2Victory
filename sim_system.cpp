@@ -8,10 +8,11 @@
 #include <fstream>
 #include <iomanip>
 
-#define ERROR_ENABLE
+//#define ERROR_ENABLE
 #define VIS_FILE_ENABLE //write to file for visualization
 #define TIMESTEP 0.5 //timestep in s of simulation
-#define MAX_TIME 10.0 //max time in seconds to stop sim
+#define MAX_TIME 40.0 //max time in seconds to stop sim
+#define COMMS_RANGE 300.0 //max distance communications can travel
 
 #ifdef ERROR_ENABLE
 #define COMMS_ERROR_PCT 1 //% chance of comms failing
@@ -52,6 +53,16 @@ std::normal_distribution<double> pos_error(0, ERROR_POS);
 std::normal_distribution<double> speed_error(0, ERROR_SPEED);
 std::normal_distribution<double> heading_error(0, ERROR_HEADING);
 std::normal_distribution<double> accel_error(0, ERROR_ACCEL);
+
+bool comms_in_range(double node1_x, double node1_y, double node2_x, double node2_y)
+{
+    double dist_x = node2_x - node1_x;
+    double dist_y = node2_y - node1_y;
+    double dist = sqrt(pow(dist_x, 2) + pow(dist_y, 2));
+    
+    bool in_range = dist <= COMMS_RANGE;
+    return in_range;
+}
 
 s_veh_sim_data update_veh_data(s_veh_sim_data input_veh)
 {
@@ -101,21 +112,20 @@ void print_sim_int_data(s_published_int_data input_int)
     {
         std::cout << "Next Vehicle ID: " << input_int.int_next_veh_id << "\n";
     }
-
-    #ifdef VIS_FILE_ENABLE
-    //later add stuff
-    //vis_file << "stuff"
-    #endif
 }
+
+#ifdef VIS_FILE_ENABLE
+void write_sim_int_data(s_published_int_data input_int)
+{
+    vis_file << ";(" << int_states[input_int.int_1_state][0] << "," << int_states[input_int.int_2_state][0] << ")";
+}
+#endif
 
 void print_sim_veh_data(s_veh_sim_data input_veh, bool actual_data, unsigned int id) //actual_data: true = sim, false = feedback (w/error)
 {
     if (actual_data)
     {
         std::cout << "\nVEHICLE ACTUAL DATA\n";
-        #ifdef VIS_FILE_ENABLE
-        vis_file << std::fixed << ",(" << id << "," << std::setprecision(2) << input_veh.pos_x << "," << std::setprecision(2) << input_veh.pos_y << "," << std::setprecision(2) << input_veh.heading << ")";
-        #endif
     }
     else
     {
@@ -127,6 +137,13 @@ void print_sim_veh_data(s_veh_sim_data input_veh, bool actual_data, unsigned int
     std::cout << "Accel Req: " << input_veh.accel_req << "\n";
 }
 
+#ifdef VIS_FILE_ENABLE
+void write_sim_veh_data(s_veh_sim_data input_veh, unsigned int id)
+{
+    vis_file << std::fixed << ";(" << id << "," << std::setprecision(2) << input_veh.pos_x << "," << std::setprecision(2) << input_veh.pos_y << "," << std::setprecision(2) << input_veh.heading << ")"; 
+}
+#endif
+
 int main(void)
 {
     //Setup Simulation
@@ -137,7 +154,7 @@ int main(void)
     //open file if needed
     #ifdef VIS_FILE_ENABLE
     vis_file.open("vis.log");
-    vis_file << "0.00";
+    vis_file << "(0.00";
     #endif
 
     unsigned int id = 1;
@@ -156,16 +173,20 @@ int main(void)
         y_int_type int_type = SIGNAL;
         unsigned int int_id = id;
         id++;
-        double ped_countdown = 5.0;
+        double ped_countdown = 1.0;
 
         std::cout << "Initializing Intersection...\n";
         int_list.push_back(intersection (ent_dirs, int_length, int_pos_x, int_pos_y, int_type, int_id, ped_countdown, tts));
         std::cout << "Intersection Initialized! \n";
+
+        #ifdef VIS_FILE_ENABLE
+        write_sim_int_data(int_list[i].publish());
+        #endif
     }
     std::cout << "All Intersections Initialized! \n";
 
     //Initialize Vehicle(s)
-    int num_vehs = 1;
+    int num_vehs = 2;
     std::vector<vehicle> veh_list;
     s_published_vehicle_data veh_published[num_vehs];
     //need to initialize the actual dynamics of vehicle
@@ -177,10 +198,10 @@ int main(void)
         id++;
         double max_speed = 50.0;
         y_veh_type veh_type = NORMAL;
-        double front_pos = 3.0;
+        double front_pos = 0.0;
         double set_speed = 20.0;
         double pos_x = 0.0;
-        double pos_y = -10.0;
+        double pos_y = -50.0 - double(30*i);
         double speed = 0.0;
         double heading = 90.0;
         bool override = false;
@@ -198,10 +219,14 @@ int main(void)
         print_sim_veh_data(veh_error_data, false, veh_id); //t = sim_time
         veh_list.push_back(vehicle (veh_id, max_speed, veh_type, front_pos, set_speed, veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading, override, platooning, driver_accel));
         std::cout << "Vehicle Initialized! \n";
+
+        #ifdef VIS_FILE_ENABLE
+        write_sim_veh_data(sim_vehs[i], veh_id);
+        #endif
     }
     std::cout << "All Vehicles Initialized! \n";
     #ifdef VIS_FILE_ENABLE
-    vis_file << "\n";
+    vis_file << ")\n";
     #endif
 
     while (!sim_done)
@@ -253,6 +278,14 @@ int main(void)
         {
             for (int j = 0; j < num_vehs; j++)
             {
+                //check if in range for communication
+                bool in_range = comms_in_range(int_published[i].int_pos_x, int_published[i].int_pos_y, sim_vehs[j].pos_x, sim_vehs[j].pos_y);
+                if (!in_range)
+                {
+                    //too far, no comms between int and veh
+                    continue;
+                }
+
                 //send veh data to ints
                 comms_pct = (rand() % 100) + 1;
                 if (comms_pct > COMMS_ERROR_PCT)
@@ -289,6 +322,14 @@ int main(void)
                     continue;
                 }
 
+                //check if in range for communication
+                bool in_range = comms_in_range(sim_vehs[i].pos_x, sim_vehs[i].pos_y, sim_vehs[j].pos_x, sim_vehs[j].pos_y);
+                if (!in_range)
+                {
+                    //too far, no comms between vehs
+                    continue;
+                }
+
                 comms_pct = (rand() % 100) + 1;
                 if (comms_pct > COMMS_ERROR_PCT)
                 {
@@ -308,7 +349,7 @@ int main(void)
         {
             std::cout << "\nTime: " << sim_time + TIMESTEP;
             #ifdef VIS_FILE_ENABLE
-            vis_file << sim_time + TIMESTEP;
+            vis_file << "(" << sim_time + TIMESTEP;
             #endif
         }
         for (int i = 0; i < num_vehs; i++)
@@ -346,22 +387,42 @@ int main(void)
                 std::cout << "EGO DATA ERROR! veh #" << i + 1 << "\n";
             }
         }
-        #ifdef VIS_FILE_ENABLE
-        vis_file << "\n";
-        #endif
+        
 
         //4. Update Vehicles and Intersections
         //update ints
+        #ifdef DEBUG
+        std::cout << "INTERSECTION DEBUG\n";
+        #endif
         for (int i = 0; i < num_ints; i++)
         {
             int_list[i].update(TIMESTEP);
         }
 
         //update vehs
+        #ifdef DEBUG
+        std::cout << "VEHICLE DEBUG\n";
+        #endif
         for (int i = 0; i < num_vehs; i++)
         {
             veh_list[i].update(TIMESTEP);
         }
+
+        //Write if enabled
+        #ifdef VIS_FILE_ENABLE
+        if (sim_time + TIMESTEP <= MAX_TIME)
+        {
+            for (int i = 0; i < num_ints; i++)
+            {
+                write_sim_int_data(int_list[i].publish());
+            }
+            for (int i = 0; i < num_vehs; i++)
+            {
+                write_sim_veh_data(sim_vehs[i], veh_published[i].veh_id);
+            }
+            vis_file << ")\n";
+        }
+        #endif
 
         //Check if sim is finished
         sim_time += TIMESTEP;
