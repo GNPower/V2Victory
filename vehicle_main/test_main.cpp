@@ -25,6 +25,8 @@ using namespace std::chrono_literals;
 #define DUTY 90
 #define HEADING 0
 
+volatile Intersection_Data IMsg;
+
 
 ////////////////////////////COM CLASSES///////////////////////////////////////////////////
 class CarMessager : public rclcpp::Node
@@ -52,7 +54,6 @@ class CarMessager : public rclcpp::Node
   private:
     void intersection_callback(const car_interface::msg::Intersection::SharedPtr msg)
     {
-      struct Intersection_Data IMsg;
       IMsg.position_x = msg->position_x;
       IMsg.position_y = msg->position_y;
       IMsg.num_directions = msg->num_directions;
@@ -76,10 +77,14 @@ class CarMessager : public rclcpp::Node
     rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
 };
 /////////////////////////////////////////////////////////////////////////////////////////
+void* spinner(){
+	rclcpp::spin(std::make_shared<CarMessager>());
+
+}
 
 
 int main(int argc, char *argv[]){
-	pthread_t left_tid, right_tid;
+	pthread_t left_tid, right_tid, spinner;
 	float distance_x, distance_y;
 	int duty_a = DUTY;
 	int duty_b = DUTY;
@@ -93,13 +98,14 @@ int main(int argc, char *argv[]){
 	}
 	
 	init_encoders(&left_tid, &right_tid);
+
 	
         rclcpp::init(argc, argv);
+        pthread_create(&spin, NULL, spinner, NULL);
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Vehicle_Data ego;
-	Intersection_Data IMsg;
-
+	
 	ego.position_x = 0;
 	ego.position_y = 0;
 	ego.heading = HEADING;
@@ -134,7 +140,7 @@ int main(int argc, char *argv[]){
 
 	while(1){
 		Test.publish(ego);
-		rclcpp::spin_some(std::make_shared<CarMessager>());
+		
 	/*	if (IMsg){
 			intersection = IMsg;
 		}
@@ -194,6 +200,7 @@ int main(int argc, char *argv[]){
 	rclcpp::shutdown();
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
+	pthread_kill(spin, SIGKILL);
 
 
 	return 0;
