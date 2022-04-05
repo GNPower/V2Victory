@@ -64,7 +64,7 @@ class CarMessager : public rclcpp::Node
       IMsg.intersection_state = msg->intersection_state;
       IMsg.intersection_next_state = msg->intersection_next_state;
       IMsg.intersection_switch_time = msg->intersection_switch_time;
-
+	
       // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
       // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
       // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
@@ -98,15 +98,15 @@ int main(int argc, char *argv[]){
 	////////////////////////////////////////////////////////////////////////////////////////////////
 
 	Vehicle_Data ego;
-	Intersection_Data intersection;
+	Intersection_Data IMsg;
 
 	ego.position_x = 0;
 	ego.position_y = 0;
 	ego.heading = HEADING;
 
-	intersection.position_x = 800;
-	intersection.position_y = 0;
-
+	IMsg.position_x = 800;
+	IMsg.position_y = 0;
+	IMsg.intersection_state = 0x01; 
         CarMessager Test;
 	///////////////////////////////////////////////////////////////////////////////////////////
 
@@ -130,7 +130,7 @@ int main(int argc, char *argv[]){
 	float vector_distance;
 	Vector vector_car(0, 0);
 	Vector vector_intersection(0, 0);
-	set_forward();
+	//set_forward();
 
 	while(1){
 		Test.publish(ego);
@@ -139,7 +139,7 @@ int main(int argc, char *argv[]){
 			intersection = IMsg;
 		}
 	*/	
-		
+		//printf("Loop Running\n");
 		if(GPIORead(STOP)) break;
 
 		current_time = clock();
@@ -155,13 +155,13 @@ int main(int argc, char *argv[]){
 
 		vector_car.x = ego.position_x;
 		vector_car.y = ego.position_y;
-		vector_intersection.x = intersection.position_x;
-		vector_intersection.y = intersection.position_y;
+		vector_intersection.x = IMsg.position_x;
+		vector_intersection.y = IMsg.position_y;
 		vector_distance = Vector::distance(vector_car, vector_intersection);
 
 		if (vector_distance <= 10){
-			PWMDuty(ENA, DUTY-40);
-			PWMDuty(ENB, DUTY-40);
+			//PWMDuty(ENA, DUTY-40);
+			//PWMDuty(ENB, DUTY-40);
 			count = 0;
 			while(count <= 10000){
 				count++;
@@ -170,17 +170,19 @@ int main(int argc, char *argv[]){
 
 			}	
 		}
-		set_forward();
+		//set_forward();
 
 		if (vector_distance > 1600) break;
 
-		if (count > 1000){
+		if (count > 100){
 //			set_forward();
 			count = 0;
+			printf("IX: %d   ", IMsg.position_x);
 			printf("D: %f \t", vector_distance);
 			printf("X: %d, Y: %d Speed (mm/s): %f TimeStep: %f\n", ego.position_x, ego.position_y, ego.speed, time_passed);
 		}
-
+		
+		//printf("Counter Counting\n");
 		count++;
 		usleep(TIMESTEP);
 	}
