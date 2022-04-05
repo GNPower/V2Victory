@@ -104,8 +104,8 @@ int main(int argc, char *argv[]){
 	ego.position_y = 0;
 	ego.heading = HEADING;
 
-	intersection.position_x = 100;
-	intersection.position_y = 200;
+	intersection.position_x = 800;
+	intersection.position_y = 0;
 
         CarMessager Test;
 	///////////////////////////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]){
 	get_abs_distance(&ego, &intersection, &distance);
 	printf("dist: %f\n", distance);
 	*/
-	
+	usleep(100000); 	
 
 	printf("No Sleep Till Brooklyn \n");
 
@@ -158,6 +158,21 @@ int main(int argc, char *argv[]){
 		vector_intersection.x = intersection.position_x;
 		vector_intersection.y = intersection.position_y;
 		vector_distance = Vector::distance(vector_car, vector_intersection);
+
+		if (vector_distance <= 10){
+			PWMDuty(ENA, DUTY-40);
+			PWMDuty(ENB, DUTY-40);
+			count = 0;
+			while(count <= 10000){
+				count++;
+				usleep(TIMESTEP);
+				if(GPIORead(STOP)) break;
+
+			}	
+		}
+		set_forward();
+
+		if (vector_distance > 1600) break;
 
 		if (count > 1000){
 //			set_forward();
