@@ -230,9 +230,9 @@ void vehicle::new_int_callback(const std_msgs::String::ConstPtr& msg)
             {
                 angle = data.ent_dir_2*M_PI/180;
             }
-                
-            double x_delta = data.int_length/2*cos(angle); //x is forward, angle is CCW from North
-            double y_delta = data.int_length/2*sin(angle); //y is side, angle is CCW from North
+            double angle_2 = angle + M_PI/180*90;
+            double x_delta = data.int_length/2*cos(angle) + data.int_length/4*cos(angle_2); //x is forward, angle is CCW from North
+            double y_delta = data.int_length/2*sin(angle) + data.int_length/4*sin(angle_2); //y is side, angle is CCW from North
 
             if (i == 0 || i == 2)
             {
@@ -691,16 +691,26 @@ double vehicle::get_int_accel_req(void)
     else
     {
         //stop sign
-        //stop at intersection
         if (int_next_id == k_id)
         {
-            //go
+            //go (was at intersection)
             int_accel_req = p_set_speed - coasted_ego_speed;
         }
         else
         {
             //stop at intersection
-            int_accel_req = -pow(coasted_ego_speed, 2)/(2*(int_ent_dist - k_front_pos));
+            double braking_dist = pow(coasted_ego_speed, 2) / (2*MAX_DECEL) + STOP_SIGN_DISTANCE; //stop sign dist added as safety factor
+            double stop_dist = int_ent_dist - k_front_pos - STOP_SIGN_DISTANCE/2; //stop dist/2 to allow error
+            if (stop_dist > braking_dist)
+            {
+                //far away, check what accel can be requested without breaking stop dist
+                int_accel_req = 2*((stop_dist - braking_dist) - coasted_ego_speed*TIMESTEP)/pow(TIMESTEP, 2);
+            }
+            else
+            {
+                //too close, need to stop at thing
+                int_accel_req = -pow(coasted_ego_speed, 2)/(2*stop_dist);
+            }
         }
     }
     #endif

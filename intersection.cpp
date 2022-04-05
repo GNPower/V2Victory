@@ -31,17 +31,12 @@ intersection::intersection(double ent_dirs[2], double int_length, double int_pos
 
     //Init Intersection
     init_states(); //needed in stopsign for publish
+    init_traffic_signal();
     #ifdef STOP_SIGN_ENABLE
     if (k_int_type == STOP)
     {
         init_stop_sign();
     }
-    else
-    {
-        init_traffic_signal();
-    }
-    #else
-    init_traffic_signal();
     #endif
 
     //Init Emergency Override Queue
@@ -861,13 +856,19 @@ void intersection::update_stop_sign_priority(double dt)
         {
             if (existing_id == m_vehicle_data[j].veh_id)
             {
-                if (m_vehicle_data[j].veh_speed <= STOPPED_SPEED && m_vehicle_data[j].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[i].int_entrance != -1 && !m_vehicle_data[i].in_int)
+                if (m_vehicle_data[j].veh_speed <= STOPPED_SPEED && m_vehicle_data[j].time_since_update <= MAX_STOP_SIGN_COAST && m_vehicle_data[j].int_entrance != -1 && !m_vehicle_data[j].in_int)
                 {
                     //still stopped, recently updated, approaching intersection, not inside intersection
                     stopped_vehicles[i].time_stopped += dt;
+                    #ifdef DEBUG
+                    std::cout << "update_stop_sign_priority: still stopped id = " << m_vehicle_data[j].veh_id << "\ttime_stopped = " << stopped_vehicles[i].time_stopped << "\n";
+                    #endif
                 }
                 else
                 {
+                    #ifdef DEBUG
+                    std::cout << "update_stop_sign_priority: now moving id = " << m_vehicle_data[j].veh_id << "\n";
+                    #endif
                     //started moving or not updated in long time, delete
                     for (int k = i; k < (num_stopped_vehicles - 1); k++)
                     {
@@ -886,6 +887,9 @@ void intersection::update_stop_sign_priority(double dt)
         }
         if (!match_found)
         {
+            #ifdef DEBUG
+            std::cout << "update_stop_sign_priority: not found id = " << stopped_vehicles[i].veh_id << "\n";
+            #endif
             //delete
             for (int k = i; k < (num_stopped_vehicles - 1); k++)
             {
@@ -917,6 +921,9 @@ void intersection::update_stop_sign_priority(double dt)
             }
             if (!match_found && num_stopped_vehicles < MAX_VEHICLES)
             {
+                #ifdef DEBUG
+                std::cout << "update_stop_sign_priority: new stopped id = " << new_id << "\n";
+                #endif
                 stopped_vehicles[num_stopped_vehicles].veh_id = new_id;
                 stopped_vehicles[num_stopped_vehicles].time_stopped = 0;
                 num_stopped_vehicles++;
@@ -947,13 +954,19 @@ void intersection::update_stop_sign_priority(double dt)
     }
 
     //now update next vehicle if id is currently 0
-    if (next_stopped_veh_id == 0)
+    if (next_stopped_veh_id == 0 && num_stopped_vehicles > 0)
     {
+        #ifdef DEBUG
+        std::cout << "update_stop_sign_priority: finding new next veh\n";
+        #endif
         double max_time_stopped = STOPPED_TIME;
         for (int i = 0; i < num_stopped_vehicles; i++)
         {
             if (stopped_vehicles[i].time_stopped > max_time_stopped)
             {
+                #ifdef DEBUG
+                std::cout << "update_stop_sign_priority: new best time stopped = " << stopped_vehicles[i].time_stopped << "\n";
+                #endif
                 //dont bother checking position if it wont beat current max stopping time
                 unsigned int stopped_id = stopped_vehicles[i].veh_id;
                 for (int j = 0; j < num_vehicles; j++)
@@ -963,6 +976,11 @@ void intersection::update_stop_sign_priority(double dt)
                         double stop_dist_x = m_vehicle_data[j].veh_pos_x - int_ent_pos_x[m_vehicle_data[j].int_entrance];
                         double stop_dist_y = m_vehicle_data[j].veh_pos_y - int_ent_pos_y[m_vehicle_data[j].int_entrance];
                         double stop_dist = sqrt(pow(stop_dist_x, 2) + pow(stop_dist_y, 2));
+
+                        #ifdef DEBUG
+                        std::cout << "update_stop_sign_priority: stop_dist = " << stop_dist << "\n";
+                        #endif
+
                         if (stop_dist <= STOP_SIGN_DISTANCE)
                         {
                             //stopped in range
@@ -1100,9 +1118,10 @@ void intersection::init_int_ent_data(void)
         {
             angle = k_ent_dirs[1]*M_PI/180;
         }
-            
-        double x_delta = k_int_length/2*cos(angle); //x is forward, angle is CCW from North
-        double y_delta = k_int_length/2*sin(angle); //y is side, angle is CCW from North
+        
+        double angle_2 = angle + M_PI/180*90;
+        double x_delta = k_int_length/2*cos(angle) + k_int_length/4*cos(angle_2); //x is forward, angle is CCW from North
+        double y_delta = k_int_length/2*sin(angle) + k_int_length/4*sin(angle_2); //y is side, angle is CCW from North
 
         if (i == 0 || i == 2)
         {
