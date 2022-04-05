@@ -7,12 +7,34 @@
 #define MIN_YELLOW 3.7
 #define MAX_VEHICLES 32
 #define MAX_INTS 3 //this is the amount in range at one time
-#define MIN_SET_SPEED 4.4 
+#define MIN_SET_SPEED 4.4
+#define TIMESTEP 0.05 //timestep in s of simulation
 
 //Environment (SIM vs IRL)
 #define SIM
 #define DEBUG
 //#define DRIVER //determines if simulating human driver
+
+//SIM variables
+//#define ERROR_ENABLE
+#define VIS_FILE_ENABLE //write to file for visualization
+#define MAX_TIME 40.0 //max time in seconds to stop sim
+#define COMMS_RANGE 300.0 //max distance communications can travel
+#ifdef ERROR_ENABLE
+#define COMMS_ERROR_PCT 1 //% chance of comms failing
+#define EGO_DATA_ERROR_PCT 1 //% chance of no ego data
+#define ERROR_POS 1.5 //pos error of normal distribution in m (SAE is 1.5, commercial is 2.5) [GPS]
+#define ERROR_SPEED 0.5 //speed error of normal distribution in m/s (0.5 is a guess) [IMU] 
+#define ERROR_HEADING 3.0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
+#define ERROR_ACCEL 0.1 //accel standard error in m/s^2 (0.1 is a guess)
+#else
+#define COMMS_ERROR_PCT 0 //% chance of comms failing
+#define EGO_DATA_ERROR_PCT 0 //% chance of no ego data
+#define ERROR_POS 0 //pos error of normal distribution in m (SAE is 1.5, commercial is 2.5) [GPS]
+#define ERROR_SPEED 0 //speed error of normal distribution in m/s (0.5 is a guess) [IMU] 
+#define ERROR_HEADING 0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
+#define ERROR_ACCEL 0 //accel standard error in m/s^2 (0.1 is a guess)
+#endif
 
 //Driver Tunable
 #define DRIVER_REACTION 0.25 //time in seconds for driver to react to visual changes

@@ -8,27 +8,6 @@
 #include <fstream>
 #include <iomanip>
 
-//#define ERROR_ENABLE
-#define VIS_FILE_ENABLE //write to file for visualization
-#define TIMESTEP 0.5 //timestep in s of simulation
-#define MAX_TIME 40.0 //max time in seconds to stop sim
-#define COMMS_RANGE 300.0 //max distance communications can travel
-
-#ifdef ERROR_ENABLE
-#define COMMS_ERROR_PCT 1 //% chance of comms failing
-#define EGO_DATA_ERROR_PCT 1 //% chance of no ego data
-#define ERROR_POS 1.5 //pos error of normal distribution in m (SAE is 1.5, commercial is 2.5) [GPS]
-#define ERROR_SPEED 0.5 //speed error of normal distribution in m/s (0.5 is a guess) [IMU] 
-#define ERROR_HEADING 3.0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
-#define ERROR_ACCEL 0.1 //accel standard error in m/s^2 (0.1 is a guess)
-#else
-#define COMMS_ERROR_PCT 0 //% chance of comms failing
-#define EGO_DATA_ERROR_PCT 0 //% chance of no ego data
-#define ERROR_POS 0 //pos error of normal distribution in m (SAE is 1.5, commercial is 2.5) [GPS]
-#define ERROR_SPEED 0 //speed error of normal distribution in m/s (0.5 is a guess) [IMU] 
-#define ERROR_HEADING 0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
-#define ERROR_ACCEL 0 //accel standard error in m/s^2 (0.1 is a guess)
-#endif
 
 //Enum Arrays
 const char *int_states[3] = {"GREEN", "YELLOW", "RED"};
@@ -170,7 +149,7 @@ int main(void)
         double int_length = 10.0;
         double int_pos_x = 0.0;
         double int_pos_y = 0.0;
-        y_int_type int_type = SIGNAL;
+        y_int_type int_type = STOP;
         unsigned int int_id = id;
         id++;
         double ped_countdown = 1.0;
@@ -200,10 +179,10 @@ int main(void)
         y_veh_type veh_type = NORMAL;
         double front_pos = 0.0;
         double set_speed = 20.0;
-        double pos_x = 0.0;
-        double pos_y = -50.0 - double(30*i);
+        double pos_x = -2.5 + double(5*i);
+        double pos_y = 10.0 - double(21*i);
         double speed = 0.0;
-        double heading = 90.0;
+        double heading = 270.0 - double(180*i);
         bool override = false;
         bool platooning = false;
         double driver_accel = 0.0;
