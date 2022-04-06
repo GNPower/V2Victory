@@ -26,6 +26,14 @@ using namespace std::chrono_literals;
 #define HEADING 0
 
 volatile Intersection_Data IMsg;
+int count = 0;
+clock_t past_time = clock();
+clock_t current_time = clock();
+float time_passed= 0;
+float vector_distance;
+Vector vector_car(0, 0);
+Vector vector_intersection(0, 0);
+float distance_x, distance_y;
 
 
 ////////////////////////////COM CLASSES///////////////////////////////////////////////////
@@ -36,6 +44,8 @@ class CarMessager : public rclcpp::Node
     : Node("car_messager")
     {
       publisher_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
+      spinner_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
+      timer_ = this->create_wall_timer(1ms, std::bind(&CarMessager::spinner, this));
       subscription_ = this->create_subscription<car_interface::msg::Intersection>("intersection_data", 10, std::bind(&CarMessager::intersection_callback, this, std::placeholders::_1));
     }
 
@@ -51,102 +61,10 @@ class CarMessager : public rclcpp::Node
       publisher_->publish(message);
     }
 
-  private:
-    void intersection_callback(const car_interface::msg::Intersection::SharedPtr msg)
-    {
-      IMsg.position_x = msg->position_x;
-      IMsg.position_y = msg->position_y;
-      IMsg.num_directions = msg->num_directions;
-      uint32_t directions = msg->directions;
-      IMsg.directions[0] = (directions >>  0) & 0xFF;
-      IMsg.directions[1] = (directions >>  8) & 0xFF;
-      IMsg.directions[2] = (directions >> 16) & 0xFF;
-      IMsg.directions[3] = (directions >> 24) & 0xFF;
-      IMsg.intersection_state = msg->intersection_state;
-      IMsg.intersection_next_state = msg->intersection_next_state;
-      IMsg.intersection_switch_time = msg->intersection_switch_time;
-	
-      // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
-      // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
-      // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
-
-      //TODO: CALL CALLBACK AND PASS IN STRUCTURE
-    }
-
-    rclcpp::Publisher<car_interface::msg::Car>::SharedPtr publisher_;
-    rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
-};
-/////////////////////////////////////////////////////////////////////////////////////////
-void* spinner(){
-	rclcpp::spin(std::make_shared<CarMessager>());
-
-}
-
-
-int main(int argc, char *argv[]){
-	pthread_t left_tid, right_tid, spinner;
-	float distance_x, distance_y;
-	int duty_a = DUTY;
-	int duty_b = DUTY;
-
-
-
-	//INITS///////////////////////////////////////////////////////////////////////////////////
-	
-	if (2 == GPIO_init(duty_a, duty_b)){
-		printf("Error Initiating GPIOs");
-	}
-	
-	init_encoders(&left_tid, &right_tid);
-
-	
-        rclcpp::init(argc, argv);
-        pthread_create(&spin, NULL, spinner, NULL);
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Vehicle_Data ego;
-	
-	ego.position_x = 0;
-	ego.position_y = 0;
-	ego.heading = HEADING;
-
-	IMsg.position_x = 800;
-	IMsg.position_y = 0;
-	IMsg.intersection_state = 0x01; 
-        CarMessager Test;
-	///////////////////////////////////////////////////////////////////////////////////////////
-
-	/*
-	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
-	update_location(&ego, 2, 7);
-	printf("x: %d  y: %d\n", ego.position_x, ego.position_y);
-
-	float distance;
-	get_abs_distance(&ego, &intersection, &distance);
-	printf("dist: %f\n", distance);
-	*/
-	usleep(100000); 	
-
-	printf("No Sleep Till Brooklyn \n");
-
-	int count = 0;
-	clock_t past_time = clock();
-	clock_t current_time = clock();
-	float time_passed= 0;
-	float vector_distance;
-	Vector vector_car(0, 0);
-	Vector vector_intersection(0, 0);
-	//set_forward();
-
-	while(1){
+    void spinner(){
 		Test.publish(ego);
 		
-	/*	if (IMsg){
-			intersection = IMsg;
-		}
-	*/	
-		//printf("Loop Running\n");
-		if(GPIORead(STOP)) break;
+		if(GPIORead(STOP)) GPIO_Close();
 
 		current_time = clock();
 		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
@@ -172,13 +90,13 @@ int main(int argc, char *argv[]){
 			while(count <= 10000){
 				count++;
 				usleep(TIMESTEP);
-				if(GPIORead(STOP)) break;
+				if(GPIORead(STOP)) GPIO_Close();
 
 			}	
 		}
 		//set_forward();
 
-		if (vector_distance > 1600) break;
+		if (vector_distance > 1600) GPIO_Close();
 
 		if (count > 100){
 //			set_forward();
@@ -190,17 +108,82 @@ int main(int argc, char *argv[]){
 		
 		//printf("Counter Counting\n");
 		count++;
-		usleep(TIMESTEP);
+
+    }
+
+
+  private:
+    void intersection_callback(const car_interface::msg::Intersection::SharedPtr msg)
+    {
+      IMsg.position_x = msg->position_x;
+      IMsg.position_y = msg->position_y;
+      IMsg.num_directions = msg->num_directions;
+      uint32_t directions = msg->directions;
+      IMsg.directions[0] = (directions >>  0) & 0xFF;
+      IMsg.directions[1] = (directions >>  8) & 0xFF;
+      IMsg.directions[2] = (directions >> 16) & 0xFF;
+      IMsg.directions[3] = (directions >> 24) & 0xFF;
+      IMsg.intersection_state = msg->intersection_state;
+      IMsg.intersection_next_state = msg->intersection_next_state;
+      IMsg.intersection_switch_time = msg->intersection_switch_time;
+	
+      // RCLCPP_INFO(this->get_logger(), "Intersection State: %d", msg->intersection_state);
+      // RCLCPP_INFO(this->get_logger(), "Intersection Next State: %d", msg->intersection_next_state);
+      // RCLCPP_INFO(this->get_logger(), "Intersection Switch Time: %f", msg->intersection_switch_time);
+
+      //TODO: CALL CALLBACK AND PASS IN STRUCTURE
+    }
+    rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<car_interface::msg::Car>::SharedPtr publisher_;
+    rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
+};
+/////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+int main(int argc, char *argv[]){
+	pthread_t left_tid, right_tid;
+	int duty_a = DUTY;
+	int duty_b = DUTY;
+
+
+
+	//INITS///////////////////////////////////////////////////////////////////////////////////
+	
+	if (2 == GPIO_init(duty_a, duty_b)){
+		printf("Error Initiating GPIOs");
 	}
+	
+	init_encoders(&left_tid, &right_tid);
+
+	
+    rclcpp::init(argc, argv);
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	Vehicle_Data ego;
+	
+	ego.position_x = 0;
+	ego.position_y = 0;
+	ego.heading = HEADING;
+
+	IMsg.position_x = 800;
+	IMsg.position_y = 0;
+	IMsg.intersection_state = 0x01; 
+        CarMessager Test;
+	///////////////////////////////////////////////////////////////////////////////////////////
+
+
+	printf("No Sleep Till Brooklyn \n");
 
 	if (2 == GPIO_init(duty_a, duty_b)){
 		printf("Error Closing GPIOs");
 	}
 
+	rclcpp::spin(std::make_shared<CarMessager>());
 	rclcpp::shutdown();
+
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
-	pthread_kill(spin, SIGKILL);
 
 
 	return 0;
