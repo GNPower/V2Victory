@@ -25,6 +25,7 @@ using namespace std::chrono_literals;
 #define DUTY 90
 #define HEADING 0
 
+Vehicle_Data ego;
 volatile Intersection_Data IMsg;
 int count = 0;
 clock_t past_time = clock();
@@ -44,7 +45,6 @@ class CarMessager : public rclcpp::Node
     : Node("car_messager")
     {
       publisher_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
-      spinner_ = this->create_publisher<car_interface::msg::Car>("car_data", 10);
       timer_ = this->create_wall_timer(1ms, std::bind(&CarMessager::spinner, this));
       subscription_ = this->create_subscription<car_interface::msg::Intersection>("intersection_data", 10, std::bind(&CarMessager::intersection_callback, this, std::placeholders::_1));
     }
@@ -62,7 +62,7 @@ class CarMessager : public rclcpp::Node
     }
 
     void spinner(){
-		Test.publish(ego);
+		publish(ego);
 		
 		if(GPIORead(STOP)) GPIO_Close();
 
@@ -133,6 +133,7 @@ class CarMessager : public rclcpp::Node
 
       //TODO: CALL CALLBACK AND PASS IN STRUCTURE
     }
+    
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<car_interface::msg::Car>::SharedPtr publisher_;
     rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
@@ -140,13 +141,10 @@ class CarMessager : public rclcpp::Node
 /////////////////////////////////////////////////////////////////////////////////////////
 
 
-
 int main(int argc, char *argv[]){
 	pthread_t left_tid, right_tid;
 	int duty_a = DUTY;
 	int duty_b = DUTY;
-
-
 
 	//INITS///////////////////////////////////////////////////////////////////////////////////
 	
@@ -156,12 +154,8 @@ int main(int argc, char *argv[]){
 	
 	init_encoders(&left_tid, &right_tid);
 
-	
-    rclcpp::init(argc, argv);
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	Vehicle_Data ego;
-	
+        rclcpp::init(argc, argv);
+	////////////////////////////////////////////////////////////////////////////////////////////////	
 	ego.position_x = 0;
 	ego.position_y = 0;
 	ego.heading = HEADING;
@@ -169,22 +163,12 @@ int main(int argc, char *argv[]){
 	IMsg.position_x = 800;
 	IMsg.position_y = 0;
 	IMsg.intersection_state = 0x01; 
-        CarMessager Test;
 	///////////////////////////////////////////////////////////////////////////////////////////
-
-
 	printf("No Sleep Till Brooklyn \n");
-
-	if (2 == GPIO_init(duty_a, duty_b)){
-		printf("Error Closing GPIOs");
-	}
-
 	rclcpp::spin(std::make_shared<CarMessager>());
 	rclcpp::shutdown();
 
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
-
-
 	return 0;
 }
