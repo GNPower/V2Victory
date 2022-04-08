@@ -27,6 +27,9 @@ using namespace std::chrono_literals;
 
 Vehicle_Data ego;
 volatile Intersection_Data IMsg;
+
+pthread_t left_tid, right_tid;
+
 int count = 0;
 clock_t past_time = clock();
 clock_t current_time = clock();
@@ -146,11 +149,12 @@ int Close_All(){
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
 	rclcpp::shutdown();
+	return ;
 }
 
 
 int main(int argc, char *argv[]){
-	pthread_t left_tid, right_tid;
+	
 	int duty_a = DUTY;
 	int duty_b = DUTY;
 
