@@ -30,16 +30,6 @@ volatile Intersection_Data IMsg;
 
 pthread_t left_tid, right_tid;
 
-int count = 0;
-clock_t past_time = clock();
-clock_t current_time = clock();
-float time_passed= 0;
-float vector_distance;
-Vector vector_car(0, 0);
-Vector vector_intersection(0, 0);
-float distance_x, distance_y;
-
-
 ////////////////////////////COM CLASSES///////////////////////////////////////////////////
 class CarMessager : public rclcpp::Node
 {
