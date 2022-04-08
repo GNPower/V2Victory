@@ -149,7 +149,7 @@ int Close_All(){
 	pthread_kill(left_tid, SIGKILL);
 	pthread_kill(right_tid, SIGKILL);
 	rclcpp::shutdown();
-	return ;
+	return 0;
 }
 
 
