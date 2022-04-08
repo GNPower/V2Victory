@@ -73,7 +73,7 @@ class CarMessager : public rclcpp::Node
 		static Vector vector_car(0, 0);
 		static Vector vector_intersection(0, 0);
 		static float distance_x, distance_y;
-
+		static int stop_count = 0;
 
 		publish(ego);
 		
@@ -97,16 +97,14 @@ class CarMessager : public rclcpp::Node
 		vector_distance = Vector::distance(vector_car, vector_intersection);
 
 		if (vector_distance <= 10){
-			//PWMDuty(ENA, DUTY-40);
-			//PWMDuty(ENB, DUTY-40);
-			count = 0;
-			while(count <= 10000){
-				count++;
-				usleep(TIMESTEP);
-				if(GPIORead(STOP)) Close_All();
-
+			if (stop_count < 10000){
+				set_stop();	
+				stop_count ++;
+			} 
+			else set_forward();
 			}	
-		}
+		else set_forward();
+		
 		//set_forward();
 
 		if (vector_distance > 1600) Close_All();
