@@ -64,7 +64,7 @@ class CarMessager : public rclcpp::Node
     void spinner(){
 		publish(ego);
 		
-		if(GPIORead(STOP)) GPIO_Close();
+		if(GPIORead(STOP)) Close_All();
 
 		current_time = clock();
 		time_passed = (float)(current_time - past_time)/CLOCKS_PER_SEC;
@@ -90,13 +90,13 @@ class CarMessager : public rclcpp::Node
 			while(count <= 10000){
 				count++;
 				usleep(TIMESTEP);
-				if(GPIORead(STOP)) GPIO_Close();
+				if(GPIORead(STOP)) Close_All();
 
 			}	
 		}
 		//set_forward();
 
-		if (vector_distance > 1600) GPIO_Close();
+		if (vector_distance > 1600) Close_All();
 
 		if (count > 100){
 //			set_forward();
@@ -139,6 +139,14 @@ class CarMessager : public rclcpp::Node
     rclcpp::Subscription<car_interface::msg::Intersection>::SharedPtr subscription_;
 };
 /////////////////////////////////////////////////////////////////////////////////////////
+
+
+int Close_All(){
+	GPIO_Close();
+	pthread_kill(left_tid, SIGKILL);
+	pthread_kill(right_tid, SIGKILL);
+	rclcpp::shutdown();
+}
 
 
 int main(int argc, char *argv[]){
