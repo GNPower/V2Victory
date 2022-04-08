@@ -96,7 +96,7 @@ void print_sim_int_data(s_published_int_data input_int)
 #ifdef VIS_FILE_ENABLE
 void write_sim_int_data(s_published_int_data input_int)
 {
-    vis_file << ";(" << int_states[input_int.int_1_state][0] << "," << int_states[input_int.int_2_state][0] << ")";
+    vis_file << ";" << int_states[input_int.int_1_state][0] << "," << int_states[input_int.int_2_state][0];
 }
 #endif
 
@@ -119,7 +119,7 @@ void print_sim_veh_data(s_veh_sim_data input_veh, bool actual_data, unsigned int
 #ifdef VIS_FILE_ENABLE
 void write_sim_veh_data(s_veh_sim_data input_veh, unsigned int id)
 {
-    vis_file << std::fixed << ";(" << id << "," << std::setprecision(2) << input_veh.pos_x << "," << std::setprecision(2) << input_veh.pos_y << "," << std::setprecision(2) << input_veh.heading << ")"; 
+    vis_file << std::fixed << ";" << id << "," << std::setprecision(2) << input_veh.pos_x << "," << std::setprecision(2) << input_veh.pos_y << "," << std::setprecision(2) << input_veh.heading; 
 }
 #endif
 
@@ -133,7 +133,7 @@ int main(void)
     //open file if needed
     #ifdef VIS_FILE_ENABLE
     vis_file.open("vis.log");
-    vis_file << "(0.00";
+    vis_file << "0.00";
     #endif
 
     unsigned int id = 1;
@@ -149,7 +149,7 @@ int main(void)
         double int_length = 10.0;
         double int_pos_x = 0.0;
         double int_pos_y = 0.0;
-        y_int_type int_type = STOP;
+        y_int_type int_type = SIGNAL;
         unsigned int int_id = id;
         id++;
         double ped_countdown = 1.0;
@@ -177,10 +177,10 @@ int main(void)
         id++;
         double max_speed = 50.0;
         y_veh_type veh_type = NORMAL;
-        double front_pos = 0.0;
+        double front_pos = 3.0;
         double set_speed = 20.0;
-        double pos_x = -2.5 + double(5*i);
-        double pos_y = 10.0 - double(21*i);
+        double pos_x = -3 + double(6*i);
+        double pos_y = 50.0 - double(100*i);
         double speed = 0.0;
         double heading = 270.0 - double(180*i);
         bool override = false;
@@ -205,7 +205,7 @@ int main(void)
     }
     std::cout << "All Vehicles Initialized! \n";
     #ifdef VIS_FILE_ENABLE
-    vis_file << ")\n";
+    vis_file << "\n";
     #endif
 
     while (!sim_done)
@@ -328,7 +328,7 @@ int main(void)
         {
             std::cout << "\nTime: " << sim_time + TIMESTEP;
             #ifdef VIS_FILE_ENABLE
-            vis_file << "(" << sim_time + TIMESTEP;
+            vis_file << sim_time + TIMESTEP;
             #endif
         }
         for (int i = 0; i < num_vehs; i++)
@@ -399,7 +399,7 @@ int main(void)
             {
                 write_sim_veh_data(sim_vehs[i], veh_published[i].veh_id);
             }
-            vis_file << ")\n";
+            vis_file << "\n";
         }
         #endif
 
