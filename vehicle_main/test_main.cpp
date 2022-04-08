@@ -65,6 +65,16 @@ class CarMessager : public rclcpp::Node
     }
 
     void spinner(){
+    	static int count = 0;
+		static clock_t past_time = clock();
+		static clock_t current_time = clock();
+		static float time_passed= 0;
+		static float vector_distance;
+		static Vector vector_car(0, 0);
+		static Vector vector_intersection(0, 0);
+		static float distance_x, distance_y;
+
+
 		publish(ego);
 		
 		if(GPIORead(STOP)) Close_All();
