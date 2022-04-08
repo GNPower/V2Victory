@@ -504,7 +504,7 @@ double vehicle::get_lead_accel_req(void)
     std::cout << "get_lead_accel_req: dist_error = " << dist_error << "\n";
     #endif
     //since using relative stuff need to use rel_vel_x
-    double set_speed_error;
+    double set_speed;
     #ifdef PLATOONING_ENABLE
     if (p_platooning && lead_platooning)
     {
@@ -513,84 +513,62 @@ double vehicle::get_lead_accel_req(void)
             c_driver_alert = true;
             std::cout << "platoon set speed below vehicle's set speed!\n using platoon's set speed...\n";
         }
-        set_speed_error = lead_platoon_set_speed - coasted_ego_speed;
+        set_speed = lead_platoon_set_speed;
     }
     else
     {
-        set_speed_error = p_set_speed - coasted_ego_speed;
+        set_speed = p_set_speed;
     }
     #else
-    set_speed_error = p_set_speed - coasted_ego_speed;
-    #endif    
-    #ifdef DEBUG
-    std::cout << "get_lead_accel_req: set_speed_error = " << set_speed_error << "\n";
+    set_speed = p_set_speed;
     #endif
-
-    // //lead_rel_vel_x = lead_vel_x - coasted_ego_speed
-    // if (set_speed_error < lead_rel_vel_x)
-    // {
-    //     //focus on reaching set speed
-    //     lead_accel_req = set_speed_error;
-    // }
-    // else
-    // {
-    //     //focus on closing gap
-    //     //vf = 0 since relative vx
-    //     //vi = lead_rel_vel_x
-    //     //delta_s = gap_error
-    //     //using vf^2 = vi^2 + 2*a*delta_s
-    //     if (dist_error == 0)
-    //     {
-    //         lead_accel_req = 0;
-    //     }
-    //     else
-    //     {
-    //         lead_accel_req = pow(lead_rel_vel_x, 2)/(2*dist_error);
-    //     }
-    // }
-    // //This probably doesn't work, very unsure how to determine acceleration
-
-    // Below is a completely new way of doing it... based on distance rather than speed diffential. Because in real life I make speed throttle adjustments based on relative distance.
 
     double desired_speed;
 
-    std::cout << "TEST TEXT\n";
-
-    if(dist_error <= 1 && dist_error >= -1){
+    if(abs(dist_error) <= 1)
+    {
         // Do nothing
-        std::cout << "dist_error flag within [-1,1]\n";
-    }else if(dist_error < -1){
-        // If dist_error -ve, then we are too close
-        // Speed should be desired (lead_platoon_set_speed) if we are at desired lead gap
-        // Speed should be 0 if we are on top of the car
-        // Simply linearly scale...
-        desired_speed = lead_platoon_set_speed + lead_platoon_set_speed*(dist_error/desired_lead_gap);
-        std::cout << "dist_error flag less than -1, desired_speed = " << desired_speed << "\n";
-    }else{
-        // If dist_error +ve, then we are too far
-        // speed should be desired (lead_platoon_set_speed) if we are at desired lead gap
-        // Speed should be 1.15*desired (lead_platoon_set_speed) if we are sufficiently far away.
-        //   1.15*desired was chosen because that is the de-facto speed you can go at without getting a ticket. Ex/ 115 on a 100 highway, 69 on a 60 road
-        //   Sufficiently far away is arbitrarily chosen to be 2*desired_lead_gap
-        // Anything distance greater than "sufficiently far away" shall also drive 1.15*desired
-        desired_speed = fmin(lead_platoon_set_speed*(1.05+(0.15/2)*(dist_error/desired_lead_gap)),1.15*lead_platoon_set_speed);
-        std::cout << "dist_error flag greater than -1, desired_speed = " << desired_speed << "\n";
+        desired_speed = coasted_ego_speed;
+
+        #ifdef DEBUG
+        std::cout << "get_lead_accel_req: dist_error flag within [-1,1]\n";
+        #endif
+    }
+    else if(dist_error < -1)
+    {
+        /*
+        If dist_error -ve, then we are too close
+        Speed should be desired (lead_platoon_set_speed) if we are at desired lead gap
+        Speed should be 0 if we are on top of the car
+        Simply linearly scale
+        */
+        desired_speed = set_speed*(1 + dist_error/desired_lead_gap);
+
+        #ifdef DEBUG
+        std::cout << "get_lead_accel_req: dist_error flag less than -1, desired_speed = " << desired_speed << "\n";
+        #endif
+    }
+    else
+    {
+        //If dist_error +ve, then we are too far
+        //speed should be desired (set_speed) if we are at desired lead gap
+
+        desired_speed = set_speed;
+
+        #ifdef DEBUG
+        std::cout << "get_lead_accel_req: dist_error flag greater than -1, desired_speed = " << desired_speed << "\n";
+        #endif
     }
 
     // Convert desired_speed and current speed to acceleration
     // a = (v2-v1)/t
     // Arbitrarily choose t = 2.5s
-    // Max a arbitrarily chosen to be accel required for 0 to 100 in 10s = (100*1000/3600)/10 = 2.78m/s²
-    lead_accel_req = fmin((desired_speed - coasted_ego_speed)/2.5,2.78);
+    lead_accel_req = fmin((desired_speed - coasted_ego_speed)/2.5, MAX_ACCEL);
 
     #ifdef DEBUG
-    std::cout << "================================\n";
-    std::cout << "dist_error = " << dist_error << "\n";
-    std::cout << "lead_platoon_set_speed = " << lead_platoon_set_speed << "\n";
-    std::cout << "desired_lead_gap = " << desired_lead_gap << "\n";
-    std::cout << "get_lead_accel_req: = " << lead_accel_req << "\n";
-    std::cout << "coasted_ego_speed: = " << coasted_ego_speed << "\n";
-    std::cout << "================================\n";
+    std::cout << "get_lead_accel_req: desired_lead_gap = " << desired_lead_gap << "\tdist_error = " << dist_error << "\n";
+    std::cout << "get_lead_accel_req: set_speed = " << set_speed << "\tcoasted_ego_speed = " << coasted_ego_speed << "\n";
+    std::cout << "get_lead_accel_req: lead_accel_req = " << lead_accel_req << "\n";
     #endif
 
     return lead_accel_req;
