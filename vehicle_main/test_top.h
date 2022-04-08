@@ -26,6 +26,6 @@ struct Intersection_Data{
 
 typedef Intersection_Data Intersection_Data;
 
-
+int Close_All();
 
 #endif 
