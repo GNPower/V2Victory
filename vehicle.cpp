@@ -678,7 +678,7 @@ double vehicle::get_int_accel_req(void)
         {
             //stop at intersection
             double braking_dist = pow(coasted_ego_speed, 2) / (2*MAX_DECEL) + STOP_SIGN_DISTANCE; //stop sign dist added as safety factor
-            double stop_dist = int_ent_dist - k_front_pos - STOP_SIGN_DISTANCE/2; //stop dist/2 to allow error
+            double stop_dist = int_ent_dist - k_front_pos; //stop dist/2 to allow error
             if (stop_dist > braking_dist)
             {
                 //far away, check what accel can be requested without breaking stop dist

@@ -152,7 +152,7 @@ int main(void)
     int int_type_val;
 
     //read from file
-    std::ifstream int_file("int_init.txt");
+    std::ifstream int_file("init_int.txt");
     bool first_line = true;
     
     std::string line;
@@ -231,7 +231,7 @@ int main(void)
     int override_val, platooning_val, veh_type_val;
 
     //read from file
-    std::ifstream veh_file("veh_init.txt");
+    std::ifstream veh_file("init_veh.txt");
     first_line = true;
     
     while (std::getline(veh_file, line))

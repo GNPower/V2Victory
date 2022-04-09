@@ -55,7 +55,7 @@
 #define MAX_STOP_SIGN_COAST 0.1 //how long since last update at stop sign
 #define STOPPED_SPEED 0.1 //minimum speed considered stop (tolerance)
 #define STOPPED_TIME 0.5 //amount of time vehicle must stop at stop sign before continuing
-#define STOP_SIGN_DISTANCE 2.0 //range vehicle must be from entrance to be considered stopped at the intersection
+#define STOP_SIGN_DISTANCE 4.0 //range vehicle must be from entrance to be considered stopped at the intersection
 
 //Intersection EMS Data
 #define EMS_COASTING 0.1 //how long since last update for EMS override
