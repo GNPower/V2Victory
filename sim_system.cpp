@@ -7,6 +7,8 @@
 #include <random>
 #include <fstream>
 #include <iomanip>
+#include <sstream>
+#include <string>
 
 
 //Enum Arrays
@@ -138,8 +140,59 @@ int main(void)
 
     unsigned int id = 1;
     //Initialize Intersection(s)
-    int num_ints = 1;
     std::vector<intersection> int_list;
+
+    #ifdef INIT_FROM_FILE
+    int num_ints = 0;
+
+    double ent_dirs[2];
+    double tts[3];
+    double int_length, int_pos_x, int_pos_y, ped_countdown;
+    y_int_type int_type;
+    int int_type_val;
+
+    //read from file
+    std::ifstream int_file("int_init.txt");
+    bool first_line = true;
+    
+    std::string line;
+    while (std::getline(int_file, line))
+    {
+        if (first_line)
+        {
+            first_line = false;
+            continue; //dont read template
+        }
+        std::istringstream iss(line);
+        if (!(iss >> ent_dirs[0] >> ent_dirs[1] >> tts[0] >> tts[1] >> tts[2] >> int_length >> int_pos_x >> int_pos_y >> ped_countdown >> int_type_val))
+        {
+            break;
+        }
+
+        if (int_type_val == 0)
+        {
+            int_type = SIGNAL;
+        }
+        else
+        {
+            int_type = STOP;
+        }
+        std::cout << "Initializing Intersection...\n";
+        int_list.push_back(intersection (ent_dirs, int_length, int_pos_x, int_pos_y, int_type, id, ped_countdown, tts));
+        std::cout << "Intersection Initialized! \n";
+        id++;
+        num_ints++;
+
+        #ifdef VIS_FILE_ENABLE
+        write_sim_int_data(int_list[num_ints].publish());
+        #endif
+    } 
+
+    s_published_int_data int_published[num_ints];
+
+    #else
+    int num_ints = 1;
+    
     s_published_int_data int_published[num_ints];
 
     for (int i = 0; i < num_ints; i++)
@@ -162,14 +215,94 @@ int main(void)
         write_sim_int_data(int_list[i].publish());
         #endif
     }
+    #endif
     std::cout << "All Intersections Initialized! \n";
 
     //Initialize Vehicle(s)
-    int num_vehs = 2;
     std::vector<vehicle> veh_list;
+    std::vector<s_veh_sim_data> sim_vehs;
+
+    #ifdef INIT_FROM_FILE
+    int num_vehs = 0;
+
+    double max_speed, front_pos, set_speed, pos_x, pos_y, speed, heading, driver_accel;
+    bool override, platooning;
+    y_veh_type veh_type;
+    int override_val, platooning_val, veh_type_val;
+
+    //read from file
+    std::ifstream veh_file("veh_init.txt");
+    first_line = true;
+    
+    while (std::getline(veh_file, line))
+    {
+        if (first_line)
+        {
+            first_line = false;
+            continue; //dont read template
+        }
+        std::istringstream iss(line);
+        if (!(iss >> max_speed >> veh_type_val >> front_pos >> set_speed >> pos_x >> pos_y >> speed >> heading >> override_val >> platooning_val >> driver_accel))
+        {
+            break;
+        }
+
+        if (veh_type_val == 0)
+        {
+            veh_type = NORMAL;
+        }
+        else
+        {
+            veh_type = EMERGENCY;
+        }
+
+        if (override_val == 0)
+        {
+            override = false;
+        }
+        else
+        {
+            override = true;
+        }
+
+        if (platooning_val == 0)
+        {
+            platooning = false;
+        }
+        else
+        {
+            platooning = true;
+        }
+
+        std::cout << "Initializing Vehicle...\n";
+        s_veh_sim_data sim_veh;
+        sim_veh.pos_x = pos_x;
+        sim_veh.pos_y = pos_y;
+        sim_veh.speed = speed;
+        sim_veh.heading = heading;
+        sim_veh.accel_req = 0;
+        sim_vehs.push_back(sim_veh);
+
+        print_sim_veh_data(sim_veh, true, id); //t = sim_time
+        s_veh_sim_data veh_error_data = add_veh_error(sim_veh);
+        print_sim_veh_data(veh_error_data, false, id); //t = sim_time
+
+        #ifdef VIS_FILE_ENABLE
+        write_sim_veh_data(sim_veh, id);
+        #endif
+        
+        veh_list.push_back(vehicle (id, max_speed, veh_type, front_pos, set_speed, veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading, override, platooning, driver_accel));
+        std::cout << "Vehicle Initialized! \n";
+        id++;
+        num_vehs++;
+    }
+
     s_published_vehicle_data veh_published[num_vehs];
-    //need to initialize the actual dynamics of vehicle
-    s_veh_sim_data sim_vehs[num_vehs];
+
+    #else
+    int num_vehs = 2;
+    
+    s_published_vehicle_data veh_published[num_vehs];
 
     for (int i = 0; i < num_vehs; i++)
     {
@@ -188,22 +321,27 @@ int main(void)
         double driver_accel = 0.0;
 
         std::cout << "Initializing Vehicle...\n";
-        sim_vehs[i].pos_x = pos_x;
-        sim_vehs[i].pos_y = pos_y;
-        sim_vehs[i].speed = speed;
-        sim_vehs[i].heading = heading;
-        sim_vehs[i].accel_req = 0;
-        print_sim_veh_data(sim_vehs[i], true, veh_id); //t = sim_time
-        s_veh_sim_data veh_error_data = add_veh_error(sim_vehs[i]);
+        s_veh_sim_data sim_veh;
+        sim_veh.pos_x = pos_x;
+        sim_veh.pos_y = pos_y;
+        sim_veh.speed = speed;
+        sim_veh.heading = heading;
+        sim_veh.accel_req = 0;
+        sim_vehs.push_back(sim_veh);
+
+        print_sim_veh_data(sim_veh, true, veh_id); //t = sim_time
+        s_veh_sim_data veh_error_data = add_veh_error(sim_veh);
         print_sim_veh_data(veh_error_data, false, veh_id); //t = sim_time
         veh_list.push_back(vehicle (veh_id, max_speed, veh_type, front_pos, set_speed, veh_error_data.pos_x, veh_error_data.pos_y, veh_error_data.speed, veh_error_data.heading, override, platooning, driver_accel));
         std::cout << "Vehicle Initialized! \n";
 
         #ifdef VIS_FILE_ENABLE
-        write_sim_veh_data(sim_vehs[i], veh_id);
+        write_sim_veh_data(sim_veh, veh_id);
         #endif
     }
+    #endif
     std::cout << "All Vehicles Initialized! \n";
+
     #ifdef VIS_FILE_ENABLE
     vis_file << "\n";
     #endif

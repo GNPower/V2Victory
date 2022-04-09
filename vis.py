@@ -41,37 +41,37 @@ class Plotter():
 		track_y = 1024; #horizontal direction
 		self.center_x = int(track_x/2)
 		self.center_y = int(track_y/2)
-		end_x = track_x - 1
-		end_y = track_y - 1
+		self.end_x = track_x - 1
+		self.end_y = track_y - 1
 
 		#Blank Black Image
 		self.img = np.zeros((track_y, track_x, 3), np.uint8)
 
 		#Grass
-		whole_img = np.array([[[0, 0], [end_y, 0], [end_y, end_x], [0, end_x]]], np.int32)
+		whole_img = np.array([[[0, 0], [self.end_y, 0], [self.end_y, self.end_x], [0, self.end_x]]], np.int32)
 		cv.fillPoly(self.img, whole_img, self.grass_green)
 
 		center_width = 2
 		curb_width = int(self.scale*self.int_length/4)
-		road_width = int(self.scale*self.int_length)
+		road_width = int(self.scale*self.int_length/2)
 
 		#Curbs
 		curb_offset = int((center_width + curb_width)/2 + road_width)
-		cv.line(self.img, (0, self.center_x - curb_offset), (end_y, self.center_x - curb_offset), self.curb_grey, curb_width)
-		cv.line(self.img, (0, self.center_x + curb_offset), (end_y, self.center_x + curb_offset), self.curb_grey, curb_width)
-		cv.line(self.img, (self.center_y - curb_offset, 0), (self.center_y - curb_offset, end_x), self.curb_grey, curb_width)
-		cv.line(self.img, (self.center_y + curb_offset, 0), (self.center_y + curb_offset, end_x), self.curb_grey, curb_width)
+		cv.line(self.img, (0, self.center_x - curb_offset), (self.end_y, self.center_x - curb_offset), self.curb_grey, curb_width)
+		cv.line(self.img, (0, self.center_x + curb_offset), (self.end_y, self.center_x + curb_offset), self.curb_grey, curb_width)
+		cv.line(self.img, (self.center_y - curb_offset, 0), (self.center_y - curb_offset, self.end_x), self.curb_grey, curb_width)
+		cv.line(self.img, (self.center_y + curb_offset, 0), (self.center_y + curb_offset, self.end_x), self.curb_grey, curb_width)
 
 		#Center Lines
-		cv.line(self.img, (0, self.center_x), (end_y, self.center_x), self.white, center_width)
-		cv.line(self.img, (self.center_y, 0), (self.center_y, end_x), self.white, center_width)
+		cv.line(self.img, (0, self.center_x), (self.end_y, self.center_x), self.white, center_width)
+		cv.line(self.img, (self.center_y, 0), (self.center_y, self.end_x), self.white, center_width)
 
 		#Roads
 		road_offset = int((center_width + road_width)/2)
-		cv.line(self.img, (0, self.center_x - road_offset), (end_y, self.center_x - road_offset), self.asphalt_grey, road_width)
-		cv.line(self.img, (0, self.center_x + road_offset), (end_y, self.center_x + road_offset), self.asphalt_grey, road_width)
-		cv.line(self.img, (self.center_y - road_offset, 0), (self.center_y - road_offset, end_x), self.asphalt_grey, road_width)
-		cv.line(self.img, (self.center_y + road_offset, 0), (self.center_y + road_offset, end_x), self.asphalt_grey, road_width)
+		cv.line(self.img, (0, self.center_x - road_offset), (self.end_y, self.center_x - road_offset), self.asphalt_grey, road_width)
+		cv.line(self.img, (0, self.center_x + road_offset), (self.end_y, self.center_x + road_offset), self.asphalt_grey, road_width)
+		cv.line(self.img, (self.center_y - road_offset, 0), (self.center_y - road_offset, self.end_x), self.asphalt_grey, road_width)
+		cv.line(self.img, (self.center_y + road_offset, 0), (self.center_y + road_offset, self.end_x), self.asphalt_grey, road_width)
 
 		# Intersection
 		self.pts_inter = np.array([[[self.center_y - road_width, self.center_x - road_width], [self.center_y - road_width, self.center_x + road_width], [self.center_y + road_width, self.center_x - road_width], [self.center_y + road_width, self.center_x + road_width]]], np.int32)
@@ -85,7 +85,7 @@ class Plotter():
 
 		# Text
 		font = cv.FONT_HERSHEY_SIMPLEX
-		cv.putText(self.img, 'V2Victory', (0, end_x - 10), font, 1, self.white, 2, cv.LINE_AA)
+		cv.putText(self.img, 'V2Victory', (0, self.end_x - 10), font, 1, self.white, 2, cv.LINE_AA)
 
 		full_curb_offset = int(center_width/2 + road_width + curb_width)
 		self.light_w = 50
@@ -155,6 +155,12 @@ class Plotter():
 		if(self.step < self.steps):
 			split_line = self.parsed[self.step].split(";")
 
+			#write time
+			sim_time = split_line[0]
+			font = cv.FONT_HERSHEY_SIMPLEX
+			time_str = 'Time: '+ sim_time
+			cv.putText(self.img, time_str, (self.end_y - 200, 50), font, 1, self.white, 2, cv.LINE_AA)
+
 			num_vehicles = len(split_line) - 2
 
 			# Update traffic light
@@ -187,20 +193,19 @@ class Plotter():
 
 			self.step = self.step + 1
 		else:
-			self.step = 0
+			sys.exit()
 
 	def plot(self):
 		while(1):
 			cv.imshow('img',self.img)
 			k = cv.waitKey(self.delay_ms)
-			# print(k)
 			if(k == 113):
 				break
 			self.update_plot()
 
 def main():
 	delay_ms = 50
-	scale = 5
+	scale = 6
 	plot = Plotter("vis.log", delay_ms, scale)
 	plot.plot()
 

@@ -16,6 +16,7 @@
 //#define DRIVER //determines if simulating human driver
 
 //SIM variables
+#define INIT_FROM_FILE
 //#define ERROR_ENABLE
 #define VIS_FILE_ENABLE //write to file for visualization
 #define MAX_TIME 40.0 //max time in seconds to stop sim

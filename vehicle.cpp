@@ -538,11 +538,12 @@ double vehicle::get_lead_accel_req(void)
     {
         /*
         If dist_error -ve, then we are too close
-        Speed should be desired (lead_platoon_set_speed) if we are at desired lead gap
+        Speed should be desired (set_speed) if we are at desired lead gap
         Speed should be 0 if we are on top of the car
         Simply linearly scale
         */
         desired_speed = set_speed*(1 + dist_error/desired_lead_gap);
+        //dist_error -ve so ends up being 1 - fraction, so lower than set speed
 
         #ifdef DEBUG
         std::cout << "get_lead_accel_req: dist_error flag less than -1, desired_speed = " << desired_speed << "\n";
@@ -552,7 +553,6 @@ double vehicle::get_lead_accel_req(void)
     {
         //If dist_error +ve, then we are too far
         //speed should be desired (set_speed) if we are at desired lead gap
-
         desired_speed = set_speed;
 
         #ifdef DEBUG
