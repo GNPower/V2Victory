@@ -26,14 +26,22 @@ class Plotter():
 		self.steps = 0
 		self.delay_ms = delay_ms
 		self.scale = scale
-		self.int_length = 10
+		
+		self.parse_file(file)
 		self.create_track()
-		self.get_vehicle_data(file)
 
-	def get_vehicle_data(self, file):
+	def parse_file(self, file):
 		with open(file) as f:
 			lines = f.readlines()
-		self.parsed = lines
+		int_params = lines[0].split()
+		#get params
+		self.int_length = int(int_params[0])
+		if int_params[1] == 0:
+			self.is_signal = True
+		else:
+			self.is_signal = False
+
+		self.parsed = lines[1:]
 		self.steps = len(self.parsed) - 1
 
 	def create_track(self):
@@ -95,26 +103,38 @@ class Plotter():
 		self.circle_r = 18
 		self.circle_width = 5
 
-		# N/S Traffic Light
-		ns_traffic_light = np.array([[[self.center_y + full_curb_offset, self.center_x - 2*self.light_l], [self.center_y + full_curb_offset + self.light_w, self.center_x - 2*self.light_l], [self.center_y + full_curb_offset + self.light_w, self.center_x - self.light_l], [self.center_y + full_curb_offset, self.center_x - self.light_l]]], np.int32)
-		cv.fillPoly(self.img, ns_traffic_light, self.asphalt_grey)
-		cv.rectangle(self.img, (self.center_y + full_curb_offset + int(light_thickness/2), self.center_x - 2*self.light_l), (self.center_y + full_curb_offset + int(light_thickness/2) + self.light_w, self.center_x - self.light_l), self.white, light_thickness)
-		self.ns_circle_x = self.center_x - self.circle_r - light_thickness - self.light_l
-		self.ns_circle_y = self.center_y + full_curb_offset + int(self.light_w/2)
-		
-		cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - 2*self.light_w), self.circle_r, self.white, self.circle_width)
-		cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - self.light_w), self.circle_r, self.white, self.circle_width)
-		cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x), self.circle_r, self.white, self.circle_width)
+		if self.is_signal:
+			# N/S Traffic Light
+			ns_traffic_light = np.array([[[self.center_y + full_curb_offset, self.center_x - 2*self.light_l], [self.center_y + full_curb_offset + self.light_w, self.center_x - 2*self.light_l], [self.center_y + full_curb_offset + self.light_w, self.center_x - self.light_l], [self.center_y + full_curb_offset, self.center_x - self.light_l]]], np.int32)
+			cv.fillPoly(self.img, ns_traffic_light, self.asphalt_grey)
+			cv.rectangle(self.img, (self.center_y + full_curb_offset + int(light_thickness/2), self.center_x - 2*self.light_l), (self.center_y + full_curb_offset + int(light_thickness/2) + self.light_w, self.center_x - self.light_l), self.white, light_thickness)
+			self.ns_circle_x = self.center_x - self.circle_r - light_thickness - self.light_l
+			self.ns_circle_y = self.center_y + full_curb_offset + int(self.light_w/2)
+			cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - 2*self.light_w), self.circle_r, self.white, self.circle_width)
+			cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - self.light_w), self.circle_r, self.white, self.circle_width)
+			cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x), self.circle_r, self.white, self.circle_width)
 
-		# W/E Traffic Light
-		we_traffic_light = np.array([[[self.center_y + self.light_l, self.center_x + full_curb_offset], [self.center_y + 2*self.light_l, self.center_x + full_curb_offset], [self.center_y + 2*self.light_l, self.center_x + full_curb_offset + self.light_w], [self.center_y + self.light_l, self.center_x + full_curb_offset + self.light_w]]], np.int32)
-		cv.fillPoly(self.img, we_traffic_light, self.asphalt_grey)
-		cv.rectangle(self.img, (self.center_y + self.light_l, self.center_x + full_curb_offset), (self.center_y + 2*self.light_l, self.center_x + full_curb_offset + self.light_w), self.white, light_thickness)
-		self.we_circle_x = self.center_x + full_curb_offset + int(self.light_w/2)
-		self.we_circle_y = self.center_y + self.circle_r + light_thickness + self.light_l
-		cv.circle(self.img, (self.we_circle_y, self.we_circle_x), self.circle_r, self.white, self.circle_width)
-		cv.circle(self.img, (self.we_circle_y + self.light_w, self.we_circle_x), self.circle_r, self.white, self.circle_width)
-		cv.circle(self.img, (self.we_circle_y + 2*self.light_w, self.we_circle_x), self.circle_r, self.white, self.circle_width)
+			# W/E Traffic Light
+			we_traffic_light = np.array([[[self.center_y + self.light_l, self.center_x + full_curb_offset], [self.center_y + 2*self.light_l, self.center_x + full_curb_offset], [self.center_y + 2*self.light_l, self.center_x + full_curb_offset + self.light_w], [self.center_y + self.light_l, self.center_x + full_curb_offset + self.light_w]]], np.int32)
+			cv.fillPoly(self.img, we_traffic_light, self.asphalt_grey)
+			cv.rectangle(self.img, (self.center_y + self.light_l, self.center_x + full_curb_offset), (self.center_y + 2*self.light_l, self.center_x + full_curb_offset + self.light_w), self.white, light_thickness)
+			self.we_circle_x = self.center_x + full_curb_offset + int(self.light_w/2)
+			self.we_circle_y = self.center_y + self.circle_r + light_thickness + self.light_l
+			cv.circle(self.img, (self.we_circle_y, self.we_circle_x), self.circle_r, self.white, self.circle_width)
+			cv.circle(self.img, (self.we_circle_y + self.light_w, self.we_circle_x), self.circle_r, self.white, self.circle_width)
+			cv.circle(self.img, (self.we_circle_y + 2*self.light_w, self.we_circle_x), self.circle_r, self.white, self.circle_width)
+
+		else: #stop sign
+			#draw circles with stop in them to simplify
+			self.circle_r = 50
+			ne_circle = (self.center_y + full_curb_offset + self.circle_r, self.center_x - full_curb_offset - self.circle_r)
+			sw_circle = (self.center_y - full_curb_offset - self.circle_r, self.center_x + full_curb_offset + self.circle_r)
+			cv.circle(self.img, ne_circle, self.circle_r, self.red, -1)
+			cv.circle(self.img, sw_circle, self.circle_r, self.red, -1)
+
+			font = cv.FONT_HERSHEY_SIMPLEX
+			cv.putText(self.img, 'STOP', (ne_circle[0] - 40, ne_circle[1] + 10), font, 1, self.white, 2, cv.LINE_AA)
+			cv.putText(self.img, 'STOP', (sw_circle[0] - 40, sw_circle[1] + 10), font, 1, self.white, 2, cv.LINE_AA)
 
 		self.default_img = self.img
 
@@ -163,24 +183,25 @@ class Plotter():
 
 			num_vehicles = len(split_line) - 2
 
-			# Update traffic light
-			intersection = split_line[1].split(",")
-			# N/S traffic light
-			filled_r = self.circle_r - int(self.circle_width/2)
-			if(intersection[0] == "R"):
-				cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - 2*self.light_w), filled_r, self.red, -1)
-			elif(intersection[0] == "Y"):
-				cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - self.light_w), filled_r, self.yellow, -1)
-			else:
-				cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x), filled_r, self.green, -1)
+			if self.is_signal:
+				# Update traffic light
+				intersection = split_line[1].split(",")
+				# N/S traffic light
+				filled_r = self.circle_r - int(self.circle_width/2)
+				if(intersection[0] == "R"):
+					cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - 2*self.light_w), filled_r, self.red, -1)
+				elif(intersection[0] == "Y"):
+					cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x - self.light_w), filled_r, self.yellow, -1)
+				else:
+					cv.circle(self.img, (self.ns_circle_y, self.ns_circle_x), filled_r, self.green, -1)
 
-			# W/E traffic light
-			if(intersection[1] == "R"):
-				cv.circle(self.img, (self.we_circle_y, self.we_circle_x), filled_r, self.red, -1)
-			elif(intersection[1] == "Y"):
-				cv.circle(self.img, (self.we_circle_y + self.light_w, self.we_circle_x), filled_r, self.yellow, -1)
-			else:
-				cv.circle(self.img, (self.we_circle_y + 2*self.light_w, self.we_circle_x), filled_r, self.green, -1)
+				# W/E traffic light
+				if(intersection[1] == "R"):
+					cv.circle(self.img, (self.we_circle_y, self.we_circle_x), filled_r, self.red, -1)
+				elif(intersection[1] == "Y"):
+					cv.circle(self.img, (self.we_circle_y + self.light_w, self.we_circle_x), filled_r, self.yellow, -1)
+				else:
+					cv.circle(self.img, (self.we_circle_y + 2*self.light_w, self.we_circle_x), filled_r, self.green, -1)
 
 			for i in range(2, num_vehicles + 2):
 				vehicle = split_line[i].split(",")

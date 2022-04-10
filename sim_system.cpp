@@ -135,7 +135,6 @@ int main(void)
     //open file if needed
     #ifdef VIS_FILE_ENABLE
     vis_file.open("vis.log");
-    vis_file << "0.00";
     #endif
 
     unsigned int id = 1;
@@ -184,6 +183,11 @@ int main(void)
         num_ints++;
 
         #ifdef VIS_FILE_ENABLE
+        if (num_ints == 1)
+        {
+            vis_file << int_length << "\t" << int_type << "\n";
+            vis_file << "0.00";
+        }
         write_sim_int_data(int_list[num_ints].publish());
         #endif
     } 
@@ -212,6 +216,11 @@ int main(void)
         std::cout << "Intersection Initialized! \n";
 
         #ifdef VIS_FILE_ENABLE
+        if (i == 0)
+        {
+            vis_file << int_length << "\t" << int_type << "\n";
+            vis_file << "0.00";
+        }
         write_sim_int_data(int_list[i].publish());
         #endif
     }
