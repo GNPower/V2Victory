@@ -15,9 +15,15 @@
 #define DEBUG
 //#define DRIVER //determines if simulating human driver
 
+//Ego Kalman Enabled or Not
+#define KALMAN_ENABLE
+#ifdef KALMAN_ENABLE
+#define P_PRED_INIT 100
+#endif
+
 //SIM variables
 #define INIT_FROM_FILE
-//#define ERROR_ENABLE
+#define ERROR_ENABLE
 #define VIS_FILE_ENABLE //write to file for visualization
 #define MAX_TIME 40.0 //max time in seconds to stop sim
 #define COMMS_RANGE 300.0 //max distance communications can travel
@@ -26,7 +32,7 @@
 #define EGO_DATA_ERROR_PCT 1 //% chance of no ego data
 #define ERROR_POS 1.5 //pos error of normal distribution in m (SAE is 1.5, commercial is 2.5) [GPS]
 #define ERROR_SPEED 0.5 //speed error of normal distribution in m/s (0.5 is a guess) [IMU] 
-#define ERROR_HEADING 3.0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
+#define ERROR_HEADING 0.0 //heading error of normal distribution in degs (3.0 is from paper) [GPS]
 #define ERROR_ACCEL 0.1 //accel standard error in m/s^2 (0.1 is a guess)
 #else
 #define COMMS_ERROR_PCT 0 //% chance of comms failing

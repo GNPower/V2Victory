@@ -56,6 +56,37 @@ vehicle::vehicle(unsigned int id, double max_speed, double front_pos, double set
     m_ego_heading = heading;
     ego_updated = true;
 
+    //setup kalman filter
+    #ifdef KALMAN_ENABLE
+    X_pred = Eigen::VectorXd(4);
+    P_pred = Eigen::MatrixXd(4, 4);
+    C = Eigen::MatrixXd(3, 4);
+    R = Eigen::MatrixXd(3, 3);
+    X_pred << 0, 0, 0, 0;
+    P_pred.setIdentity();
+    P_pred = P_pred*P_PRED_INIT;
+    C << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0;
+    R << pow(ERROR_POS, 2), 0, 0, 0, pow(ERROR_POS, 2), 0, 0, 0, pow(ERROR_SPEED, 2); 
+    //do first iteration for P_pred
+    Eigen::MatrixXd A;
+    A = Eigen::MatrixXd(4, 4);
+    double ch = cos(m_ego_heading*M_PI/180);
+    double sh = sin(m_ego_heading*M_PI/180);
+    A.row(0) << 1, 0, TIMESTEP*ch, pow(TIMESTEP, 2)*ch/2;
+    A.row(1) << 0, 1, TIMESTEP*sh, pow(TIMESTEP, 2)*sh/2;
+    A.row(2) << 0, 0, 1, TIMESTEP;
+    A.row(3) << 0, 0, 0, 1;
+
+    Eigen::MatrixXd Q;
+    Q = Eigen::MatrixXd(4, 4);
+    Q.row(0) << pow(TIMESTEP, 4)*ch*ch/4, 0, pow(TIMESTEP, 3)*ch/2, pow(TIMESTEP, 2)*ch/2;
+    Q.row(1) << 0, pow(TIMESTEP, 4)*sh*sh/4, pow(TIMESTEP, 3)*sh/2, pow(TIMESTEP, 2)*sh/2;
+    Q.row(2) << pow(TIMESTEP, 3)*ch/2, pow(TIMESTEP, 3)*sh/2, pow(TIMESTEP, 2), TIMESTEP;
+    Q.row(3) << pow(TIMESTEP, 2)*ch/2, pow(TIMESTEP, 2)*sh/2, TIMESTEP, 1;
+    
+    P_pred = A*P_pred*A.transpose() + Q;
+    #endif
+
     m_driver_accel_req = driver_accel_req;
 
     //initialize vehicle arrays
@@ -321,10 +352,64 @@ void vehicle::update_ego_data(double dt)
     if (ego_updated)
     {
         ego_updated = false; //reset so if updated again without callback will coast
-        //set coasted to same as callback
+        
+        #ifdef KALMAN_ENABLE
+        //measure
+        Eigen::MatrixXd X_meas;
+        X_meas = Eigen::VectorXd(3);
+        X_meas << m_ego_pos_x, m_ego_pos_y, m_ego_speed;
+
+        //update K
+        Eigen::MatrixXd K, K_p1;
+        K_p1 = C*P_pred*C.transpose() + R;
+        K = P_pred*C.transpose()*K_p1.inverse();
+
+        //estimate
+        Eigen::MatrixXd X_est;
+        X_est = X_pred + K*(X_meas - C*X_pred);
+        X_est(2) = fmax(X_est(2), 0);
+
+        //update P
+        Eigen::MatrixXd I, P_p1;
+        I = Eigen::MatrixXd(4, 4);
+        I.setIdentity();
+        P_p1 = I - K*C;
+        P = P_p1*P_pred*P_p1.transpose() + K*R*K.transpose();
+
+        //predict
+        Eigen::MatrixXd A;
+        A = Eigen::MatrixXd(4, 4);
+        double ch = cos(m_ego_heading*M_PI/180);
+        double sh = sin(m_ego_heading*M_PI/180);
+        A.row(0) << 1, 0, TIMESTEP*ch, pow(TIMESTEP, 2)*ch/2;
+        A.row(1) << 0, 1, TIMESTEP*sh, pow(TIMESTEP, 2)*sh/2;
+        A.row(2) << 0, 0, 1, TIMESTEP;
+        A.row(3) << 0, 0, 0, 1;
+        X_pred = A*X_est;
+        X_pred(2) = fmax(X_pred(2), 0);
+
+        Eigen::MatrixXd Q;
+        Q = Eigen::MatrixXd(4, 4);
+        Q.row(0) << pow(TIMESTEP, 4)*ch*ch/4, 0, pow(TIMESTEP, 3)*ch/2, pow(TIMESTEP, 2)*ch/2;
+        Q.row(1) << 0, pow(TIMESTEP, 4)*sh*sh/4, pow(TIMESTEP, 3)*sh/2, pow(TIMESTEP, 2)*sh/2;
+        Q.row(2) << pow(TIMESTEP, 3)*ch/2, pow(TIMESTEP, 3)*sh/2, pow(TIMESTEP, 2), TIMESTEP;
+        Q.row(3) << pow(TIMESTEP, 2)*ch/2, pow(TIMESTEP, 2)*sh/2, TIMESTEP, 1;
+
+        P_pred = A*P*A.transpose() + Q;
+
+        coasted_ego_pos_x = X_est(0);
+        coasted_ego_pos_y = X_est(1);
+        coasted_ego_speed = X_est(2);
+        
+        #ifdef DEBUG
+        std::cout << "update_ego_data: x = " << X_est(0) << "\ty = " << X_est(1) << "\tv = " << X_est(2) << "\n";
+        #endif
+        #else
         coasted_ego_pos_x = m_ego_pos_x;
         coasted_ego_pos_y = m_ego_pos_y;
         coasted_ego_speed = m_ego_speed;
+
+        #endif
     }
     else
     {

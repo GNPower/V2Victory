@@ -3,6 +3,10 @@
 #include "common.hpp"
 #include <stdint.h>
 
+#ifdef KALMAN_ENABLE
+#include <Eigen/Dense>
+#endif 
+
 //Structs
 struct s_vehicle_data {
     unsigned int veh_id;
@@ -137,6 +141,14 @@ class vehicle
         double m_ego_speed;
         double m_ego_heading;
         bool ego_updated;
+
+        #ifdef KALMAN_ENABLE
+        Eigen::VectorXd X_pred;
+        Eigen::MatrixXd P_pred;
+        Eigen::MatrixXd P;
+        Eigen::MatrixXd C;
+        Eigen::MatrixXd R;
+        #endif
 
         //Driver Accel Request
         double m_driver_accel_req;
