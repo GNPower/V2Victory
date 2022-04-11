@@ -15,13 +15,25 @@
 const char *int_states[3] = {"GREEN", "YELLOW", "RED"};
 
 //Structs
-struct s_veh_sim_data{
+struct s_veh_sim_data {
     double pos_x;
     double pos_y;
     double speed;
     double heading;
     double accel_req;
 };
+
+#ifdef METRICS
+struct s_int_info {
+    double ent_x[4];
+    double ent_y[4];
+    double ent_h[4];
+    double min_x;
+    double min_y;
+    double max_x;
+    double max_y;
+};
+#endif
 
 //setup file
 #ifdef VIS_FILE_ENABLE
@@ -34,6 +46,85 @@ std::normal_distribution<double> pos_error(0, ERROR_POS);
 std::normal_distribution<double> speed_error(0, ERROR_SPEED);
 std::normal_distribution<double> heading_error(0, ERROR_HEADING);
 std::normal_distribution<double> accel_error(0, ERROR_ACCEL);
+
+s_int_info get_int_ent_data(double ent_dirs[2], double int_length, double int_pos_x, double int_pos_y)
+{
+    s_int_info int_info;
+    double x, y, angle;
+    for (int i = 0; i < 4; i++)
+    {
+        if (i < 2) //Entrance Direction #1
+        {   
+            angle = ent_dirs[0]*M_PI/180;
+        }
+        else //Entrance Direction #2
+        {
+            angle = ent_dirs[1]*M_PI/180;
+        }
+        
+        double angle_2 = angle + M_PI/180*90;
+        double x_delta = int_length/2*cos(angle) + int_length/4*cos(angle_2); //x is forward, angle is CCW from North
+        double y_delta = int_length/2*sin(angle) + int_length/4*sin(angle_2); //y is side, angle is CCW from North
+
+        if (i == 0 || i == 2)
+        {
+            //0 deg
+            x = int_pos_x + x_delta;
+            y = int_pos_y + y_delta;
+        }
+        else
+        {
+            //180 deg
+            x = int_pos_x - x_delta;
+            y = int_pos_y - y_delta;
+        }
+
+        if (i == 0)
+        {
+            //need to initialize values
+            int_info.min_x = x;
+            int_info.max_x = x;
+            int_info.min_y = y;
+            int_info.max_y = y;
+        }
+        else
+        {
+            //compare
+            int_info.min_x = fmin(int_info.min_x, x);
+            int_info.max_x = fmax(int_info.max_x, x);
+            int_info.min_y = fmin(int_info.min_y, y);
+            int_info.max_y = fmax(int_info.max_y, y);
+        }
+
+        int_info.ent_x[i] = x;
+        int_info.ent_y[i] = y;
+    }
+
+    //setup entrance headings
+    if (ent_dirs[0] >= 180)
+    {
+        int_info.ent_h[0] = ent_dirs[0] - 180;
+    }
+    else 
+    {
+        int_info.ent_h[0] = ent_dirs[0] + 180;
+    }
+
+    int_info.ent_h[1] = ent_dirs[0];
+
+    if (ent_dirs[1] >= 180)
+    {
+        int_info.ent_h[2] = ent_dirs[1] - 180;
+    }
+    else 
+    {
+        int_info.ent_h[2] = ent_dirs[1] + 180;
+    }
+
+    int_info.ent_h[3] = ent_dirs[1];
+
+    return int_info;
+}
 
 bool comms_in_range(double node1_x, double node1_y, double node2_x, double node2_y)
 {
@@ -140,6 +231,7 @@ int main(void)
     unsigned int id = 1;
     //Initialize Intersection(s)
     std::vector<intersection> int_list;
+    std::vector<s_int_info> int_info;
 
     #ifdef INIT_FROM_FILE
     int num_ints = 0;
@@ -163,7 +255,7 @@ int main(void)
             continue; //dont read template
         }
         std::istringstream iss(line);
-        if (!(iss >> ent_dirs[0] >> ent_dirs[1] >> tts[0] >> tts[1] >> tts[2] >> int_length >> int_pos_x >> int_pos_y >> ped_countdown >> int_type_val))
+        if (!(iss >> ent_dirs[0] >> ent_dirs[1] >> tts[0] >> tts[1] >> tts[2] >> int_length >> int_pos_x >> int_pos_y >> int_type_val >> ped_countdown))
         {
             break;
         }
@@ -178,6 +270,7 @@ int main(void)
         }
         std::cout << "Initializing Intersection...\n";
         int_list.push_back(intersection (ent_dirs, int_length, int_pos_x, int_pos_y, int_type, id, ped_countdown, tts));
+        int_info.push_back(get_int_ent_data(ent_dirs, int_length, int_pos_x, int_pos_y));
         std::cout << "Intersection Initialized! \n";
         id++;
         num_ints++;
@@ -213,6 +306,7 @@ int main(void)
 
         std::cout << "Initializing Intersection...\n";
         int_list.push_back(intersection (ent_dirs, int_length, int_pos_x, int_pos_y, int_type, int_id, ped_countdown, tts));
+        int_info.push_back(get_int_ent_data(ent_dirs, int_length, int_pos_x, int_pos_y));
         std::cout << "Intersection Initialized! \n";
 
         #ifdef VIS_FILE_ENABLE
@@ -355,6 +449,14 @@ int main(void)
     vis_file << "\n";
     #endif
 
+    #ifdef METRICS
+    //initialize metrics
+    int times_in_red = 0;
+    int num_crashes = 0;
+    bool int_cleared = false;
+    double time_to_clear;
+    #endif
+
     while (!sim_done)
     {
         /*
@@ -391,6 +493,125 @@ int main(void)
             int_published[i] = int_list[i].publish();
             print_sim_int_data(int_published[i]); // t = sim_time
         }
+
+        //do metrics if enabled
+        #ifdef METRICS
+        //# Vehicles in Red: check if vehicle in lights
+        //Throughput: time to clear intersection/# of cars
+        //# of Crashes: if vehicles are too close
+
+        //first can check if any crashes
+        for (int i = 0; i < num_vehs; i++)
+        {
+            for (int j = i + 1; j < num_vehs; j++)
+            {
+                double x_dist = sim_vehs[i].pos_x - sim_vehs[j].pos_x;
+                double y_dist = sim_vehs[i].pos_y - sim_vehs[j].pos_y;
+                double dist = sqrt(pow(x_dist, 2) + pow(y_dist, 2));
+                
+                if (dist < CRASH_RANGE)
+                {
+                    num_crashes++;
+                }
+            }
+        }
+
+        //last check if in int while red or if intersection is cleared
+        bool clear_check = true;
+
+        for (int i = 0; i < num_vehs; i++)
+        {
+            for (int j = 0; j < num_ints; j++)
+            {
+                if (sim_vehs[i].pos_x >= int_info[j].min_x && sim_vehs[i].pos_x <= int_info[j].max_x && sim_vehs[i].pos_y >= int_info[j].min_y && sim_vehs[i].pos_y <= int_info[j].max_y)
+                {
+                    clear_check = false;
+                    //in intersection, check if dir is red
+                    if (int_type == SIGNAL) {
+                        for (int k = 0; k < 4; k++)
+                        {
+                            double h_diff = abs(sim_vehs[i].heading - int_info[j].ent_h[k]);
+                            if (h_diff > 180)
+                            {
+                                h_diff = 360 - h_diff;
+                            }
+                            
+                            if (h_diff < INLANE_HEADING)
+                            {
+                                //in lane
+                                if (k < 2)
+                                {
+                                    if (int_published[j].int_1_state == RED)
+                                    {
+                                        times_in_red++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (int_published[j].int_2_state == RED)
+                                    {
+                                        times_in_red++;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+                else if (clear_check) // if so far all clear, check car is clear
+                {
+                    //not in int, see if exiting
+                    for (int k = 0; k < 4; k++)
+                    {
+                        double h_diff = abs(sim_vehs[i].heading - int_info[j].ent_h[k]);
+                        if (h_diff > 180)
+                        {
+                            h_diff = 360 - h_diff;
+                        }
+
+                        if (h_diff < INLANE_HEADING)
+                        {
+                            //check if past it or not
+                            double x_dist = int_info[j].ent_x[k] - sim_vehs[i].pos_x;
+                            double y_dist = int_info[j].ent_y[k] - sim_vehs[i].pos_y;
+
+                            double x_time, y_time;
+                            if (x_dist == 0)
+                            {
+                                x_time = 0;
+                            }
+                            else
+                            {
+                                x_time = x_dist/cos(M_PI/180*sim_vehs[i].heading);
+                            }
+                            
+                            if (y_dist == 0)
+                            {
+                                y_time = 0;
+                            }
+                            else
+                            {
+                                y_time = y_dist/sin(M_PI/180*sim_vehs[i].heading);
+                            }
+                            
+                            if (x_time >= 0 || y_time >= 0)
+                            {
+                                //approaching closest int
+                                clear_check = false;
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+        if (clear_check && !int_cleared)
+        {
+            int_cleared = true;
+            time_to_clear = sim_time;
+        }
+        #endif
 
         //collect veh data
         for (int i = 0; i < num_vehs; i++)
@@ -555,6 +776,13 @@ int main(void)
         if (sim_time > MAX_TIME)
         {
             sim_done = true;
+            
+            #ifdef METRICS
+            std::cout << "---METRICS REPORT---\n";
+            std::cout << "Crashes: " << num_crashes << "\n";
+            std::cout << "Times in Red: " << times_in_red << "\n";
+            std::cout << "Time to Clear: " << time_to_clear << "\n";
+            #endif
         }
     }
     std::cout << "Simulation Ended!\n";

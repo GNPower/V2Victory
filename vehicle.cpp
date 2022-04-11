@@ -1,6 +1,7 @@
 #include <math.h>
 #include <cmath>
 #include <iostream>
+#include <random>
 #include "vehicle.hpp"
 
 #ifdef EMS_OVERRIDE_ENABLE
@@ -321,7 +322,11 @@ void vehicle::update(double dt)
     update_lead_veh();
 
     //find relevant intersection
+    #ifdef DRIVER
+    update_rel_int(dt);
+    #else
     update_rel_int();
+    #endif
 
     //now have all the data needed, can update accel req
     update_accel_req();
@@ -428,6 +433,7 @@ void vehicle::update_accel_req(void)
     #ifdef DRIVER
     //modelling human driver
     update_sys_accel_req();
+    c_accel_req = system_accel_req;
     #else
     //first calculate system's accel request
     update_sys_accel_req();
@@ -464,19 +470,43 @@ void vehicle::update_accel_req(void)
 double vehicle::get_driver_int_accel_req(void)
 {
     double int_accel_req;
-    if (int_state == RED)
+    //use last state to account for driver delay
+    //get a perceived distance
+    std::default_random_engine generator;
+    std::normal_distribution<double> dist_error(8.6, 13.4);
+
+    double int_ent_pct = 1 - dist_error(generator)/100; //according to study, average distance is -8.6% of actual
+    int_ent_pct = fmax(int_ent_pct, 0.1);
+    double stop_dist_pct = 1 - dist_error(generator)/100;
+    stop_dist_pct = fmax(stop_dist_pct, 0.1);
+
+
+    if (last_state == RED)
     {
         //Red Light, stop at int entrance
-        int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist);
+        double braking_dist = pow(coasted_ego_speed, 2) / (2*MAX_DECEL) + STOP_SIGN_DISTANCE; //stop sign dist added as safety factor
+        double stop_dist = int_ent_dist - k_front_pos; //stop dist/2 to allow error
+        if (stop_dist*int_ent_pct > braking_dist*stop_dist_pct)
+        {
+            //far away, check what accel can be requested without breaking stop dist
+            int_accel_req = 2*((stop_dist*int_ent_pct - braking_dist*stop_dist_pct) - coasted_ego_speed*TIMESTEP)/pow(TIMESTEP, 2);
+        }
+        else
+        {
+            //too close, need to stop at thing
+            int_accel_req = -pow(coasted_ego_speed, 2)/(2*stop_dist*int_ent_pct);
+        }
+
+        //int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist*int_ent_pct);
     }
-    else if (int_state == YELLOW)
+    else if (last_state == YELLOW)
     {
         //Yellow Light, see if we should continue or stop
         //only continue if we cannot stop in time
         //if continue, go for set speed
         //if stop, go for int entrance
-        double stopping_dist = -pow(coasted_ego_speed, 2)/(2*MAX_DECEL);
-        if (stopping_dist > int_ent_dist)
+        double stopping_dist = -pow(coasted_ego_speed, 2)/(2*MAX_DECEL)*stop_dist_pct;
+        if (stopping_dist > int_ent_dist*int_ent_pct)
         {
             //cannot stop in time, continue
             int_accel_req = p_set_speed - coasted_ego_speed;
@@ -484,10 +514,11 @@ double vehicle::get_driver_int_accel_req(void)
         else
         {
             //can stop in time, stop at entrance
-            int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist);
+            int_accel_req = -pow(coasted_ego_speed, 2)/(2*int_ent_dist*int_ent_pct);
         }
     }
     else {
+        std::cout << "LS GREEN\n";
         //Green Light, go for set speed
         int_accel_req = p_set_speed - coasted_ego_speed;
     }
@@ -627,7 +658,7 @@ double vehicle::get_lead_accel_req(void)
         Speed should be 0 if we are on top of the car
         Simply linearly scale
         */
-        desired_speed = set_speed*(1 + dist_error/desired_lead_gap);
+        desired_speed =  (coasted_ego_speed + lead_rel_vel_x)*(1 + dist_error/desired_lead_gap);
         //dist_error -ve so ends up being 1 - fraction, so lower than set speed
 
         #ifdef DEBUG
@@ -1174,7 +1205,11 @@ void vehicle::update_lead_veh(void)
     #endif
 }
 
+#ifdef DRIVER
+void vehicle::update_rel_int(double dt)
+#else
 void vehicle::update_rel_int(void)
+#endif
 {
     bool int_found = false;
     double closest_int_dist;
@@ -1309,6 +1344,18 @@ void vehicle::update_rel_int(void)
                     break;
             }
         }
+    #ifdef DRIVER
+    if (int_state != last_state)
+    {
+        time_since_switch += dt;
+        if (time_since_switch >= DRIVER_REACTION)
+        {
+            last_state = int_state;
+            time_since_switch = 0;
+        }
+    }
+    #endif
+
     }
     else
     {
@@ -1425,6 +1472,11 @@ void vehicle::init_rel_int(void)
     #ifdef STOP_SIGN_ENABLE
     int_type = SIGNAL;
     int_next_id = 0;
+    #endif
+
+    #ifdef DRIVER
+    last_state = int_state;
+    time_since_switch = DRIVER_REACTION + 1.0;
     #endif
 }
 

@@ -13,17 +13,23 @@
 //Environment (SIM vs IRL)
 #define SIM
 #define DEBUG
-//#define DRIVER //determines if simulating human driver
+#define DRIVER //determines if simulating human driver
+#define METRICS
+//#define ERROR_ENABLE
+
+//Metrics
+#ifdef METRICS
+#define CRASH_RANGE 3.0
+#endif
 
 //Ego Kalman Enabled or Not
-#define KALMAN_ENABLE
+//#define KALMAN_ENABLE
 #ifdef KALMAN_ENABLE
 #define P_PRED_INIT 100
 #endif
 
 //SIM variables
 #define INIT_FROM_FILE
-#define ERROR_ENABLE
 #define VIS_FILE_ENABLE //write to file for visualization
 #define MAX_TIME 40.0 //max time in seconds to stop sim
 #define COMMS_RANGE 300.0 //max distance communications can travel
@@ -43,8 +49,10 @@
 #define ERROR_ACCEL 0 //accel standard error in m/s^2 (0.1 is a guess)
 #endif
 
+#ifdef DRIVER
 //Driver Tunable
 #define DRIVER_REACTION 0.25 //time in seconds for driver to react to visual changes
+#endif
 
 //Performance/Tunable
 //Intersection & Vehicle Data

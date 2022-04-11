@@ -36,7 +36,7 @@ class Plotter():
 		int_params = lines[0].split()
 		#get params
 		self.int_length = int(int_params[0])
-		if int_params[1] == 0:
+		if int(int_params[1]) == 0:
 			self.is_signal = True
 		else:
 			self.is_signal = False

@@ -205,6 +205,12 @@ class vehicle
         //Acceleration Decision Logic
         double system_accel_req;
 
+        //Driver Reaction
+        #ifdef DRIVER
+        y_int_state last_state;
+        double time_since_switch;
+        #endif
+
         //Functions
         //Init
         void validate_set_speed(void);
@@ -221,7 +227,11 @@ class vehicle
         void reset_new_int(void);
         void update_ego_data(double dt);
         void update_lead_veh(void);
+        #ifdef DRIVER
+        void update_rel_int(double dt);
+        #else
         void update_rel_int(void);
+        #endif
         void update_accel_req(void);
         void update_sys_accel_req(void);
         double get_int_accel_req(void);
