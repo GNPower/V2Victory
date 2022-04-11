@@ -640,9 +640,22 @@ int main(void)
                     //comms work
                     int_list[i].new_vehicle_callback(veh_published[j]);
                 }
-                else 
+                else
                 {
-                    std::cout << "COMMS ERROR! Receiver: int #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                    //can either have no comms or crc, functionally equivalent
+                    if (int(sim_time) % 2)
+                    {
+                        //CRC fail
+                        std::cout << "CRC ERROR! Receiver: int #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                        s_published_vehicle_data corrupt = veh_published[j];
+                        corrupt.veh_crc = corrupt.veh_crc ^ 0xFF;
+                        int_list[i].new_vehicle_callback(corrupt);
+                    }
+                    else
+                    {
+                        //No comms
+                        std::cout << "COMMS ERROR! Receiver: int #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                    }
                 }
 
                 //send int data to vehs
@@ -654,7 +667,20 @@ int main(void)
                 }
                 else 
                 {
-                    std::cout << "COMMS ERROR! Receiver: veh #" << j + 1 << " \tSender: int #" << i + 1 << "\n";
+                    //can either have no comms or crc, functionally equivalent
+                    if (int(sim_time) % 2)
+                    {
+                        //CRC fail
+                        std::cout << "CRC ERROR! Receiver: veh #" << j + 1 << " \tSender: int #" << i + 1 << "\n";
+                        s_published_int_data corrupt = int_published[i];
+                        corrupt.int_crc = corrupt.int_crc ^ 0xFF;
+                        veh_list[j].new_int_callback(corrupt);
+                    }
+                    else
+                    {
+                        //No comms
+                        std::cout << "COMMS ERROR! Receiver: veh #" << j + 1 << " \tSender: int #" << i + 1 << "\n";
+                    }
                 }
             }
         }
@@ -685,7 +711,20 @@ int main(void)
                 }
                 else 
                 {
-                    std::cout << "COMMS ERROR! Receiver: veh #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                    //can either have no comms or crc, functionally equivalent
+                    if (int(sim_time) % 2)
+                    {
+                        //CRC fail
+                        std::cout << "CRC ERROR! Receiver: veh #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                        s_published_vehicle_data corrupt = veh_published[j];
+                        corrupt.veh_crc = corrupt.veh_crc ^ 0xFF;
+                        veh_list[i].new_vehicle_callback(corrupt);
+                    }
+                    else
+                    {
+                        //No comms
+                        std::cout << "COMMS ERROR! Receiver: veh #" << i + 1 << " \tSender: veh #" << j + 1 << "\n";
+                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 //common.hpp
 #include "defines.hpp"
+#include <stdint.h>
 
 #ifndef SYS_COMMON
 #define SYS_COMMON
@@ -21,6 +22,8 @@ struct s_published_vehicle_data {
     double veh_speed;
     double veh_heading;
 
+    uint8_t veh_crc;
+
     #ifdef EMS_OVERRIDE_ENABLE
     y_veh_type veh_type;
     bool override;
@@ -40,6 +43,8 @@ struct s_published_int_data {
     double int_pos_y;
     unsigned int int_id;
 
+    uint8_t int_crc;
+
     y_int_state int_1_state;
     y_int_state int_1_next_state;
     double int_1_time_to_switch;
@@ -53,5 +58,10 @@ struct s_published_int_data {
     unsigned int int_next_veh_id;
     #endif
 };
+
+//Functions
+
+uint8_t get_veh_crc(s_published_vehicle_data);
+uint8_t get_int_crc(s_published_int_data);
 
 #endif

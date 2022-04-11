@@ -13,9 +13,9 @@
 //Environment (SIM vs IRL)
 #define SIM
 #define DEBUG
-#define DRIVER //determines if simulating human driver
+//#define DRIVER //determines if simulating human driver
 #define METRICS
-//#define ERROR_ENABLE
+#define ERROR_ENABLE
 
 //Metrics
 #ifdef METRICS

@@ -81,6 +81,9 @@ void intersection::publish(void)
     #ifdef STOP_SIGN_ENABLE
     int_data.int_next_veh_id = c_int_next_veh_id;
     #endif
+
+    //setup crc
+    int_data.int_crc = get_int_crc(int_data);
     
     return int_data;
 
@@ -101,22 +104,33 @@ void intersection::new_vehicle_callback(const std_msgs::String::ConstPtr& msg)
 
     if (num_new_vehicles < MAX_VEHICLES)
     {
-        new_vehicles[num_new_vehicles].in_int = false;
-        new_vehicles[num_new_vehicles].int_entrance = -1;
+        //check crc
+        unsigned int calc_crc = get_veh_crc(data);
+        if (calc_crc == data.veh_crc)
+        {
+            new_vehicles[num_new_vehicles].in_int = false;
+            new_vehicles[num_new_vehicles].int_entrance = -1;
 
-        new_vehicles[num_new_vehicles].time_since_update = 0;
-        new_vehicles[num_new_vehicles].veh_id = data.veh_id;
-        new_vehicles[num_new_vehicles].veh_pos_x = data.veh_pos_x;
-        new_vehicles[num_new_vehicles].veh_pos_y = data.veh_pos_y;
-        new_vehicles[num_new_vehicles].veh_speed = data.veh_speed;
-        new_vehicles[num_new_vehicles].veh_heading = data.veh_heading;
+            new_vehicles[num_new_vehicles].time_since_update = 0;
+            new_vehicles[num_new_vehicles].veh_id = data.veh_id;
+            new_vehicles[num_new_vehicles].veh_pos_x = data.veh_pos_x;
+            new_vehicles[num_new_vehicles].veh_pos_y = data.veh_pos_y;
+            new_vehicles[num_new_vehicles].veh_speed = data.veh_speed;
+            new_vehicles[num_new_vehicles].veh_heading = data.veh_heading;
 
-        #ifdef EMS_OVERRIDE_ENABLE
-        new_vehicles[num_new_vehicles].veh_type = data.veh_type;
-        new_vehicles[num_new_vehicles].override = data.override;
+            #ifdef EMS_OVERRIDE_ENABLE
+            new_vehicles[num_new_vehicles].veh_type = data.veh_type;
+            new_vehicles[num_new_vehicles].override = data.override;
+            #endif
+
+            num_new_vehicles++;
+        }
+        #ifdef DEBUG
+        else
+        {
+            std::cout << "CRC FAIL! Calculated: " << calc_crc << "\tReceived: " << data.veh_crc << "\n";
+        }
         #endif
-
-        num_new_vehicles++;
     }
 }
 

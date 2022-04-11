@@ -141,6 +141,9 @@ void vehicle::publish(void)
     veh_data.platoon_set_speed = c_platoon_set_speed;
     #endif
 
+    //setup crc
+    veh_data.veh_crc = get_veh_crc(veh_data);
+
     return veh_data;
 
     #else
@@ -201,19 +204,30 @@ void vehicle::new_vehicle_callback(const std_msgs::String::ConstPtr& msg)
 
     if (num_new_vehicles < MAX_VEHICLES)
     {
-        new_vehicles[num_new_vehicles].veh_id = data.veh_id;
-        new_vehicles[num_new_vehicles].veh_pos_x = data.veh_pos_x;
-        new_vehicles[num_new_vehicles].veh_pos_y = data.veh_pos_y;
-        new_vehicles[num_new_vehicles].veh_speed = data.veh_speed;
-        new_vehicles[num_new_vehicles].veh_heading = data.veh_heading;
-        new_vehicles[num_new_vehicles].time_since_update = 0;
+        //check crc
+        unsigned int calc_crc = get_veh_crc(data);
+        if (calc_crc == data.veh_crc)
+        {
+            new_vehicles[num_new_vehicles].veh_id = data.veh_id;
+            new_vehicles[num_new_vehicles].veh_pos_x = data.veh_pos_x;
+            new_vehicles[num_new_vehicles].veh_pos_y = data.veh_pos_y;
+            new_vehicles[num_new_vehicles].veh_speed = data.veh_speed;
+            new_vehicles[num_new_vehicles].veh_heading = data.veh_heading;
+            new_vehicles[num_new_vehicles].time_since_update = 0;
 
-        #ifdef PLATOONING_ENABLE
-        new_vehicles[num_new_vehicles].platooning = data.platooning;
-        new_vehicles[num_new_vehicles].platoon_set_speed = data.platoon_set_speed;
+            #ifdef PLATOONING_ENABLE
+            new_vehicles[num_new_vehicles].platooning = data.platooning;
+            new_vehicles[num_new_vehicles].platoon_set_speed = data.platoon_set_speed;
+            #endif
+
+            num_new_vehicles++;
+        }
+        #ifdef DEBUG
+        else
+        {
+            std::cout << "CRC FAIL! Calculated: " << calc_crc << "\tReceived: " << data.veh_crc << "\n";
+        }
         #endif
-
-        num_new_vehicles++;
     }
 }
 
@@ -229,84 +243,95 @@ void vehicle::new_int_callback(const std_msgs::String::ConstPtr& msg)
 
     if (num_new_ints < MAX_INTS)
     {
-        new_ints[num_new_ints].int_id = data.int_id;
-        new_ints[num_new_ints].int_length = data.int_length;
-        
-        new_ints[num_new_ints].int_1_state = data.int_1_state;
-        new_ints[num_new_ints].int_1_next_state = data.int_1_next_state;
-        new_ints[num_new_ints].int_1_time_to_switch = data.int_1_time_to_switch;
-        new_ints[num_new_ints].int_2_state = data.int_2_state;
-        new_ints[num_new_ints].int_2_next_state = data.int_2_next_state;
-        new_ints[num_new_ints].int_2_time_to_switch = data.int_2_time_to_switch;
-        new_ints[num_new_ints].time_since_update = 0;
+        //check crc
+        unsigned int calc_crc = get_int_crc(data);
+        if (calc_crc == data.int_crc)
+        {
+            new_ints[num_new_ints].int_id = data.int_id;
+            new_ints[num_new_ints].int_length = data.int_length;
+            
+            new_ints[num_new_ints].int_1_state = data.int_1_state;
+            new_ints[num_new_ints].int_1_next_state = data.int_1_next_state;
+            new_ints[num_new_ints].int_1_time_to_switch = data.int_1_time_to_switch;
+            new_ints[num_new_ints].int_2_state = data.int_2_state;
+            new_ints[num_new_ints].int_2_next_state = data.int_2_next_state;
+            new_ints[num_new_ints].int_2_time_to_switch = data.int_2_time_to_switch;
+            new_ints[num_new_ints].time_since_update = 0;
 
-        #ifdef STOP_SIGN_ENABLE
-        new_ints[num_new_ints].int_type = data.int_type;
-        new_ints[num_new_ints].int_next_veh_id = data.int_next_veh_id;
+            #ifdef STOP_SIGN_ENABLE
+            new_ints[num_new_ints].int_type = data.int_type;
+            new_ints[num_new_ints].int_next_veh_id = data.int_next_veh_id;
+            #endif
+            
+            //copied from intersection, same logic
+            //entrance 0 is forward from center by dir 1 (heading is opposite of dir 1)
+            //entrance 1 is backward from center by dir 1 (heading is same as dir 1)
+            //entrance 2 is forward from center by dir 2 (heading is opposite of dir 2)
+            //entrance 3 is backward from center by dir 2 (heading is same as dir 2)
+            //all the entrance headings are backwards of these since those are angle of entrance through intersection
+            double x, y, angle;
+            for (int i = 0; i < 4; i++)
+            {
+                if (i < 2) //Entrance Direction #1
+                {   
+                    angle = data.ent_dir_1*M_PI/180;
+                }
+                else //Entrance Direction #2
+                {
+                    angle = data.ent_dir_2*M_PI/180;
+                }
+                double angle_2 = angle + M_PI/180*90;
+                double x_delta = data.int_length/2*cos(angle) + data.int_length/4*cos(angle_2); //x is forward, angle is CCW from North
+                double y_delta = data.int_length/2*sin(angle) + data.int_length/4*sin(angle_2); //y is side, angle is CCW from North
+
+                if (i == 0 || i == 2)
+                {
+                    //0 deg
+                    x = data.int_pos_x + x_delta;
+                    y = data.int_pos_y + y_delta;
+                }
+                else
+                {
+                    //180 deg
+                    x = data.int_pos_x - x_delta;
+                    y = data.int_pos_y - y_delta;
+                }
+
+                new_ints[num_new_ints].int_ent_pos_x[i] = x;
+                new_ints[num_new_ints].int_ent_pos_y[i] = y;
+            }
+
+            //setup entrance headings
+            if (data.ent_dir_1 >= 180)
+            {
+                new_ints[num_new_ints].int_ent_headings[0] = data.ent_dir_1 - 180;
+            }
+            else 
+            {
+                new_ints[num_new_ints].int_ent_headings[0] = data.ent_dir_1 + 180;
+            }
+
+            new_ints[num_new_ints].int_ent_headings[1] = data.ent_dir_1;
+
+            if (data.ent_dir_2 >= 180)
+            {
+                new_ints[num_new_ints].int_ent_headings[2] = data.ent_dir_2 - 180;
+            }
+            else 
+            {
+                new_ints[num_new_ints].int_ent_headings[2] = data.ent_dir_2 + 180;
+            }
+
+            new_ints[num_new_ints].int_ent_headings[3] = data.ent_dir_2;
+            num_new_ints++;
+        }
+        #ifdef DEBUG
+        else
+        {
+            std::cout << "CRC FAIL! Calculated: " << calc_crc << "\tReceived: " << data.int_crc << "\n";
+        }
         #endif
-        
-        //copied from intersection, same logic
-        //entrance 0 is forward from center by dir 1 (heading is opposite of dir 1)
-        //entrance 1 is backward from center by dir 1 (heading is same as dir 1)
-        //entrance 2 is forward from center by dir 2 (heading is opposite of dir 2)
-        //entrance 3 is backward from center by dir 2 (heading is same as dir 2)
-        //all the entrance headings are backwards of these since those are angle of entrance through intersection
-        double x, y, angle;
-        for (int i = 0; i < 4; i++)
-        {
-            if (i < 2) //Entrance Direction #1
-            {   
-                angle = data.ent_dir_1*M_PI/180;
-            }
-            else //Entrance Direction #2
-            {
-                angle = data.ent_dir_2*M_PI/180;
-            }
-            double angle_2 = angle + M_PI/180*90;
-            double x_delta = data.int_length/2*cos(angle) + data.int_length/4*cos(angle_2); //x is forward, angle is CCW from North
-            double y_delta = data.int_length/2*sin(angle) + data.int_length/4*sin(angle_2); //y is side, angle is CCW from North
-
-            if (i == 0 || i == 2)
-            {
-                //0 deg
-                x = data.int_pos_x + x_delta;
-                y = data.int_pos_y + y_delta;
-            }
-            else
-            {
-                //180 deg
-                x = data.int_pos_x - x_delta;
-                y = data.int_pos_y - y_delta;
-            }
-
-            new_ints[num_new_ints].int_ent_pos_x[i] = x;
-            new_ints[num_new_ints].int_ent_pos_y[i] = y;
-        }
-
-        //setup entrance headings
-        if (data.ent_dir_1 >= 180)
-        {
-            new_ints[num_new_ints].int_ent_headings[0] = data.ent_dir_1 - 180;
-        }
-        else 
-        {
-            new_ints[num_new_ints].int_ent_headings[0] = data.ent_dir_1 + 180;
-        }
-
-        new_ints[num_new_ints].int_ent_headings[1] = data.ent_dir_1;
-
-        if (data.ent_dir_2 >= 180)
-        {
-            new_ints[num_new_ints].int_ent_headings[2] = data.ent_dir_2 - 180;
-        }
-        else 
-        {
-            new_ints[num_new_ints].int_ent_headings[2] = data.ent_dir_2 + 180;
-        }
-
-        new_ints[num_new_ints].int_ent_headings[3] = data.ent_dir_2;
     }
-    num_new_ints++;
 }
 
 void vehicle::update(double dt)
