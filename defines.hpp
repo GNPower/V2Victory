@@ -3,6 +3,12 @@
 #define SYS_DEFINES
 
 //Defines
+//Stretch Goals
+#define SMART_TIMING_ENABLE //Stretch Goal #1: Smart Signal Timing
+#define EMS_OVERRIDE_ENABLE //Stretch Goal #2: Emergency Vehicle Response
+#define STOP_SIGN_ENABLE //Stretch Goal #4: Stop Sign Intersections
+#define PLATOONING_ENABLE //Stretch Goal #5: Platooning System
+
 //Assumptions
 #define MIN_YELLOW 3.7
 #define MAX_VEHICLES 32
@@ -91,11 +97,4 @@
 
 //Vehicle Intersection Safety Factor
 #define TTS_SAFETY_FACTOR 0.5 //seconds to help ensure not entering on red
-
-//Stretch Goals
-#define SMART_TIMING_ENABLE //Stretch Goal #1: Smart Signal Timing
-#define EMS_OVERRIDE_ENABLE //Stretch Goal #2: Emergency Vehicle Response
-#define STOP_SIGN_ENABLE //Stretch Goal #4: Stop Sign Intersections
-#define PLATOONING_ENABLE //Stretch Goal #5: Platooning System
-
 #endif

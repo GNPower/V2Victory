@@ -10,7 +10,6 @@
 #include <sstream>
 #include <string>
 
-
 //Enum Arrays
 const char *int_states[3] = {"GREEN", "YELLOW", "RED"};
 
@@ -281,7 +280,7 @@ int main(void)
             vis_file << int_length << "\t" << int_type << "\n";
             vis_file << "0.00";
         }
-        write_sim_int_data(int_list[num_ints].publish());
+        write_sim_int_data(int_list[num_ints - 1].publish());
         #endif
     } 
 
