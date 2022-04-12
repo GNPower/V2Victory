@@ -623,7 +623,7 @@ double vehicle::get_lead_accel_req(void)
     double lead_accel_req;
     //get desired gap from lead vehicle
     double desired_lead_gap;
-
+    static double iError = 0;
 
     #ifdef PLATOONING_ENABLE
     if (p_platooning && lead_platooning)
@@ -670,6 +670,10 @@ double vehicle::get_lead_accel_req(void)
 
     double desired_speed;
 
+    // iError = iError + dist_error*0.0001;
+    iError = dist_error*0.1;
+    std::cout << "iError = " << iError << "\n";
+
     if(abs(dist_error) <= 0.01)
     {
         // Do nothing
@@ -687,7 +691,7 @@ double vehicle::get_lead_accel_req(void)
         Speed should be 0 if we are on top of the car
         Simply scale linearly
         */
-        desired_speed =  (coasted_ego_speed + lead_rel_vel_x)*(1 + dist_error/desired_lead_gap);
+        desired_speed =  (coasted_ego_speed + lead_rel_vel_x)*(1 + dist_error/desired_lead_gap) + iError;
         //dist_error -ve so ends up being 1 - fraction, so lower than set speed
 
         #ifdef DEBUG
@@ -702,7 +706,24 @@ double vehicle::get_lead_accel_req(void)
         // Scale linearly
         // desired_speed = (coasted_ego_speed + lead_rel_vel_x) + (set_speed - (coasted_ego_speed + lead_rel_vel_x))/(2*desired_lead_gap);
 
-        desired_speed = fmin(1.15*set_speed, set_speed + 0.15*set_speed*(dist_error/desired_lead_gap));
+        //
+        #ifdef PLATOONING_ENABLE
+        if (p_platooning && lead_platooning)
+        {
+            std::cout << "Using platooning catchup code\n";
+            desired_speed = fmin(1.15*set_speed, set_speed + 0.15*set_speed*(dist_error/desired_lead_gap)) + iError;
+            // desired_speed = set_speed;
+        }
+        else
+        {
+            desired_speed = set_speed;
+            std::cout << "Not using platooning catchup code\n";
+        }
+        #else
+            desired_speed = set_speed;
+            std::cout << "Platooning not defined\n";
+        #endif
+        //
 
         #ifdef DEBUG
         std::cout << "get_lead_accel_req: dist_error flag greater than 0.01, desired_speed = " << desired_speed << "\n";
