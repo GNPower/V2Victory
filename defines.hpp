@@ -18,7 +18,7 @@
 
 //Environment (SIM vs IRL)
 #define SIM
-#define DEBUG
+//#define DEBUG
 //#define DRIVER //determines if simulating human driver
 #define METRICS
 //#define ERROR_ENABLE
@@ -91,7 +91,7 @@
 #define MIN_RED_GREEN_TIME 10.0 //minimum amount of time assumed for red/green light
 
 //Vehicle Lead Gap
-#define LEAD_GAP_DIST 3.0 //min distance in meters from lead
+#define LEAD_GAP_DIST 5.0 //min distance in meters from lead
 #define LEAD_GAP_TIME 1.5 //min distance in seconds from lead
 #define PLATOONING_GAP 15.0 //distance in meters for platooning
 

@@ -500,9 +500,9 @@ double vehicle::get_driver_int_accel_req(void)
     std::default_random_engine generator;
     std::normal_distribution<double> dist_error(8.6, 13.4);
 
-    double int_ent_pct = 1 - dist_error(generator)/100; //according to study, average distance is -8.6% of actual
+    double int_ent_pct = 1;// - dist_error(generator)/100; //according to study, average distance is -8.6% of actual
     int_ent_pct = fmax(int_ent_pct, 0.1);
-    double stop_dist_pct = 1 - dist_error(generator)/100;
+    double stop_dist_pct = 1;// - dist_error(generator)/100;
     stop_dist_pct = fmax(stop_dist_pct, 0.1);
 
 
@@ -543,7 +543,6 @@ double vehicle::get_driver_int_accel_req(void)
         }
     }
     else {
-        std::cout << "LS GREEN\n";
         //Green Light, go for set speed
         int_accel_req = p_set_speed - coasted_ego_speed;
     }
@@ -642,7 +641,7 @@ double vehicle::get_lead_accel_req(void)
     std::cout << "get_lead_accel_req: desired_lead_gap = " << desired_lead_gap << "\n";
     #endif
     
-    double dist_error = abs(lead_rel_pos_x) - desired_lead_gap;
+    double dist_error = lead_rel_pos_x - desired_lead_gap;
     #ifdef DEBUG
     std::cout << "get_lead_accel_req: dist_error = " << dist_error << "\n";
     #endif
@@ -672,7 +671,9 @@ double vehicle::get_lead_accel_req(void)
 
     iError = iError + dist_error*0.00001;
     // iError = dist_error*0.1;
+    #ifdef DEBUG
     std::cout << "iError = " << iError << "\n";
+    #endif
 
     if(abs(dist_error) <= 0.01)
     {
@@ -691,7 +692,7 @@ double vehicle::get_lead_accel_req(void)
         Speed should be 0 if we are on top of the car
         Simply scale linearly
         */
-        desired_speed =  (coasted_ego_speed + lead_rel_vel_x)*(1 + 2*dist_error/desired_lead_gap) + iError;
+        desired_speed = (coasted_ego_speed + lead_rel_vel_x)*(1 + 2*dist_error/desired_lead_gap);// + iError;
         //dist_error -ve so ends up being 1 - fraction, so lower than set speed
 
         #ifdef DEBUG
@@ -710,18 +711,24 @@ double vehicle::get_lead_accel_req(void)
         #ifdef PLATOONING_ENABLE
         if (p_platooning && lead_platooning)
         {
+            #ifdef DEBUG
             std::cout << "Using platooning catchup code\n";
+            #endif
             desired_speed = fmin(1.15*set_speed, set_speed + 0.15*set_speed*(dist_error/desired_lead_gap)) + iError;
             // desired_speed = set_speed;
         }
         else
         {
-            desired_speed = set_speed;
+            #ifdef DEBUG
             std::cout << "Not using platooning catchup code\n";
+            #endif
+            desired_speed = set_speed;
         }
         #else
-            desired_speed = set_speed;
-            std::cout << "Platooning not defined\n";
+        #ifdef DEBUG
+        std::cout << "Platooning not defined\n";
+        #endif
+        desired_speed = set_speed;
         #endif
         //
 
@@ -733,7 +740,7 @@ double vehicle::get_lead_accel_req(void)
     // Convert desired_speed and current speed to acceleration
     // a = (v2-v1)/t
     // Arbitrarily choose t = 2.5s
-    lead_accel_req = fmin((desired_speed - coasted_ego_speed)/2.5, MAX_ACCEL);
+    lead_accel_req = fmin((desired_speed - coasted_ego_speed), MAX_ACCEL);
 
     #ifdef DEBUG
     std::cout << "get_lead_accel_req: desired_lead_gap = " << desired_lead_gap << "\tdist_error = " << dist_error << "\n";
@@ -764,12 +771,6 @@ double vehicle::get_int_accel_req(void)
             //using: delta_s = vi*delta_t + a/2*delta_t^2
             //add safety factor to tts to ensure not entering on red light
             double safe_tts = int_time_to_switch + TTS_SAFETY_FACTOR;
-
-            // Equations derived using (int_ent_dist - k_front_pos) = integral[0->safe_tts](v_initial + a*t), solving for a
-            int_accel_req = (2/(safe_tts*safe_tts))*((int_ent_dist - k_front_pos) - coasted_ego_speed*safe_tts);
-
-            /*
-            // Old way
             double make_light_req = (int_ent_dist - k_front_pos - coasted_ego_speed*safe_tts)*2/pow(safe_tts, 2);
 
             //need to ensure we dont go over set speed, so compare vf with set speed 
@@ -786,14 +787,14 @@ double vehicle::get_int_accel_req(void)
             }
             else if (vf < 0)
             {
-                //accounts for backwards vel, we dont go backwards irl
-                int_accel_req = -pow(coasted_ego_speed, 2)/(2*(int_ent_dist - k_front_pos));
+                //wants to go negative
+                int_accel_req = -(pow(coasted_ego_speed, 2))/(2*(int_ent_dist - k_front_pos));
             }
             else
             {
                 //request is below set speed at entrance, ok to use
                 int_accel_req = make_light_req;
-            }*/
+            }
         }
         else
         {
@@ -877,8 +878,6 @@ double vehicle::get_int_accel_req(void)
     #ifdef DEBUG
     std::cout << "get_int_accel_req: int_accel_req = " << int_accel_req << "\n";
     #endif
-
-    int_accel_req = fmin(MAX_ACCEL, int_accel_req);
 
     return int_accel_req;
 }

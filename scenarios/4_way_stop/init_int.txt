@@ -1,0 +1,2 @@
+ent_dir_1 ent_dir_2 tts_g tts_y tts_r length pos_x pos_y type ped_cd
+0.0 90.0 30.0 4.0 40.0 10.0 0.0 0.0 1 5.0

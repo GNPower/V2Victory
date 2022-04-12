@@ -1,0 +1,5 @@
+---METRICS REPORT---
+Crashes: 0
+Times in Red: 0
+Time to Clear: 25.9
+Simulation Ended!

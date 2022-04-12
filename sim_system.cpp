@@ -453,7 +453,7 @@ int main(void)
     int times_in_red = 0;
     int num_crashes = 0;
     bool int_cleared = false;
-    double time_to_clear;
+    double time_to_clear = -1;
     #endif
 
     while (!sim_done)
@@ -579,6 +579,10 @@ int main(void)
                             {
                                 x_time = 0;
                             }
+                            else if (sim_vehs[i].heading == 90 || sim_vehs[i].heading == 270)
+                            {
+                                x_time = -1;
+                            }
                             else
                             {
                                 x_time = x_dist/cos(M_PI/180*sim_vehs[i].heading);
@@ -587,6 +591,10 @@ int main(void)
                             if (y_dist == 0)
                             {
                                 y_time = 0;
+                            }
+                            else if (sim_vehs[i].heading == 0 || sim_vehs[i].heading == 180)
+                            {
+                                y_time = -1;
                             }
                             else
                             {
