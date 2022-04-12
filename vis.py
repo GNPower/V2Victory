@@ -227,8 +227,8 @@ class Plotter():
 			self.update_plot()
 
 def main():
-	delay_ms = 50
-	scale = 6
+	delay_ms = 10
+	scale = 1
 	plot = Plotter("vis.log", delay_ms, scale)
 	plot.plot()
 
