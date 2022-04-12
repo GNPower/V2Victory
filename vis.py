@@ -222,6 +222,8 @@ class Plotter():
 			k = cv.waitKey(self.delay_ms)
 			if(k == 113):
 				break
+			if(k == 114):
+				self.step = 0
 			self.update_plot()
 
 def main():

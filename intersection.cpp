@@ -269,9 +269,11 @@ void intersection::update_traffic_signal(double dt)
             if (c_int_1_state == GREEN && c_int_2_state == RED)
             {
                 //Direction #1 is green, Direction #2 should be red
-                //keep same states
-                c_int_1_next_state = GREEN;
-                c_int_2_next_state = RED;
+                //keep same states, maximize tts
+                c_int_1_time_to_switch = p_time_to_switch_1[0];
+                c_int_2_time_to_switch = p_time_to_switch_2[2];
+                
+                //align tts (1 goes G->G->Y, 2 goes R->R->G)
             }
             else if (c_int_1_state == RED)
             {
@@ -314,9 +316,9 @@ void intersection::update_traffic_signal(double dt)
            if (c_int_2_state == GREEN && c_int_1_state == RED)
            {
                 //Direction #2 is green, Direction #1 should be red
-                //keep same states
-                c_int_1_next_state = RED;
-                c_int_2_next_state = GREEN;
+                //keep same states, maximize tts
+                c_int_1_time_to_switch = p_time_to_switch_1[2];
+                c_int_2_time_to_switch = p_time_to_switch_2[0];
            }
            else if (c_int_2_state == RED)
            {
@@ -434,11 +436,10 @@ void intersection::update_ems_override(double dt)
                 {
                     active_ems_found = true;
                 }
-
+                
                 if (!m_vehicle_data[j].override || m_vehicle_data[j].int_entrance == -1 || m_vehicle_data[j].time_since_update > EMS_COASTING)
                 {
                     //if override is deactivated or exited intersection, or not updated then remove from queue
-                    
                     for (int k = i; k < (num_overrides - 1); k++)
                     {
                         ems_override_queue[k] = ems_override_queue[k + 1];
@@ -470,6 +471,7 @@ void intersection::update_ems_override(double dt)
     //now add new overrides
     s_override_vehicle new_overrides[MAX_VEHICLES];
     int num_new_overrides = 0;
+    
     for (int i = 0; i < num_vehicles; i++)
     {
         if (m_vehicle_data[i].override && m_vehicle_data[i].int_entrance != -1 && m_vehicle_data[i].time_since_update <= EMS_COASTING && !m_vehicle_data[i].in_int)
@@ -495,6 +497,7 @@ void intersection::update_ems_override(double dt)
             }
         }
     }
+
     //now for new overrides sort and add to existing
     if (num_new_overrides > 1)
     {

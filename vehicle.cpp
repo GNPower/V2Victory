@@ -630,10 +630,10 @@ double vehicle::get_lead_accel_req(void)
     }
     else
     {
-        desired_lead_gap = k_front_pos + fmax(LEAD_GAP_DIST, LEAD_GAP_TIME*m_ego_speed);
+        desired_lead_gap = k_front_pos + fmax(LEAD_GAP_DIST, LEAD_GAP_TIME*coasted_ego_speed);
     }
     #else
-    desired_lead_gap = k_front_pos + fmax(LEAD_GAP_DIST, LEAD_GAP_TIME*m_ego_speed);
+    desired_lead_gap = k_front_pos + fmax(LEAD_GAP_DIST, LEAD_GAP_TIME*coasted_ego_speed);
     #endif
 
     #ifdef DEBUG
@@ -748,6 +748,11 @@ double vehicle::get_int_accel_req(void)
                 //need to reduce req
                 //using: vf^2 = vi^2 + 2*a*delta_s where vf is set_speed
                 int_accel_req = (pow(p_set_speed, 2) - pow(coasted_ego_speed, 2))/(2*(int_ent_dist - k_front_pos));
+            }
+            else if (vf < 0)
+            {
+                //accounts for backwards vel, we dont go backwards irl
+                int_accel_req = -pow(coasted_ego_speed, 2)/(2*(int_ent_dist - k_front_pos));
             }
             else
             {
@@ -1204,6 +1209,7 @@ void vehicle::update_lead_veh(void)
 
         //need to check these calculations
         lead_rel_pos_x = sqrt(diff)*cos(atan(y_diff/x_diff) - M_PI/180*m_ego_heading);
+        lead_rel_pos_x = abs(lead_rel_pos_x);
 
         double heading_diff = lead_vehicle.veh_heading - m_ego_heading;
         lead_rel_vel_x = lead_vehicle.veh_speed*cos(M_PI/180*heading_diff) - coasted_ego_speed; 

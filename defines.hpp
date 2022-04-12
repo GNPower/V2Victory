@@ -21,7 +21,7 @@
 #define DEBUG
 //#define DRIVER //determines if simulating human driver
 #define METRICS
-#define ERROR_ENABLE
+//#define ERROR_ENABLE
 
 //Metrics
 #ifdef METRICS
@@ -68,7 +68,7 @@
 #define INLANE_HEADING 45.0 //angle diff between lane and vehicle that counts as being in same direction
 
 //Dynamic Light Timing Prioritization
-#define TRAFFIC_ABS_DIFF 10 //amount of cars difference to trigger switch
+#define TRAFFIC_ABS_DIFF 5 //amount of cars difference to trigger switch
 #define TRAFFIC_REL_DIFF 4.0 //relative difference in amount of cars to trigger switch
 
 //Stop Sign Intersection
