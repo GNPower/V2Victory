@@ -1,0 +1,5 @@
+max_speed type front_pos set_speed pos_x pos_y speed heading override platooning driver
+50.0 1 3.0 25.0 -3.0 240.0 10.0 270.0 0 1 0.0
+50.0 1 3.0 25.0 -3.0 220.0 10.0 270.0 0 1 0.0
+50.0 1 3.0 25.0 -3.0 200.0 10.0 270.0 0 1 0.0
+50.0 1 3.0 25.0 -3.0 150.0 10.0 270.0 0 1 0.0

@@ -669,7 +669,8 @@ double vehicle::get_lead_accel_req(void)
 
     double desired_speed;
 
-    iError = iError + dist_error*0.00001;
+    iError = iError + dist_error*0.0001;
+    // iError = 0;
     // iError = dist_error*0.1;
     #ifdef DEBUG
     std::cout << "iError = " << iError << "\n";
@@ -714,8 +715,12 @@ double vehicle::get_lead_accel_req(void)
             #ifdef DEBUG
             std::cout << "Using platooning catchup code\n";
             #endif
-            desired_speed = fmin(1.15*set_speed, set_speed + 0.15*set_speed*(dist_error/desired_lead_gap)) + iError;
+            if(dist_error > 2*3*lead_rel_vel_x){  // if ego is sufficiently far away from lead, go set speed. Sufficiently far away is 3s of travel, with FOS = 2
+                desired_speed = fmin(1.3*(set_speed), (set_speed) + 0.3*(set_speed)*(dist_error/(desired_lead_gap))+iError);
             // desired_speed = set_speed;
+            }else{  // Else, go based off of lead speed
+                desired_speed = fmin(1.3*(coasted_ego_speed + lead_rel_vel_x), (coasted_ego_speed + lead_rel_vel_x) + 0.3*(coasted_ego_speed + lead_rel_vel_x)*(dist_error/(desired_lead_gap))+iError);
+            }
         }
         else
         {
@@ -740,7 +745,8 @@ double vehicle::get_lead_accel_req(void)
     // Convert desired_speed and current speed to acceleration
     // a = (v2-v1)/t
     // Arbitrarily choose t = 2.5s
-    lead_accel_req = fmin((desired_speed - coasted_ego_speed), MAX_ACCEL);
+    // lead_accel_req = fmin((desired_speed - coasted_ego_speed)/2.5, MAX_ACCEL);
+    lead_accel_req = desired_speed - coasted_ego_speed;
 
     #ifdef DEBUG
     std::cout << "get_lead_accel_req: desired_lead_gap = " << desired_lead_gap << "\tdist_error = " << dist_error << "\n";
@@ -772,6 +778,8 @@ double vehicle::get_int_accel_req(void)
             //add safety factor to tts to ensure not entering on red light
             double safe_tts = int_time_to_switch + TTS_SAFETY_FACTOR;
             double make_light_req = (int_ent_dist - k_front_pos - coasted_ego_speed*safe_tts)*2/pow(safe_tts, 2);
+
+            // int_accel_req = (2/(safe_tts*safe_tts))*((int_ent_dist - k_front_pos) - coasted_ego_speed*safe_tts);
 
             //need to ensure we dont go over set speed, so compare vf with set speed 
             double vf = coasted_ego_speed + make_light_req*int_time_to_switch;
