@@ -1,24 +1,9 @@
-#include "stdio.h"
-#include "time.h"
+//Sam Baker
+//V2Victory
+//Top level ROS2 vehicle implementation
 
 #include "test_top.h"
-#include "localize/localize.h"
-#include "motor_drive/motor_drive.h"
-#include "encoder/encode.h"
-#include "vector/vector.hpp"
 
-#include <pthread.h>
-#include <signal.h>
-
-#include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
-
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
-#include "car_interface/msg/car.hpp"
-#include "car_interface/msg/intersection.hpp"
 
 using namespace std::chrono_literals;
 
@@ -94,13 +79,10 @@ class CarMessager : public rclcpp::Node
 			else set_forward();
 			}	
 		else set_forward();
-		
-		//set_forward();
 
 		if (vector_distance > 1600) Close_All();
 
 		if (count > 100){
-//			set_forward();
 			count = 0;
 			printf("IX: %d   ", IMsg.position_x);
 			printf("D: %f \t", vector_distance);
