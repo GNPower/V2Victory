@@ -146,7 +146,7 @@ int main(int argc, char *argv[]){
 	
 	init_encoders(&left_tid, &right_tid);
 
-        rclcpp::init(argc, argv);
+    rclcpp::init(argc, argv);
 	////////////////////////////////////////////////////////////////////////////////////////////////	
 	ego.position_x = 0;
 	ego.position_y = 0;
